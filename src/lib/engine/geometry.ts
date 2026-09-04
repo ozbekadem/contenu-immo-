@@ -100,11 +100,43 @@ export async function correctVertical(
 ): Promise<Sharp> {
   let pipeline = input;
   if (Math.abs(rollDeg) > 0.05) {
-    pipeline = sharp(
-      await pipeline
-        .rotate(rollDeg, { background: { r: 0, g: 0, b: 0, alpha: 0 } })
-        .toBuffer()
-    );
+    const baseMeta = await pipeline.clone().metadata();
+    const baseWidth = baseMeta.width;
+    const baseHeight = baseMeta.height;
+
+    const rotatedBuf = await pipeline
+      .rotate(rollDeg, { background: { r: 0, g: 0, b: 0, alpha: 0 } })
+      .toBuffer();
+    let rotated = sharp(rotatedBuf);
+
+    if (baseWidth && baseHeight) {
+      // sharp's rotate() expands the canvas to fit the rotated rectangle,
+      // exposing transparent corners; crop back to the pre-rotation size
+      // from the center to drop those corners instead of leaving black
+      // borders in the final image. An extra couple of percent of inset
+      // (then resizing back up to the original dimensions) absorbs the
+      // sub-pixel rounding between sharp's reported expanded canvas size
+      // and the exact rotation geometry, which otherwise leaves a thin
+      // residual black sliver on one edge.
+      const rotMeta = await rotated.metadata();
+      const rotWidth = rotMeta.width ?? baseWidth;
+      const rotHeight = rotMeta.height ?? baseHeight;
+      const marginX = Math.max(4, Math.round(baseWidth * 0.02));
+      const marginY = Math.max(4, Math.round(baseHeight * 0.02));
+      const cropWidth = Math.max(1, Math.min(baseWidth, rotWidth) - marginX);
+      const cropHeight = Math.max(1, Math.min(baseHeight, rotHeight) - marginY);
+      const left = Math.max(0, Math.round((rotWidth - cropWidth) / 2));
+      const top = Math.max(0, Math.round((rotHeight - cropHeight) / 2));
+      rotated = rotated
+        .extract({
+          left,
+          top,
+          width: Math.min(cropWidth, rotWidth - left),
+          height: Math.min(cropHeight, rotHeight - top),
+        })
+        .resize(baseWidth, baseHeight, { fit: "fill" });
+    }
+    pipeline = rotated;
   }
 
   if (Math.abs(keystone) < 0.002) return pipeline;
