@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>Suivi de prospection immobilière</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <h1>🏠 Suivi de prospection</h1>
+  <nav class="tabs">
+    <button class="tab-btn active" data-tab="liste">📋 Liste</button>
+    <button class="tab-btn" data-tab="carte">🗺️ Carte</button>
+    <button class="tab-btn" data-tab="ajout">➕ Ajouter</button>
+    <button class="tab-btn" data-tab="stats">📊 Stats</button>
+  </nav>
+</header>
+
+<main>
+
+  <!-- ===================== ONGLET LISTE ===================== -->
+  <section id="tab-liste" class="tab-panel active">
+    <div class="filters">
+      <input type="text" id="search" placeholder="Rechercher (adresse, notes...)">
+      <select id="filterCommune"><option value="">Toutes les communes</option></select>
+      <select id="filterQuartier"><option value="">Tous les quartiers</option></select>
+      <select id="filterStatut">
+        <option value="">Tous les statuts</option>
+        <option value="a_prospecter">À prospecter</option>
+        <option value="flyer_depose">Flyer déposé</option>
+        <option value="contact">Contact établi</option>
+        <option value="a_revisiter">À revisiter</option>
+        <option value="pas_interesse">Pas intéressé</option>
+      </select>
+      <button id="btnPrint" title="Imprimer une feuille de route pour la liste filtrée">🖨️ Feuille de route</button>
+    </div>
+
+    <div class="group-controls">
+      <label><input type="checkbox" id="groupByQuartier" checked> Regrouper par commune / quartier</label>
+      <span class="hint">Astuce : glissez-déposez les lignes dans un groupe pour définir l'ordre de la tournée.</span>
+    </div>
+
+    <div id="listContainer"></div>
+  </section>
+
+  <!-- ===================== ONGLET CARTE ===================== -->
+  <section id="tab-carte" class="tab-panel">
+    <div class="filters">
+      <select id="mapFilterCommune"><option value="">Toutes les communes</option></select>
+      <select id="mapFilterQuartier"><option value="">Tous les quartiers</option></select>
+      <button id="btnGeocodeAll">📍 Géolocaliser les adresses manquantes</button>
+      <span id="geocodeStatus" class="hint"></span>
+    </div>
+    <div id="map"></div>
+    <p class="hint">Astuce : les couleurs des points correspondent au statut (voir légende en bas de carte).</p>
+  </section>
+
+  <!-- ===================== ONGLET AJOUT ===================== -->
+  <section id="tab-ajout" class="tab-panel">
+    <h2>Ajouter un prospect</h2>
+    <form id="formAdd" class="form-grid">
+      <input type="hidden" id="editId">
+
+      <label>Adresse (numéro + rue) *
+        <input type="text" id="f_adresse" required placeholder="ex : 12 rue des Lilas">
+      </label>
+      <label>Code postal
+        <input type="text" id="f_codePostal" placeholder="ex : 59000">
+      </label>
+      <label>Commune *
+        <input type="text" id="f_commune" list="communeList" required placeholder="ex : Lille">
+        <datalist id="communeList"></datalist>
+      </label>
+      <label>Quartier
+        <input type="text" id="f_quartier" list="quartierList" placeholder="ex : Vieux-Lille">
+        <datalist id="quartierList"></datalist>
+      </label>
+      <label>Type de bien
+        <select id="f_typeBien">
+          <option value="">-</option>
+          <option value="maison">Maison</option>
+          <option value="appartement">Appartement</option>
+          <option value="terrain">Terrain</option>
+          <option value="autre">Autre</option>
+        </select>
+      </label>
+      <label>Prix affiché
+        <input type="text" id="f_prix" placeholder="ex : 245 000 €">
+      </label>
+      <label>Surface
+        <input type="text" id="f_surface" placeholder="ex : 90 m²">
+      </label>
+      <label>Source / lien annonce
+        <input type="text" id="f_source" placeholder="url ou nom du site / capture">
+      </label>
+      <label>Statut
+        <select id="f_statut">
+          <option value="a_prospecter">À prospecter</option>
+          <option value="flyer_depose">Flyer déposé</option>
+          <option value="contact">Contact établi</option>
+          <option value="a_revisiter">À revisiter</option>
+          <option value="pas_interesse">Pas intéressé</option>
+        </select>
+      </label>
+      <label class="full">Notes
+        <textarea id="f_notes" rows="3" placeholder="infos utiles, code portail, meilleur moment pour passer..."></textarea>
+      </label>
+
+      <div class="full form-actions">
+        <button type="submit" id="btnSubmit">Ajouter le prospect</button>
+        <button type="button" id="btnCancelEdit" class="secondary" style="display:none">Annuler la modification</button>
+      </div>
+    </form>
+
+    <details class="bulk-add">
+      <summary>➕ Ajout groupé (coller plusieurs adresses d'un coup)</summary>
+      <p class="hint">Une adresse par ligne. Elles seront ajoutées avec la commune / le quartier choisis ci-dessous, statut "À prospecter".</p>
+      <div class="form-grid">
+        <label>Commune *
+          <input type="text" id="bulk_commune" list="communeList" placeholder="ex : Lille">
+        </label>
+        <label>Quartier
+          <input type="text" id="bulk_quartier" list="quartierList" placeholder="ex : Vieux-Lille">
+        </label>
+        <label class="full">Adresses (une par ligne)
+          <textarea id="bulk_addresses" rows="6" placeholder="12 rue des Lilas&#10;14 rue des Lilas&#10;3 avenue Victor Hugo"></textarea>
+        </label>
+      </div>
+      <button id="btnBulkAdd">Ajouter la liste</button>
+    </details>
+
+    <details class="bulk-add">
+      <summary>💾 Sauvegarde / Restauration</summary>
+      <p class="hint">Vos données sont stockées uniquement sur cet appareil/navigateur. Exportez régulièrement pour ne rien perdre, ou pour transférer vers un autre appareil (ex. téléphone ↔ ordinateur).</p>
+      <button id="btnExport">⬇️ Exporter (JSON)</button>
+      <button id="btnExportCsv">⬇️ Exporter (CSV)</button>
+      <label class="import-label">⬆️ Importer un JSON
+        <input type="file" id="fileImport" accept="application/json">
+      </label>
+    </details>
+  </section>
+
+  <!-- ===================== ONGLET STATS ===================== -->
+  <section id="tab-stats" class="tab-panel">
+    <h2>Statistiques</h2>
+    <div id="statsContainer"></div>
+  </section>
+
+</main>
+
+<div id="toast"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js" integrity="sha512-BwHfrr4c9kmRkLw6iXFdzcdWV/PGkVgiIyIWLLlTSXzWQzxuSg4DiQUCpauz/EWjgk5TYQqX/kvn9pG1NpYfqg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" integrity="sha512-sA+zWATbFveLLNqWO2gtiw3HL/lh1giY/Inf1BJ0z14BILCLmyOOTC+YBqhrVOnhrIP2W9RyMlrf80jU2ao/6A==" crossorigin="anonymous" referrerpolicy="no-referrer">
+<script src="js/app.js"></script>
+</body>
+</html>
