@@ -271,9 +271,10 @@
           <span class="count">(${total} prospect${total > 1 ? "s" : ""}, ${todo} à faire)</span>
         </span>
         <button class="small secondary sort-alpha-btn" type="button">🔤 Trier par rue</button>
+        <button class="small secondary maps-group-btn" type="button">🧭 Itinéraire GPS</button>
       `;
       header.addEventListener("click", (e) => {
-        if (e.target.closest(".sort-alpha-btn")) return;
+        if (e.target.closest(".sort-alpha-btn") || e.target.closest(".maps-group-btn")) return;
         const body = block.querySelector(".group-body");
         body.classList.toggle("collapsed");
         if (body.classList.contains("collapsed")) collapsedGroups.add(key);
@@ -284,6 +285,10 @@
         sortGroupAlpha(g.commune, g.quartier);
         renderList();
         toast("Groupe trié par rue / numéro");
+      });
+      header.querySelector(".maps-group-btn").addEventListener("click", (e) => {
+        e.stopPropagation();
+        openGoogleMapsGroup(g.items);
       });
 
       const body = document.createElement("div");
@@ -319,12 +324,14 @@
       </div>
       <span class="status-badge" style="background:${STATUT_COLORS[p.statut]}">${STATUT_LABELS[p.statut]}</span>
       <div class="row-actions">
+        <button class="small secondary" data-action="maps" type="button" title="Ouvrir dans Google Maps">🧭 GPS</button>
         ${p.statut !== "flyer_depose" ? `<button class="small" data-action="depose">Flyer déposé ✓</button>` : ""}
         <button class="small secondary" data-action="edit">Modifier</button>
         <button class="small danger" data-action="delete">Suppr.</button>
       </div>
     `;
 
+    row.querySelector('[data-action="maps"]').addEventListener("click", () => openGoogleMapsSingle(p));
     row.querySelector('[data-action="depose"]')?.addEventListener("click", () => {
       updateProspect(p.id, { statut: "flyer_depose" });
       renderAll();
@@ -376,6 +383,32 @@
       },
       { offset: Number.NEGATIVE_INFINITY, element: null }
     ).element;
+  }
+
+  function googleMapsStop(p) {
+    if (p.lat != null && p.lon != null) return `${p.lat},${p.lon}`;
+    return [p.adresse, p.codePostal, p.commune].filter(Boolean).join(", ");
+  }
+
+  function openGoogleMapsSingle(p) {
+    const url = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(googleMapsStop(p))}&travelmode=walking`;
+    window.open(url, "_blank", "noopener");
+  }
+
+  const GOOGLE_MAPS_MAX_STOPS = 10; // destination + jusqu'à 9 étapes intermédiaires
+
+  function openGoogleMapsGroup(items) {
+    const ordered = [...items].sort((a, b) => (a.ordre || 0) - (b.ordre || 0));
+    const capped = ordered.slice(0, GOOGLE_MAPS_MAX_STOPS);
+    const stops = capped.map(googleMapsStop);
+    const destination = stops[stops.length - 1];
+    const waypoints = stops.slice(0, -1);
+    let url = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(destination)}&travelmode=walking`;
+    if (waypoints.length) url += `&waypoints=${waypoints.map(encodeURIComponent).join("|")}`;
+    window.open(url, "_blank", "noopener");
+    if (ordered.length > GOOGLE_MAPS_MAX_STOPS) {
+      toast(`Itinéraire limité aux ${GOOGLE_MAPS_MAX_STOPS} premiers arrêts (${ordered.length} au total dans ce groupe)`);
+    }
   }
 
   function escapeHtml(str) {
@@ -592,10 +625,12 @@
       marker.bindPopup(`
         <strong>${escapeHtml(p.adresse)}</strong><br>
         ${escapeHtml(p.commune)}${p.quartier ? " — " + escapeHtml(p.quartier) : ""}<br>
-        <span style="color:${STATUT_COLORS[p.statut]}">${STATUT_LABELS[p.statut]}</span>
-        ${p.statut !== "flyer_depose" ? `<br><button class="small" id="popup-depose-${p.id}">Flyer déposé ✓</button>` : ""}
+        <span style="color:${STATUT_COLORS[p.statut]}">${STATUT_LABELS[p.statut]}</span><br>
+        <button class="small secondary" id="popup-maps-${p.id}">🧭 GPS</button>
+        ${p.statut !== "flyer_depose" ? `<button class="small" id="popup-depose-${p.id}">Flyer déposé ✓</button>` : ""}
       `);
       marker.on("popupopen", () => {
+        document.getElementById(`popup-maps-${p.id}`)?.addEventListener("click", () => openGoogleMapsSingle(p));
         const btn = document.getElementById(`popup-depose-${p.id}`);
         if (btn) btn.addEventListener("click", () => {
           updateProspect(p.id, { statut: "flyer_depose" });
