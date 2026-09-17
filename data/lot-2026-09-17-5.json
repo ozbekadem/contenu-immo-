@@ -1,0 +1,62 @@
+[
+  {
+    "adresse": "Rue Omer Bernard 25",
+    "codePostal": "6030",
+    "commune": "Charleroi",
+    "quartier": "Marchienne-au-Pont",
+    "typeBien": "maison",
+    "prix": "315 000 €",
+    "surface": "238 m² (+ 370 m² terrain)",
+    "source": "Immoweb 21774851",
+    "statut": "a_prospecter",
+    "notes": "3 chambres"
+  },
+  {
+    "adresse": "Rue du Poirier 6",
+    "codePostal": "6061",
+    "commune": "Charleroi",
+    "quartier": "Montignies-sur-Sambre",
+    "typeBien": "maison",
+    "prix": "192 000 €",
+    "surface": "130 m² (+ 90 m² terrain)",
+    "source": "Immoweb 21781249",
+    "statut": "a_prospecter",
+    "notes": "4 chambres, 1 salle de bain"
+  },
+  {
+    "adresse": "Rue du Marais 11",
+    "codePostal": "6061",
+    "commune": "Charleroi",
+    "quartier": "Montignies-sur-Sambre",
+    "typeBien": "maison",
+    "prix": "219 000 €",
+    "surface": "125 m² (+ 80 m² terrain)",
+    "source": "Immoweb 21738165",
+    "statut": "a_prospecter",
+    "notes": "4 chambres, 1 salle de bain"
+  },
+  {
+    "adresse": "Rue Jean-Baptiste Ledoux 84",
+    "codePostal": "6040",
+    "commune": "Charleroi",
+    "quartier": "Jumet",
+    "typeBien": "maison",
+    "prix": "499 000 € (offre à partir de)",
+    "surface": "238 m² (+ 3080 m² terrain)",
+    "source": "Immoweb 21757610 — agence Martin Immo",
+    "statut": "a_prospecter",
+    "notes": "Maison de maître, 4 chambres, 2 salles de bain"
+  },
+  {
+    "adresse": "Rue du Gazomètre 4",
+    "codePostal": "6061",
+    "commune": "Charleroi",
+    "quartier": "Montignies-sur-Sambre",
+    "typeBien": "maison",
+    "prix": "349 000 € (offre à partir de)",
+    "surface": "150 m² (+ 440 m² terrain)",
+    "source": "Immoweb 21845732 — agence Delfimmo",
+    "statut": "a_prospecter",
+    "notes": "5 chambres, 2 salles de bain. Disponibilité indiquée : 01/10/26."
+  }
+]
