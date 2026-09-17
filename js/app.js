@@ -491,17 +491,60 @@
     downloadBlob(csv, `prospection-${dateStr}.csv`, "text/csv;charset=utf-8");
   }
 
-  function importJson(file) {
+  function normalizeKey(str) {
+    return String(str || "").trim().toLowerCase().replace(/\s+/g, " ");
+  }
+
+  function importJsonReplace(file) {
     const reader = new FileReader();
     reader.onload = () => {
       try {
         const data = JSON.parse(reader.result);
         if (!Array.isArray(data)) throw new Error("Format invalide");
-        if (!confirm(`Remplacer toutes les données actuelles par les ${data.length} prospects de ce fichier ?`)) return;
+        if (!confirm(`Remplacer toutes les données actuelles par les ${data.length} prospects de ce fichier ?\nCette action est irréversible (pensez à exporter une sauvegarde avant si besoin).`)) return;
         prospects = data;
         saveProspects();
         renderAll();
-        toast("Import réussi");
+        toast("Import (remplacement) réussi");
+      } catch (e) {
+        alert("Fichier invalide : " + e.message);
+      }
+    };
+    reader.readAsText(file);
+  }
+
+  function importJsonMerge(file) {
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const data = JSON.parse(reader.result);
+        if (!Array.isArray(data)) throw new Error("Format invalide");
+
+        const existingKeys = new Set(prospects.map((p) => `${normalizeKey(p.adresse)}||${normalizeKey(p.commune)}`));
+        let added = 0, skipped = 0;
+
+        data.forEach((item) => {
+          if (!item.adresse || !item.commune) { skipped++; return; }
+          const key = `${normalizeKey(item.adresse)}||${normalizeKey(item.commune)}`;
+          if (existingKeys.has(key)) { skipped++; return; }
+          existingKeys.add(key);
+          addProspect({
+            adresse: item.adresse,
+            codePostal: item.codePostal,
+            commune: item.commune,
+            quartier: item.quartier,
+            typeBien: item.typeBien,
+            prix: item.prix,
+            surface: item.surface,
+            source: item.source,
+            statut: item.statut,
+            notes: item.notes,
+          });
+          added++;
+        });
+
+        renderAll();
+        toast(`Fusion : ${added} ajouté(s), ${skipped} déjà présent(s) ou ignoré(s)`);
       } catch (e) {
         alert("Fichier invalide : " + e.message);
       }
@@ -703,8 +746,12 @@
     document.getElementById("btnGeocodeAll").addEventListener("click", geocodeAllMissing);
     document.getElementById("btnExport").addEventListener("click", exportJson);
     document.getElementById("btnExportCsv").addEventListener("click", exportCsv);
-    document.getElementById("fileImport").addEventListener("change", (e) => {
-      if (e.target.files[0]) importJson(e.target.files[0]);
+    document.getElementById("fileImportMerge").addEventListener("change", (e) => {
+      if (e.target.files[0]) importJsonMerge(e.target.files[0]);
+      e.target.value = "";
+    });
+    document.getElementById("fileImportReplace").addEventListener("change", (e) => {
+      if (e.target.files[0]) importJsonReplace(e.target.files[0]);
       e.target.value = "";
     });
 

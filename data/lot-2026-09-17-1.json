@@ -1,0 +1,62 @@
+[
+  {
+    "adresse": "Rue Saint-Fiacre 80",
+    "codePostal": "6031",
+    "commune": "Charleroi",
+    "quartier": "Monceau-sur-Sambre",
+    "typeBien": "maison",
+    "prix": "199 900 €",
+    "surface": "194 m² (+ 190 m² terrain)",
+    "source": "Immoweb 21804197",
+    "statut": "a_prospecter",
+    "notes": "4 chambres, 1 salle de bain"
+  },
+  {
+    "adresse": "Rue de la Sarte 184",
+    "codePostal": "6200",
+    "commune": "Châtelet",
+    "quartier": "",
+    "typeBien": "maison",
+    "prix": "249 900 €",
+    "surface": "133 m² (+ 1120 m² terrain)",
+    "source": "Immoweb 21774850",
+    "statut": "a_prospecter",
+    "notes": "2 chambres, 1 salle de bain"
+  },
+  {
+    "adresse": "Rue Louis Roisin 20",
+    "codePostal": "6020",
+    "commune": "Charleroi",
+    "quartier": "Dampremy",
+    "typeBien": "maison",
+    "prix": "215 000 €",
+    "surface": "150 m² (+ 180 m² terrain)",
+    "source": "Immoweb 21770649",
+    "statut": "a_prospecter",
+    "notes": "3 chambres"
+  },
+  {
+    "adresse": "Rue Ma Campagne 2",
+    "codePostal": "5060",
+    "commune": "Sambreville",
+    "quartier": "Tamines",
+    "typeBien": "maison",
+    "prix": "250 000 €",
+    "surface": "180 m² (+ 389 m² terrain)",
+    "source": "Immoweb 21747217",
+    "statut": "a_prospecter",
+    "notes": "3 chambres, 1 salle de bain"
+  },
+  {
+    "adresse": "Place Ferrer 11",
+    "codePostal": "6060",
+    "commune": "Charleroi",
+    "quartier": "Gilly",
+    "typeBien": "maison",
+    "prix": "119 000 €",
+    "surface": "167 m² (+ 212 m² terrain)",
+    "source": "Immoweb 21648707",
+    "statut": "a_prospecter",
+    "notes": "3 chambres, 1 salle de bain"
+  }
+]

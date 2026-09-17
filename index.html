@@ -136,9 +136,13 @@
       <p class="hint">Vos données sont stockées uniquement sur cet appareil/navigateur. Exportez régulièrement pour ne rien perdre, ou pour transférer vers un autre appareil (ex. téléphone ↔ ordinateur).</p>
       <button id="btnExport">⬇️ Exporter (JSON)</button>
       <button id="btnExportCsv">⬇️ Exporter (CSV)</button>
-      <label class="import-label">⬆️ Importer un JSON
-        <input type="file" id="fileImport" accept="application/json">
+      <label class="import-label">⬆️ Importer (fusionner, sans écraser)
+        <input type="file" id="fileImportMerge" accept="application/json">
       </label>
+      <label class="import-label">⬆️ Importer (remplacer tout)
+        <input type="file" id="fileImportReplace" accept="application/json">
+      </label>
+      <p class="hint">"Fusionner" ajoute les nouveaux prospects du fichier sans toucher à ceux déjà présents (utile quand je vous envoie un nouveau lot d'adresses). "Remplacer tout" écrase toutes les données actuelles — à utiliser uniquement pour restaurer une sauvegarde complète.</p>
     </details>
   </section>
 
