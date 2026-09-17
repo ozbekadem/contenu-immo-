@@ -1,0 +1,62 @@
+[
+  {
+    "adresse": "Chaussée de Charleroi 127",
+    "codePostal": "6061",
+    "commune": "Charleroi",
+    "quartier": "Montignies-sur-Sambre",
+    "typeBien": "maison",
+    "prix": "190 000 € (offre à partir de)",
+    "surface": "384 m² de terrain",
+    "source": "Immoweb 21673380",
+    "statut": "a_prospecter",
+    "notes": "Maison de maître, 4 chambres, 1 salle de bain"
+  },
+  {
+    "adresse": "Avenue Des Alliés 49",
+    "codePostal": "6000",
+    "commune": "Charleroi",
+    "quartier": "",
+    "typeBien": "autre",
+    "prix": "540 000 €",
+    "surface": "Non précisée",
+    "source": "Immoweb 21675237",
+    "statut": "a_prospecter",
+    "notes": "Immeuble à usage mixte à vendre (0 chambre indiqué — probablement commerce + logement)"
+  },
+  {
+    "adresse": "Rue Joseph Bolle 75/2",
+    "codePostal": "6240",
+    "commune": "Farciennes",
+    "quartier": "",
+    "typeBien": "maison",
+    "prix": "139 000 €",
+    "surface": "102 m²",
+    "source": "Immoweb 21699583",
+    "statut": "a_prospecter",
+    "notes": "2 chambres, 1 salle de bain"
+  },
+  {
+    "adresse": "Cité Des Frères Réunis 24",
+    "codePostal": "6200",
+    "commune": "Châtelet",
+    "quartier": "",
+    "typeBien": "maison",
+    "prix": "195 000 €",
+    "surface": "100 m² (+ 150 m² terrain)",
+    "source": "Immoweb 21705594",
+    "statut": "a_prospecter",
+    "notes": "3 chambres, 1 salle de bain"
+  },
+  {
+    "adresse": "Route De Châtelet 209",
+    "codePostal": "6010",
+    "commune": "Charleroi",
+    "quartier": "Couillet",
+    "typeBien": "maison",
+    "prix": "190 000 €",
+    "surface": "Non précisée",
+    "source": "Immoweb 21703625",
+    "statut": "a_prospecter",
+    "notes": "2 chambres, 1 salle de bain"
+  }
+]
