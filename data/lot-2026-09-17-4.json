@@ -1,0 +1,62 @@
+[
+  {
+    "adresse": "Rue de la Fonderie 22",
+    "codePostal": "6030",
+    "commune": "Charleroi",
+    "quartier": "Marchienne-au-Pont",
+    "typeBien": "maison",
+    "prix": "145 000 €",
+    "surface": "146 m² (+ 100 m² terrain)",
+    "source": "Immoweb 21711691 — agence Confort Invest",
+    "statut": "a_prospecter",
+    "notes": "4 chambres"
+  },
+  {
+    "adresse": "Allée Des Acacias 4",
+    "codePostal": "6280",
+    "commune": "Gerpinnes",
+    "quartier": "",
+    "typeBien": "maison",
+    "prix": "550 000 €",
+    "surface": "230 m² (+ 1132 m² terrain)",
+    "source": "Immoweb 21729431",
+    "statut": "a_prospecter",
+    "notes": "Villa, 5 chambres, 1 salle de bain"
+  },
+  {
+    "adresse": "Rue Longue Bourse 93",
+    "codePostal": "6061",
+    "commune": "Charleroi",
+    "quartier": "Montignies-sur-Sambre",
+    "typeBien": "maison",
+    "prix": "330 000 €",
+    "surface": "237 m² (+ 700 m² terrain)",
+    "source": "Immoweb 21729006",
+    "statut": "a_prospecter",
+    "notes": "6 chambres, 2 salles de bain"
+  },
+  {
+    "adresse": "Rue Al Croix 16/1",
+    "codePostal": "6250",
+    "commune": "Aiseau-Presles",
+    "quartier": "Presles",
+    "typeBien": "maison",
+    "prix": "599 000 €",
+    "surface": "280 m² (+ 2110 m² terrain)",
+    "source": "Immoweb 21728828",
+    "statut": "a_prospecter",
+    "notes": "Villa, 4 chambres"
+  },
+  {
+    "adresse": "Rue de Gohyssart 111",
+    "codePostal": "6020",
+    "commune": "Charleroi",
+    "quartier": "Dampremy",
+    "typeBien": "maison",
+    "prix": "259 000 € (offre à partir de)",
+    "surface": "227 m² (+ 1003 m² terrain)",
+    "source": "Immoweb 21718786 — agence Century21 Les Lacs",
+    "statut": "a_prospecter",
+    "notes": "3 chambres, 1 salle de bain"
+  }
+]
