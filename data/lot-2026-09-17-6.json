@@ -1,0 +1,62 @@
+[
+  {
+    "adresse": "Rue du Pachis Wiaux 9",
+    "codePostal": "6200",
+    "commune": "Châtelet",
+    "quartier": "",
+    "typeBien": "maison",
+    "prix": "319 000 € (nouveau prix, était 349 500 €)",
+    "surface": "204 m²",
+    "source": "Immoweb 21730583 — agence Les Maisons Ferrian",
+    "statut": "a_prospecter",
+    "notes": "4 chambres, 1 salle de bain"
+  },
+  {
+    "adresse": "Adresse à compléter (voir annonce Immoweb 21351138)",
+    "codePostal": "6040",
+    "commune": "Charleroi",
+    "quartier": "Jumet",
+    "typeBien": "maison",
+    "prix": "139 000 € (offre à partir de, était 149 000 €)",
+    "surface": "147 m²",
+    "source": "Immoweb 21351138 — agence Les Maisons Ferrian",
+    "statut": "a_prospecter",
+    "notes": "3 chambres, 1 salle de bain. Adresse exacte non visible sur la capture — à repérer via l'annonce complète ou sur place, puis à corriger dans cette fiche."
+  },
+  {
+    "adresse": "Rue de la Balance 47",
+    "codePostal": "5600",
+    "commune": "Philippeville",
+    "quartier": "",
+    "typeBien": "maison",
+    "prix": "349 000 €",
+    "surface": "170 m² (+ 941 m² terrain)",
+    "source": "Immoweb 21652863 — agence Les Maisons Ferrian",
+    "statut": "a_prospecter",
+    "notes": "Villa, 3 chambres, 1 salle de bain"
+  },
+  {
+    "adresse": "Rue de la Biesmes 2A",
+    "codePostal": "6200",
+    "commune": "Châtelet",
+    "quartier": "Bouffioulx",
+    "typeBien": "appartement",
+    "prix": "299 000 €",
+    "surface": "187 m²",
+    "source": "Immoweb 21794200 — agence Les Maisons Ferrian",
+    "statut": "a_prospecter",
+    "notes": "Triplex, 3 chambres, 1 salle de bain, rez-de-chaussée"
+  },
+  {
+    "adresse": "Rue des Monthys 15",
+    "codePostal": "6120",
+    "commune": "Nalinnes",
+    "quartier": "",
+    "typeBien": "maison",
+    "prix": "285 000 €",
+    "surface": "284 m²",
+    "source": "Immoweb 21730048 — agence Les Maisons Ferrian",
+    "statut": "a_prospecter",
+    "notes": "4 chambres, 1 salle de bain"
+  }
+]
