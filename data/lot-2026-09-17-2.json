@@ -1,0 +1,62 @@
+[
+  {
+    "adresse": "Rue Henri Rousselle 14",
+    "codePostal": "6250",
+    "commune": "Aiseau-Presles",
+    "quartier": "Aiseau",
+    "typeBien": "maison",
+    "prix": "340 000 €",
+    "surface": "170 m² (+ 1025 m² terrain)",
+    "source": "Immoweb 21834592",
+    "statut": "a_prospecter",
+    "notes": "4 chambres, piscine"
+  },
+  {
+    "adresse": "Adresse à compléter (voir annonce Immoweb 21416089)",
+    "codePostal": "6000",
+    "commune": "Charleroi",
+    "quartier": "",
+    "typeBien": "maison",
+    "prix": "300 000 € (offre à partir de)",
+    "surface": "494 m² (+ 392 m² terrain)",
+    "source": "Immoweb 21416089 — agence Les Maisons du Petit Nicolas",
+    "statut": "a_prospecter",
+    "notes": "3 chambres, 2 salles de bain. Adresse exacte non visible sur la capture — à repérer via l'annonce complète ou sur place, puis à corriger dans cette fiche."
+  },
+  {
+    "adresse": "Adresse à compléter (voir annonce Immoweb 21566450)",
+    "codePostal": "6001",
+    "commune": "Charleroi",
+    "quartier": "Marcinelle",
+    "typeBien": "maison",
+    "prix": "349 000 €",
+    "surface": "Non précisée (terrain 0 m²)",
+    "source": "Immoweb 21566450",
+    "statut": "a_prospecter",
+    "notes": "7 chambres, 2 salles de bain — annonce \"Bien exceptionnel à vendre\". Adresse exacte non visible sur la capture — à repérer via l'annonce complète ou sur place, puis à corriger dans cette fiche."
+  },
+  {
+    "adresse": "Rue de la Marsaude 6",
+    "codePostal": "6020",
+    "commune": "Charleroi",
+    "quartier": "Dampremy",
+    "typeBien": "maison",
+    "prix": "127 000 € (offre à partir de)",
+    "surface": "107 m² (+ 55 m² terrain)",
+    "source": "Immoweb 21618278 — agence We Invest",
+    "statut": "a_prospecter",
+    "notes": "4 chambres, 1 salle de bain. Disponibilité indiquée : 01/04/26."
+  },
+  {
+    "adresse": "Adresse à compléter (voir annonce Immoweb 21658885)",
+    "codePostal": "6030",
+    "commune": "Charleroi",
+    "quartier": "Marchienne-au-Pont",
+    "typeBien": "maison",
+    "prix": "205 000 € (offre à partir de)",
+    "surface": "Non précisée (terrain 0 m²)",
+    "source": "Immoweb 21658885 — agence Stillavati",
+    "statut": "a_prospecter",
+    "notes": "3 chambres, 1 salle de bain. Adresse exacte non visible sur la capture — à repérer via l'annonce complète ou sur place, puis à corriger dans cette fiche."
+  }
+]
