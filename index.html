@@ -3,11 +3,11 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <meta name="theme-color" content="#0A0A0A" />
+    <meta name="theme-color" content="#F4F5FA" />
     <meta name="description" content="Linkimmo — prospection, relances et fidélisation" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta name="apple-mobile-web-app-title" content="Linkimmo" />
     <link rel="icon" href="/icon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
@@ -18,6 +18,8 @@
         var t = localStorage.getItem('linkimmo.theme')
         var dark = t === 'sombre' || (t !== 'clair' && matchMedia('(prefers-color-scheme: dark)').matches)
         if (dark) document.documentElement.classList.add('dark')
+        var p = localStorage.getItem('linkimmo.palette')
+        document.documentElement.dataset.palette = p === 'lagon' || p === 'corail' ? p : 'indigo'
       } catch (e) {}
     </script>
   </head>

@@ -17,10 +17,12 @@ import { Link, useNavigate, useParams } from 'react-router'
 import { PiecesJointes } from '@/components/PiecesJointes'
 import { TemperatureBadge } from '@/components/ui/Badges'
 import { Card, SectionTitle } from '@/components/ui/Card'
-import { StatusDot } from '@/components/ui/StatusDot'
+import { Avatar } from '@/components/ui/Avatar'
+import { classesBouton } from '@/components/ui/Bouton'
+import { RelancePill } from '@/components/ui/RelancePill'
 import { contacts } from '@/data/repositories/contacts'
 import type { Adresse, Contact, EntreeJournal } from '@/data/types'
-import { LIBELLE_COULEUR, libelleDernierContact, libelleProchaineRelance } from '@/domain/relance'
+import { LIBELLE_COULEUR, libelleDernierContact } from '@/domain/relance'
 import {
   formaterTelephone,
   lienAppel,
@@ -47,10 +49,10 @@ const ONGLETS: { code: Onglet; libelle: string; etape?: number }[] = [
 ]
 
 const ACTIONS: Record<Canal, { libelle: string; icone: LucideIcon; classe: string }> = {
-  appel: { libelle: 'Appeler', icone: Phone, classe: 'bg-ink text-accent dark:bg-accent dark:text-accent-ink' },
-  whatsapp: { libelle: 'WhatsApp', icone: MessageCircle, classe: 'bg-[#25D366] text-white' },
-  sms: { libelle: 'SMS', icone: MessageSquare, classe: 'bg-surface-2 text-texte' },
-  email: { libelle: 'Email', icone: Mail, classe: 'bg-surface-2 text-texte' },
+  appel: { libelle: 'Appeler', icone: Phone, classe: 'degrade text-white shadow-primaire' },
+  whatsapp: { libelle: 'WhatsApp', icone: MessageCircle, classe: 'bg-whatsapp text-white shadow-[0_10px_24px_-8px_#25d366]' },
+  sms: { libelle: 'SMS', icone: MessageSquare, classe: 'bg-primaire-doux text-primaire-texte' },
+  email: { libelle: 'Email', icone: Mail, classe: 'bg-primaire-doux text-primaire-texte' },
 }
 
 function adresseLisible(a: Adresse): string {
@@ -70,7 +72,7 @@ function BarreActions({ contact }: { contact: Contact }) {
   const canaux = ordreCanaux(contact.utilisationCanaux, !!email).filter((c) => liens[c])
   if (canaux.length === 0) return null
   return (
-    <div className="grid grid-flow-col auto-cols-fr gap-2">
+    <div className="flex justify-center gap-5">
       {canaux.map((c) => {
         const { libelle, icone: Icone, classe } = ACTIONS[c]
         return (
@@ -79,9 +81,11 @@ function BarreActions({ contact }: { contact: Contact }) {
             href={liens[c]}
             target={c === 'whatsapp' ? '_blank' : undefined}
             rel="noreferrer"
-            className={`flex h-16 flex-col items-center justify-center gap-1 rounded-2xl text-xs font-bold transition-transform active:scale-95 ${classe}`}
+            className="presse flex w-16 flex-col items-center gap-1.5 text-xs font-bold"
           >
-            <Icone className="size-6" aria-hidden />
+            <span className={`grid size-14 place-items-center rounded-full ${classe}`}>
+              <Icone className="size-6" strokeWidth={2.2} aria-hidden />
+            </span>
             {libelle}
           </a>
         )
@@ -92,8 +96,10 @@ function BarreActions({ contact }: { contact: Contact }) {
 
 function Ligne({ icone: Icone, children }: { icone: LucideIcon; children: React.ReactNode }) {
   return (
-    <li className="flex items-start gap-3 py-2">
-      <Icone className="mt-0.5 size-5 shrink-0 text-doux" aria-hidden />
+    <li className="flex items-center gap-3 py-2.5">
+      <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-primaire-doux text-primaire-texte">
+        <Icone className="size-[18px]" aria-hidden />
+      </span>
       <div className="min-w-0 flex-1">{children}</div>
     </li>
   )
@@ -264,74 +270,73 @@ export default function ContactPage() {
     else if (confirm(`Archiver ${nomAffiche(contact)} ?\nLa fiche sera masquée des listes mais jamais effacée.`)) await contacts.archiver(contact.id)
   }
 
+  const relance = contact.prochaineRelanceAt ? new Date(contact.prochaineRelanceAt) : null
+
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
-        <button type="button" onClick={() => navigate(-1)} className="grid size-11 place-items-center rounded-full bg-surface-2" aria-label="Retour">
+        <button type="button" onClick={() => navigate(-1)} className="presse grid size-11 place-items-center rounded-full bg-surface shadow-carte dark:shadow-none dark:ring-1 dark:ring-bord" aria-label="Retour">
           <ArrowLeft className="size-5" />
         </button>
-        <Link to={`/contacts/${contact.id}/modifier`} className="flex h-11 items-center gap-2 rounded-full bg-surface-2 px-4 text-sm font-semibold">
+        <Link to={`/contacts/${contact.id}/modifier`} className={classesBouton('secondaire')}>
           <Pencil className="size-4" aria-hidden /> Modifier
         </Link>
       </div>
 
-      <div className="flex items-center gap-4">
-        <div className="relative grid size-16 shrink-0 place-items-center rounded-2xl bg-accent text-xl font-extrabold text-accent-ink">
-          {initiales(contact)}
-          <span className="absolute -bottom-1 -right-1 rounded-full bg-fond p-1">
-            <StatusDot couleur={couleur} />
-          </span>
-        </div>
-        <div className="min-w-0">
-          <h1 className="text-2xl font-extrabold leading-tight tracking-tight">
+      {/* En-tête de la fiche */}
+      <Card className="relative overflow-hidden !px-5 !pb-5 !pt-6 text-center">
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-primaire/20 via-primaire-2/10 to-transparent" />
+        <div className="relative flex flex-col items-center">
+          <Avatar initiales={initiales(contact)} cle={contact.id} couleur={couleur} taille="lg" />
+          <h1 className="mt-3 text-2xl font-extrabold leading-tight tracking-tight">
             {contact.civilite && <span className="font-semibold text-doux">{contact.civilite} </span>}
             {nomAffiche(contact)}
           </h1>
-          {contact.societe && (contact.prenom || contact.nom) && <p className="text-sm text-doux">{contact.societe}</p>}
-          <div className="mt-1 flex flex-wrap items-center gap-1.5">
-            {contact._demo && <span className="rounded-full bg-accent px-2 py-0.5 text-[11px] font-bold text-accent-ink">Démo</span>}
-            {contact.archivedAt && <span className="rounded-full bg-suivi-gris/20 px-2 py-0.5 text-[11px] font-bold">Archivé</span>}
-            {contact.statuts.map((s) => (
-              <span key={s} className="rounded-full bg-surface-2 px-2 py-0.5 text-[11px] font-semibold">
-                {libelleStatut(s)}
+          {contact.societe && (contact.prenom || contact.nom) && <p className="text-sm font-medium text-doux">{contact.societe}</p>}
+          <div className="mt-2 flex flex-wrap items-center justify-center gap-1.5">
+            {contact._demo && <span className="degrade rounded-full px-2.5 py-0.5 text-[11px] font-bold text-white">Démo</span>}
+            {contact.archivedAt && <span className="rounded-full bg-suivi-gris/20 px-2.5 py-0.5 text-[11px] font-bold">Archivé</span>}
+            {contact.statuts.map((st) => (
+              <span key={st} className="rounded-full bg-primaire-doux px-2.5 py-0.5 text-[11px] font-bold text-primaire-texte">
+                {libelleStatut(st)}
               </span>
             ))}
             {contact.temperature && <TemperatureBadge temperature={contact.temperature} />}
           </div>
+
+          {!contact.nePasContacter && !contact.archivedAt && (
+            <div className="mt-5 w-full">
+              <BarreActions contact={contact} />
+            </div>
+          )}
+          {contact.nePasContacter && (
+            <p className="mt-4 w-full rounded-2xl bg-suivi-rouge/10 p-3 text-sm font-semibold text-suivi-rouge">Ce contact ne souhaite pas être recontacté.</p>
+          )}
         </div>
-      </div>
 
-      {!contact.nePasContacter && !contact.archivedAt && <BarreActions contact={contact} />}
-      {contact.nePasContacter && (
-        <p className="rounded-2xl bg-suivi-rouge/10 p-3 text-sm font-semibold text-suivi-rouge">Ce contact ne souhaite pas être recontacté.</p>
-      )}
-
-      <Card className="grid grid-cols-2 gap-3 !p-3">
-        <div>
-          <div className="text-xs text-doux">Dernier contact</div>
-          <div className="font-semibold">
-            {libelleDernierContact(contact.dernierContactAt ? new Date(contact.dernierContactAt) : null, maintenant)}
+        <div className="relative mt-5 grid grid-cols-2 gap-2 text-left">
+          <div className="rounded-2xl bg-surface-2 p-3">
+            <div className="text-xs font-semibold text-doux">Dernier contact</div>
+            <div className="mt-0.5 font-bold">{libelleDernierContact(contact.dernierContactAt ? new Date(contact.dernierContactAt) : null, maintenant)}</div>
           </div>
-        </div>
-        <div>
-          <div className="text-xs text-doux">Prochaine relance</div>
-          <div className="flex items-center gap-1.5 font-semibold">
-            <StatusDot couleur={couleur} taille="sm" />
-            <span title={LIBELLE_COULEUR[couleur]}>
-              {libelleProchaineRelance(contact.prochaineRelanceAt ? new Date(contact.prochaineRelanceAt) : null, maintenant)}
-            </span>
+          <div className="rounded-2xl bg-surface-2 p-3">
+            <div className="text-xs font-semibold text-doux">Prochaine relance</div>
+            <div className="mt-1" title={LIBELLE_COULEUR[couleur]}>
+              <RelancePill couleur={couleur} relance={relance} maintenant={maintenant} />
+            </div>
           </div>
         </div>
       </Card>
 
-      <nav className="-mx-4 flex gap-1 overflow-x-auto border-b border-bord px-4 [scrollbar-width:none] lg:mx-0 lg:px-0" aria-label="Sections de la fiche">
+      <nav className="sans-barre -mx-4 flex gap-2 overflow-x-auto px-4 lg:mx-0 lg:px-0" aria-label="Sections de la fiche">
         {ONGLETS.map((o) => (
           <button
             key={o.code}
             type="button"
             onClick={() => setOnglet(o.code)}
-            className={`h-11 shrink-0 border-b-2 px-3 text-sm font-semibold transition-colors ${
-              onglet === o.code ? 'border-texte text-texte' : 'border-transparent text-doux'
+            aria-pressed={onglet === o.code}
+            className={`presse h-10 shrink-0 rounded-full px-4 text-sm font-bold transition-colors ${
+              onglet === o.code ? 'bg-texte text-surface' : 'bg-surface text-doux ring-1 ring-bord'
             }`}
           >
             {o.libelle}
@@ -339,20 +344,18 @@ export default function ContactPage() {
         ))}
       </nav>
 
-      {onglet === 'identite' && <Identite contact={contact} />}
-      {onglet === 'documents' && <PiecesJointes entite="contacts" entiteId={contact.id} />}
-      {onglet === 'journal' && <Journal id={contact.id} />}
-      {ongletCourant.etape && (
-        <p className="rounded-2xl border border-dashed border-bord p-6 text-center text-sm text-doux">
-          Cette section arrive à l’étape {ongletCourant.etape}.
-        </p>
-      )}
+      <div key={onglet} className="animate-apparition">
+        {onglet === 'identite' && <Identite contact={contact} />}
+        {onglet === 'documents' && <PiecesJointes entite="contacts" entiteId={contact.id} />}
+        {onglet === 'journal' && <Journal id={contact.id} />}
+        {ongletCourant.etape && (
+          <p className="rounded-3xl bg-surface p-8 text-center text-sm text-doux shadow-carte dark:shadow-none">
+            Cette section arrive à l’étape {ongletCourant.etape}.
+          </p>
+        )}
+      </div>
 
-      <button
-        type="button"
-        onClick={basculerArchive}
-        className="mt-4 flex h-12 items-center justify-center gap-2 rounded-2xl border border-bord text-sm font-semibold text-doux"
-      >
+      <button type="button" onClick={basculerArchive} className={`${classesBouton('fantome')} mt-2 w-full text-doux`}>
         {contact.archivedAt ? <ArchiveRestore className="size-4" aria-hidden /> : <Archive className="size-4" aria-hidden />}
         {contact.archivedAt ? 'Restaurer la fiche' : 'Archiver la fiche'}
       </button>

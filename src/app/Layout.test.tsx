@@ -22,10 +22,12 @@ describe('Mise en page', () => {
     expect(screen.getAllByRole('link', { name: /Repérer/ }).length).toBeGreaterThan(0)
   })
 
-  it("affiche l'accueil avec les pastilles de couleur", () => {
+  it("affiche l'accueil avec les compteurs de relances", () => {
     afficher()
-    expect(screen.getByRole('heading', { name: "Aujourd'hui" })).toBeInTheDocument()
-    expect(screen.getAllByRole('img', { name: 'En retard' }).length).toBeGreaterThan(0)
+    expect(screen.getByRole('heading', { level: 1, name: /^(Bonjour|Bon après-midi|Bonsoir) !$/ })).toBeInTheDocument()
+    for (const libelle of ['En retard', "Aujourd'hui", 'Semaine', 'À jour']) {
+      expect(screen.getAllByText(libelle).length).toBeGreaterThan(0)
+    }
   })
 
   it('masque les onglets en mode capture terrain', async () => {

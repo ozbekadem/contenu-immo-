@@ -26,8 +26,8 @@ const TEMP = {
 export function TemperatureBadge({ temperature }: { temperature: Temperature }) {
   const { Icone, cls } = TEMP[temperature]
   return (
-    <span className={`inline-flex items-center gap-1 text-xs font-medium ${cls}`}>
-      <Icone className="size-3.5" aria-hidden />
+    <span className={`inline-flex items-center gap-1 rounded-full bg-current/10 px-2 py-0.5 text-[11px] font-bold ${cls}`}>
+      <Icone className="size-3" aria-hidden />
       {LIBELLE_TEMPERATURE[temperature]}
     </span>
   )

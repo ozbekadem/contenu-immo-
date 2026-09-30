@@ -9,12 +9,12 @@ export function UpdatePrompt() {
 
   if (!besoin) return null
   return (
-    <div className="fixed inset-x-4 bottom-[calc(9rem+env(safe-area-inset-bottom))] z-40 mx-auto flex max-w-md items-center gap-3 rounded-2xl bg-ink p-3 pl-4 text-sm text-white shadow-xl lg:bottom-6">
-      <span className="flex-1">Nouvelle version disponible.</span>
-      <button className="rounded-full px-3 py-2 text-white/70" onClick={() => setBesoin(false)}>
+    <div className="fixed inset-x-4 top-[max(1rem,env(safe-area-inset-top))] z-50 mx-auto flex max-w-md animate-apparition items-center gap-2 rounded-3xl bg-surface p-2 pl-4 text-sm shadow-flottant ring-1 ring-bord">
+      <span className="flex-1 font-semibold">Nouvelle version disponible</span>
+      <button className="h-10 rounded-full px-3 font-semibold text-doux" onClick={() => setBesoin(false)}>
         Plus tard
       </button>
-      <button className="rounded-full bg-accent px-4 py-2 font-bold text-accent-ink" onClick={() => updateServiceWorker(true)}>
+      <button className="degrade h-10 rounded-full px-4 font-bold text-white" onClick={() => updateServiceWorker(true)}>
         Mettre à jour
       </button>
     </div>

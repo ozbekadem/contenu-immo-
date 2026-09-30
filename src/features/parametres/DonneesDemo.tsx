@@ -1,5 +1,6 @@
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useState } from 'react'
+import { classesBouton } from '@/components/ui/Bouton'
 import { Card, SectionTitle } from '@/components/ui/Card'
 import { db } from '@/data/db'
 import { genererContactsTest, supprimerDemo } from '@/data/demo'
@@ -37,7 +38,7 @@ export function DonneesDemo() {
           type="button"
           disabled={!!occupe || !nbDemo}
           onClick={supprimer}
-          className="h-12 flex-1 rounded-xl bg-suivi-rouge px-4 text-sm font-bold text-white disabled:opacity-40"
+          className={`${classesBouton('danger')} h-12 flex-1 rounded-2xl`}
         >
           Supprimer les données de démonstration
         </button>
@@ -45,7 +46,7 @@ export function DonneesDemo() {
           type="button"
           disabled={!!occupe}
           onClick={generer}
-          className="h-12 flex-1 rounded-xl border border-bord px-4 text-sm font-semibold disabled:opacity-40"
+          className={`${classesBouton('fantome')} h-12 flex-1 rounded-2xl`}
         >
           Test de vitesse : générer 5 000 contacts
         </button>

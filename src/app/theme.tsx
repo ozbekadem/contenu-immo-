@@ -1,50 +1,74 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react'
 
 export type ChoixTheme = 'auto' | 'clair' | 'sombre'
-const CLE = 'linkimmo.theme'
+export type Palette = 'indigo' | 'lagon' | 'corail'
 
-function lire(): ChoixTheme {
+export const PALETTES: { code: Palette; libelle: string; couleurs: [string, string] }[] = [
+  { code: 'indigo', libelle: 'Indigo', couleurs: ['#4f46e5', '#8b5cf6'] },
+  { code: 'lagon', libelle: 'Lagon', couleurs: ['#0d9488', '#0ea5e9'] },
+  { code: 'corail', libelle: 'Corail', couleurs: ['#e8505b', '#f59e0b'] },
+]
+
+const CLE_THEME = 'linkimmo.theme'
+const CLE_PALETTE = 'linkimmo.palette'
+
+function lire<T extends string>(cle: string, valides: readonly T[], defaut: T): T {
   try {
-    const v = localStorage.getItem(CLE)
-    return v === 'clair' || v === 'sombre' ? v : 'auto'
+    const v = localStorage.getItem(cle) as T | null
+    return v && valides.includes(v) ? v : defaut
   } catch {
-    return 'auto'
+    return defaut
   }
 }
 
-function appliquer(choix: ChoixTheme) {
-  const sombre = choix === 'sombre' || (choix === 'auto' && matchMedia('(prefers-color-scheme: dark)').matches)
-  document.documentElement.classList.toggle('dark', sombre)
-  document.querySelector('meta[name="theme-color"]')?.setAttribute('content', sombre ? '#0A0A0A' : '#FFFFFF')
+function ecrire(cle: string, valeur: string) {
+  try {
+    localStorage.setItem(cle, valeur)
+  } catch {
+    /* stockage indisponible : le choix vaut pour la session */
+  }
 }
 
-const Ctx = createContext<{ theme: ChoixTheme; setTheme: (t: ChoixTheme) => void }>({
-  theme: 'auto',
-  setTheme: () => {},
-})
+function appliquer(choix: ChoixTheme, palette: Palette) {
+  const sombre = choix === 'sombre' || (choix === 'auto' && matchMedia('(prefers-color-scheme: dark)').matches)
+  const html = document.documentElement
+  html.classList.toggle('dark', sombre)
+  html.dataset.palette = palette
+  document.querySelector('meta[name="theme-color"]')?.setAttribute('content', sombre ? '#0B0F1C' : '#F4F5FA')
+}
+
+interface Ctx {
+  theme: ChoixTheme
+  setTheme: (t: ChoixTheme) => void
+  palette: Palette
+  setPalette: (p: Palette) => void
+}
+
+const Contexte = createContext<Ctx>({ theme: 'auto', setTheme: () => {}, palette: 'indigo', setPalette: () => {} })
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [theme, setThemeState] = useState<ChoixTheme>(lire)
+  const [theme, setThemeState] = useState<ChoixTheme>(() => lire(CLE_THEME, ['auto', 'clair', 'sombre'], 'auto'))
+  const [palette, setPaletteState] = useState<Palette>(() => lire(CLE_PALETTE, ['indigo', 'lagon', 'corail'], 'indigo'))
 
   useEffect(() => {
-    appliquer(theme)
+    appliquer(theme, palette)
     if (theme !== 'auto') return
     const mq = matchMedia('(prefers-color-scheme: dark)')
-    const suivre = () => appliquer('auto')
+    const suivre = () => appliquer('auto', palette)
     mq.addEventListener('change', suivre)
     return () => mq.removeEventListener('change', suivre)
-  }, [theme])
+  }, [theme, palette])
 
   const setTheme = (t: ChoixTheme) => {
-    try {
-      localStorage.setItem(CLE, t)
-    } catch {
-      /* stockage indisponible : le choix vaut pour la session */
-    }
+    ecrire(CLE_THEME, t)
     setThemeState(t)
   }
+  const setPalette = (p: Palette) => {
+    ecrire(CLE_PALETTE, p)
+    setPaletteState(p)
+  }
 
-  return <Ctx.Provider value={{ theme, setTheme }}>{children}</Ctx.Provider>
+  return <Contexte.Provider value={{ theme, setTheme, palette, setPalette }}>{children}</Contexte.Provider>
 }
 
-export const useTheme = () => useContext(Ctx)
+export const useTheme = () => useContext(Contexte)

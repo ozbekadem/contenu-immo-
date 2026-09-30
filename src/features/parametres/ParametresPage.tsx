@@ -1,10 +1,12 @@
-import { Monitor, Moon, Sun } from 'lucide-react'
-import { useTheme, type ChoixTheme } from '@/app/theme'
+import { Check, Monitor, Moon, Sun } from 'lucide-react'
+import { PALETTES, useTheme, type ChoixTheme } from '@/app/theme'
 import { Card, SectionTitle } from '@/components/ui/Card'
 import { PageHeader } from '@/components/ui/PageHeader'
 import { PARAMETRES_DEFAUT, SEUILS_ROUGE_DEFAUT } from '@/domain/relance'
 import { CATEGORIES } from '@/domain/categories'
 import { DonneesDemo } from './DonneesDemo'
+
+const POINT = { portefeuille: 'bg-portefeuille', annonce: 'bg-annonce', maison_vide: 'bg-maison-vide' } as const
 
 const CHOIX: { code: ChoixTheme; libelle: string; icone: typeof Sun }[] = [
   { code: 'auto', libelle: 'Automatique', icone: Monitor },
@@ -13,7 +15,7 @@ const CHOIX: { code: ChoixTheme; libelle: string; icone: typeof Sun }[] = [
 ]
 
 export default function ParametresPage() {
-  const { theme, setTheme } = useTheme()
+  const { theme, setTheme, palette, setPalette } = useTheme()
   return (
     <>
       <PageHeader titre="Paramètres" />
@@ -27,11 +29,31 @@ export default function ParametresPage() {
                 role="radio"
                 aria-checked={theme === code}
                 onClick={() => setTheme(code)}
-                className={`flex h-12 items-center justify-center gap-2 rounded-xl text-sm font-semibold transition-colors ${
-                  theme === code ? 'bg-surface shadow-sm' : 'text-doux'
+                className={`flex h-16 flex-col items-center justify-center gap-1 rounded-xl text-[13px] font-bold transition-all ${
+                  theme === code ? 'bg-surface text-primaire-texte shadow-carte' : 'text-doux'
                 }`}
               >
-                <Icone className="size-4" aria-hidden />
+                <Icone className="size-5" aria-hidden />
+                {libelle}
+              </button>
+            ))}
+          </div>
+
+          <div className="mt-5 text-[13px] font-semibold text-doux">Couleur de l’application</div>
+          <div role="radiogroup" aria-label="Couleur" className="mt-2 grid grid-cols-3 gap-3">
+            {PALETTES.map(({ code, libelle, couleurs: [a, b] }) => (
+              <button
+                key={code}
+                role="radio"
+                aria-checked={palette === code}
+                onClick={() => setPalette(code)}
+                className={`presse flex flex-col items-center gap-2 rounded-2xl p-3 text-sm font-bold ring-2 transition ${
+                  palette === code ? 'bg-primaire-doux ring-primaire' : 'bg-surface-2 ring-transparent'
+                }`}
+              >
+                <span className="grid size-12 place-items-center rounded-full text-white shadow-carte" style={{ backgroundImage: `linear-gradient(135deg, ${a}, ${b})` }}>
+                  {palette === code && <Check className="size-6" strokeWidth={3} />}
+                </span>
                 {libelle}
               </button>
             ))}
@@ -39,17 +61,23 @@ export default function ParametresPage() {
         </Card>
 
         <Card>
-          <SectionTitle>Codes couleur (valeurs par défaut)</SectionTitle>
+          <SectionTitle>Codes couleur</SectionTitle>
+          <p className="-mt-1 mb-3 text-sm text-doux">Passage au rouge sans contact ni relance planifiée :</p>
           <ul className="space-y-2 text-sm">
             {CATEGORIES.map((c) => (
-              <li key={c.code} className="flex justify-between gap-2">
-                <span>{c.libelle}</span>
-                <span className="font-semibold">rouge après {SEUILS_ROUGE_DEFAUT[c.code]} jours sans contact</span>
+              <li key={c.code} className="flex items-center justify-between gap-3 rounded-2xl bg-surface-2 px-3 py-2.5">
+                <span className="flex items-center gap-2 font-semibold">
+                  <span className={`size-2.5 rounded-full ${POINT[c.code]}`} />
+                  {c.libelle}
+                </span>
+                <span className="rounded-full bg-suivi-rouge/12 px-2.5 py-1 text-xs font-bold text-suivi-rouge">{SEUILS_ROUGE_DEFAUT[c.code]} jours</span>
               </li>
             ))}
-            <li className="flex justify-between gap-2 border-t border-bord pt-2">
-              <span>Relance « proche » (jaune)</span>
-              <span className="font-semibold">dans les {PARAMETRES_DEFAUT.horizonJauneJours} jours</span>
+            <li className="flex items-center justify-between gap-3 rounded-2xl bg-surface-2 px-3 py-2.5">
+              <span className="font-semibold">Relance proche (jaune)</span>
+              <span className="rounded-full bg-suivi-jaune/15 px-2.5 py-1 text-xs font-bold text-[#a16207] dark:text-suivi-jaune">
+                {PARAMETRES_DEFAUT.horizonJauneJours} jours avant
+              </span>
             </li>
           </ul>
           <p className="mt-3 text-xs text-doux">Ces seuils deviendront modifiables à l'étape 12.</p>

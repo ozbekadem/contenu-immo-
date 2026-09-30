@@ -2,6 +2,7 @@ import { useLiveQuery } from 'dexie-react-hooks'
 import { AlertTriangle, ArrowLeft, Plus, Trash2 } from 'lucide-react'
 import { useEffect, useState, type FormEvent } from 'react'
 import { Link, useNavigate, useParams } from 'react-router'
+import { classesBouton } from '@/components/ui/Bouton'
 import { Card, SectionTitle } from '@/components/ui/Card'
 import { Champ, Liste, Puce, Saisie, Zone } from '@/components/ui/Champ'
 import { adresseVide, contacts, contactVide, type DonneesContact } from '@/data/repositories/contacts'
@@ -92,7 +93,7 @@ export default function ContactFormPage() {
   return (
     <form onSubmit={enregistrer} className="flex flex-col gap-4 pb-24 lg:pb-0">
       <div className="flex items-center gap-3">
-        <button type="button" onClick={() => navigate(-1)} className="grid size-11 place-items-center rounded-full bg-surface-2" aria-label="Retour">
+        <button type="button" onClick={() => navigate(-1)} className="presse grid size-11 place-items-center rounded-full bg-surface shadow-carte dark:shadow-none dark:ring-1 dark:ring-bord" aria-label="Retour">
           <ArrowLeft className="size-5" />
         </button>
         <h1 className="text-2xl font-extrabold tracking-tight">{id ? 'Modifier le contact' : 'Nouveau contact'}</h1>
@@ -152,7 +153,7 @@ export default function ContactFormPage() {
                   <button
                     type="button"
                     onClick={() => maj({ telephones: d.telephones.filter((_, j) => j !== i) })}
-                    className="grid size-12 shrink-0 place-items-center rounded-xl text-doux"
+                    className="grid size-12 shrink-0 place-items-center rounded-2xl text-doux"
                     aria-label="Retirer ce numéro"
                   >
                     <Trash2 className="size-5" />
@@ -162,13 +163,13 @@ export default function ContactFormPage() {
               </div>
             )
           })}
-          <button type="button" onClick={() => maj({ telephones: [...d.telephones, { numero: '' }] })} className="flex h-11 items-center gap-2 self-start text-sm font-semibold">
+          <button type="button" onClick={() => maj({ telephones: [...d.telephones, { numero: '' }] })} className="flex h-11 items-center gap-2 self-start text-sm font-bold text-primaire-texte">
             <Plus className="size-4" /> Ajouter un numéro
           </button>
         </div>
 
         {doublons.length > 0 && (
-          <div role="alert" className="mt-3 rounded-xl border border-suivi-orange/40 bg-suivi-orange/10 p-3 text-sm">
+          <div role="alert" className="mt-3 rounded-2xl bg-suivi-orange/10 p-4 text-sm ring-1 ring-suivi-orange/30">
             <div className="flex items-center gap-2 font-bold text-suivi-orange">
               <AlertTriangle className="size-4" aria-hidden /> Doublon possible
             </div>
@@ -281,7 +282,7 @@ export default function ContactFormPage() {
               type="checkbox"
               checked={d.nePasContacter}
               onChange={(e) => maj({ nePasContacter: e.target.checked })}
-              className="size-5 accent-suivi-rouge"
+              className="size-5 accent-[var(--primaire)]"
             />
             <span className="text-sm font-semibold">Ne pas contacter</span>
           </label>
@@ -300,11 +301,11 @@ export default function ContactFormPage() {
         </div>
       </Card>
 
-      <div className="fixed inset-x-0 bottom-0 z-30 border-t border-bord bg-surface/95 p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur lg:static lg:border-0 lg:bg-transparent lg:p-0">
+      <div className="fixed inset-x-0 bottom-0 z-30 bg-gradient-to-t from-fond via-fond/95 to-fond/0 px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-6 lg:static lg:bg-none lg:p-0">
         <button
           type="submit"
           disabled={enregistrement}
-          className="h-14 w-full rounded-2xl bg-accent text-base font-extrabold text-accent-ink transition-transform active:scale-[0.98] disabled:opacity-50"
+          className={`${classesBouton('primaire', 'lg')} w-full`}
         >
           {enregistrement ? 'Enregistrement…' : 'Enregistrer'}
         </button>

@@ -14,6 +14,7 @@ import {
   type LucideIcon,
 } from 'lucide-react'
 import { useRef, useState, type FormEvent } from 'react'
+import { classesBouton } from '@/components/ui/Bouton'
 import { Card } from '@/components/ui/Card'
 import { Champ, Saisie, Zone } from '@/components/ui/Champ'
 import { piecesJointes } from '@/data/repositories/piecesJointes'
@@ -79,7 +80,7 @@ function FormulaireLien({ entite, entiteId, fermer }: { entite: EntiteLiee; enti
   }
 
   return (
-    <form noValidate onSubmit={enregistrer} className="flex flex-col gap-3 rounded-2xl border border-bord bg-surface-2/50 p-3">
+    <form noValidate onSubmit={enregistrer} className="flex flex-col gap-3 rounded-3xl bg-primaire-doux/60 p-4">
       <div className="flex items-end gap-2">
         <div className="flex-1">
           <Champ libelle="Lien de l’annonce ou du site">
@@ -100,7 +101,7 @@ function FormulaireLien({ entite, entiteId, fermer }: { entite: EntiteLiee; enti
           </Champ>
         </div>
         {'clipboard' in navigator && (
-          <button type="button" onClick={coller} className="flex h-12 items-center gap-1.5 rounded-xl border border-bord bg-surface px-3 text-sm font-semibold">
+          <button type="button" onClick={coller} className={`${classesBouton('secondaire')} h-12 rounded-2xl`}>
             <ClipboardPaste className="size-4" aria-hidden /> Coller
           </button>
         )}
@@ -114,10 +115,10 @@ function FormulaireLien({ entite, entiteId, fermer }: { entite: EntiteLiee; enti
       </Champ>
       {erreur && <p className="text-sm font-semibold text-suivi-rouge">{erreur}</p>}
       <div className="flex gap-2">
-        <button type="button" onClick={fermer} className="h-12 flex-1 rounded-xl border border-bord text-sm font-semibold">
+        <button type="button" onClick={fermer} className={`${classesBouton('secondaire')} h-12 flex-1 rounded-2xl`}>
           Annuler
         </button>
-        <button type="submit" disabled={!valide} className="h-12 flex-[2] rounded-xl bg-accent text-sm font-extrabold text-accent-ink disabled:opacity-50">
+        <button type="submit" disabled={!valide} className={`${classesBouton('primaire')} h-12 flex-[2] rounded-2xl`}>
           Ajouter le lien
         </button>
       </div>
@@ -142,7 +143,7 @@ function Element({ p, setErreur }: { p: PieceJointe; setErreur: (e: string | nul
   return (
     <li className={`flex items-center gap-3 py-3 ${retire ? 'opacity-60' : ''}`}>
       <button type="button" onClick={() => ouvrir(p, setErreur)} className="flex min-w-0 flex-1 items-center gap-3 text-left">
-        <span className={`grid size-11 shrink-0 place-items-center rounded-xl ${classe}`}>
+        <span className={`grid size-12 shrink-0 place-items-center rounded-2xl ${classe}`}>
           <Icone className="size-5" aria-hidden />
         </span>
         <span className="min-w-0 flex-1">
@@ -205,14 +206,14 @@ export function PiecesJointes({ entite, entiteId }: { entite: EntiteLiee; entite
           type="button"
           disabled={envoi}
           onClick={() => input.current?.click()}
-          className="flex h-14 items-center justify-center gap-2 rounded-2xl bg-ink text-sm font-bold text-accent disabled:opacity-60 dark:bg-accent dark:text-accent-ink"
+          className={classesBouton('primaire', 'lg')}
         >
           <Paperclip className="size-5" aria-hidden /> {envoi ? 'Ajout…' : 'Document'}
         </button>
         <button
           type="button"
           onClick={() => setFormLien(true)}
-          className="flex h-14 items-center justify-center gap-2 rounded-2xl border border-bord text-sm font-bold"
+          className={classesBouton('secondaire', 'lg')}
         >
           <Link2 className="size-5" aria-hidden /> Lien Internet
         </button>

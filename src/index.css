@@ -1,16 +1,18 @@
 @import 'tailwindcss';
+@import '@fontsource-variable/plus-jakarta-sans';
 
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
-  --font-sans: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-sans: 'Plus Jakarta Sans Variable', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
 
-  /* Accent de marque */
-  --color-accent: #fff000;
-  --color-accent-ink: #0a0a0a;
-  --color-ink: #0a0a0a;
+  /* Couleur principale (dépend de la palette choisie, voir plus bas) */
+  --color-primaire: var(--primaire);
+  --color-primaire-2: var(--primaire-2);
+  --color-primaire-doux: var(--primaire-doux);
+  --color-primaire-texte: var(--primaire-texte);
 
-  /* Surfaces (basculent en mode sombre, voir plus bas) */
+  /* Surfaces (basculent en mode sombre) */
   --color-fond: var(--fond);
   --color-surface: var(--surface);
   --color-surface-2: var(--surface-2);
@@ -19,59 +21,113 @@
   --color-doux: var(--doux);
 
   /* Catégories de prospection */
-  --color-portefeuille: #2563eb;
-  --color-annonce: #f97316;
-  --color-maison-vide: #8b5cf6;
+  --color-portefeuille: #2f6bff;
+  --color-annonce: #ff7a1a;
+  --color-maison-vide: #9b51e0;
 
   /* Couleurs de suivi */
-  --color-suivi-vert: #16a34a;
+  --color-suivi-vert: #16b364;
   --color-suivi-jaune: #eab308;
-  --color-suivi-orange: #ea580c;
-  --color-suivi-rouge: #dc2626;
-  --color-suivi-gris: #9ca3af;
+  --color-suivi-orange: #f97316;
+  --color-suivi-rouge: #ef4444;
+  --color-suivi-gris: #94a3b8;
 
   /* Température */
-  --color-chaud: #ef4444;
+  --color-chaud: #f43f5e;
   --color-tiede: #f59e0b;
   --color-froid: #0ea5e9;
 
-  --animate-apparition: apparition 160ms ease-out;
+  --color-whatsapp: #25d366;
+
+  --shadow-carte: 0 1px 2px rgb(15 23 42 / 0.04), 0 6px 24px -8px rgb(15 23 42 / 0.1);
+  --shadow-flottant: 0 10px 30px -8px rgb(15 23 42 / 0.25), 0 2px 6px rgb(15 23 42 / 0.08);
+  --shadow-primaire: 0 10px 24px -8px var(--primaire);
+
+  --animate-apparition: apparition 220ms cubic-bezier(0.2, 0.8, 0.2, 1);
   @keyframes apparition {
-    from { opacity: 0; transform: translateY(4px); }
-    to { opacity: 1; transform: none; }
+    from {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
   }
 }
 
+/* ——— Palettes ——— */
+:root,
+[data-palette='indigo'] {
+  --primaire: #4f46e5;
+  --primaire-2: #8b5cf6;
+  --primaire-doux: #eef0ff;
+  --primaire-texte: #3730a3;
+}
+[data-palette='lagon'] {
+  --primaire: #0d9488;
+  --primaire-2: #0ea5e9;
+  --primaire-doux: #e6f7f5;
+  --primaire-texte: #0f766e;
+}
+[data-palette='corail'] {
+  --primaire: #e8505b;
+  --primaire-2: #f59e0b;
+  --primaire-doux: #fff0ee;
+  --primaire-texte: #b4232f;
+}
+
+/* ——— Mode clair ——— */
 :root {
-  --fond: #f6f6f4;
+  --fond: #f4f5fa;
   --surface: #ffffff;
-  --surface-2: #efefec;
-  --bord: #e4e4e0;
-  --texte: #0a0a0a;
-  --doux: #6b6b66;
+  --surface-2: #eef0f5;
+  --bord: #e5e7ef;
+  --texte: #111827;
+  --doux: #6b7280;
   color-scheme: light;
 }
 
+/* ——— Mode sombre ——— */
 .dark {
-  --fond: #0a0a0a;
-  --surface: #161616;
-  --surface-2: #222222;
-  --bord: #2c2c2c;
-  --texte: #f5f5f3;
-  --doux: #a1a19b;
+  --fond: #0b0f1c;
+  --surface: #151a2c;
+  --surface-2: #1f2640;
+  --bord: #272f4a;
+  --texte: #f1f3fa;
+  --doux: #9aa3bd;
+  --primaire-doux: color-mix(in oklab, var(--primaire) 22%, #151a2c);
+  --primaire-texte: color-mix(in oklab, var(--primaire) 55%, white);
   color-scheme: dark;
 }
 
 html,
 body,
 #root {
-  height: 100%;
+  min-height: 100%;
 }
 
 body {
-  @apply bg-fond text-texte antialiased;
+  @apply bg-fond font-sans text-texte antialiased;
   -webkit-tap-highlight-color: transparent;
   overscroll-behavior-y: none;
+  font-feature-settings: 'ss01', 'cv11';
+}
+
+/* Dégradé de la couleur principale (boutons, en-têtes) */
+.degrade {
+  background-image: linear-gradient(135deg, var(--primaire) 0%, var(--primaire-2) 100%);
+}
+
+.presse {
+  @apply transition-transform duration-150 active:scale-[0.97];
+}
+
+.sans-barre {
+  scrollbar-width: none;
+}
+.sans-barre::-webkit-scrollbar {
+  display: none;
 }
 
 @media (prefers-reduced-motion: reduce) {

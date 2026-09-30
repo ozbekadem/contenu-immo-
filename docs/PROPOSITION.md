@@ -244,6 +244,10 @@ Répondez simplement « OK » pour garder ma proposition, ou corrigez.
   et de liens Internet (annonces d'autres agences ou de particuliers), avec source reconnue
   automatiquement. À l'étape 5, les sources de prospection comprendront aussi « Autre agence »
   et « Site Internet de particulier ».
+- **Nouvelle interface** (demande du 30/09) : le jaune/noir est remplacé par un design clair et
+  lumineux (fond gris très pâle, cartes blanches, police Plus Jakarta Sans), couleur principale
+  en dégradé au choix dans les Paramètres : **Indigo** (par défaut), **Lagon** ou **Corail**.
+  Les couleurs de catégories (bleu / orange / violet) et de suivi (vert → rouge) restent inchangées.
 - **Q7 – Données existantes** : on construit l'application à partir de zéro, uniquement sur la
   base du cahier des charges. L'import spécifique de l'ancienne application CRM Immo est mis
   de côté ; il sera ajouté plus tard si un fichier exemple est fourni. Les anciennes données
