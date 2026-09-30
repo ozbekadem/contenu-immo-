@@ -1,5 +1,8 @@
 # Suggestions d'amélioration — « ne rien oublier, dénicher le contrat »
 
+> ✅ **Validées le 30/09 : les 6 suggestions prioritaires.** Réalisées : n° 1 (aucune piste sans
+> prochaine action) et n° 2 (qui appeler en premier) à l'étape 4. Les n° 3 à 6 suivent le plan (§ 5).
+
 > Mise en situation : une vraie journée de prospection à Charleroi avec l'application actuelle
 > (étapes 1 à 3) et le plan des étapes 4 à 14. Les idées déjà prévues (menu d'appel, capture
 > terrain, carte, agenda, notifications, Statbel, campagnes…) ne sont pas répétées ici.

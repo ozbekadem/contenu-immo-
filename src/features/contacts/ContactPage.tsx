@@ -9,6 +9,7 @@ import {
   MapPin,
   MessageCircle,
   MessageSquare,
+  NotebookPen,
   Pencil,
   Phone,
   type LucideIcon,
@@ -25,18 +26,13 @@ import { Avatar } from '@/components/ui/Avatar'
 import { classesBouton } from '@/components/ui/Bouton'
 import { RelancePill } from '@/components/ui/RelancePill'
 import { contacts } from '@/data/repositories/contacts'
+import { interactions } from '@/data/repositories/interactions'
+import { lancerAction, lienPour, noterEchange } from '@/features/actions/actions'
+import { CANAUX, MenuContact } from '@/features/actions/Actions'
+import { RESULTATS } from '@/domain/resultats'
 import { SOURCES_CONTACT, type Adresse, type Contact, type EntreeJournal } from '@/data/types'
 import { LIBELLE_COULEUR, libelleDernierContact } from '@/domain/relance'
-import {
-  formaterTelephone,
-  lienAppel,
-  lienEmail,
-  lienSms,
-  lienWhatsapp,
-  normaliserTelephone,
-  ordreCanaux,
-  type Canal,
-} from '@/domain/telephone'
+import { formaterTelephone, normaliserTelephone, ordreCanaux } from '@/domain/telephone'
 import { couleurContact, dateNaissanceLisible, initiales, libelleStatut, nomAffiche } from './affichage'
 import { confirmer } from '@/components/ui/Confirmation'
 
@@ -47,18 +43,12 @@ const ONGLETS: { code: Onglet; libelle: string; etape?: number }[] = [
   { code: 'documents', libelle: 'Documents et liens' },
   { code: 'biens', libelle: 'Biens et photos', etape: 7 },
   { code: 'prospection', libelle: 'Prospection', etape: 5 },
-  { code: 'historique', libelle: 'Historique', etape: 4 },
+  { code: 'historique', libelle: 'Historique' },
   { code: 'rappels', libelle: 'Rappels', etape: 8 },
   { code: 'rgpd', libelle: 'RGPD', etape: 11 },
   { code: 'journal', libelle: 'Journal' },
 ]
 
-const ACTIONS: Record<Canal, { libelle: string; icone: LucideIcon; classe: string }> = {
-  appel: { libelle: 'Appeler', icone: Phone, classe: 'degrade text-white shadow-primaire' },
-  whatsapp: { libelle: 'WhatsApp', icone: MessageCircle, classe: 'bg-whatsapp text-white shadow-[0_10px_24px_-8px_#25d366]' },
-  sms: { libelle: 'SMS', icone: MessageSquare, classe: 'bg-primaire-doux text-primaire-texte' },
-  email: { libelle: 'Email', icone: Mail, classe: 'bg-primaire-doux text-primaire-texte' },
-}
 
 function adresseLisible(a: Adresse): string {
   const rue = [a.rue, a.numero].filter(Boolean).join(' ') + (a.boite ? ` bte ${a.boite}` : '')
@@ -66,33 +56,19 @@ function adresseLisible(a: Adresse): string {
 }
 
 function BarreActions({ contact }: { contact: Contact }) {
-  const tel = contact._telNorm[0]
-  const email = contact.emails[0]
-  const liens: Record<Canal, string | undefined> = {
-    appel: tel && lienAppel(tel),
-    whatsapp: tel && lienWhatsapp(tel),
-    sms: tel && lienSms(tel),
-    email: email && lienEmail(email),
-  }
-  const canaux = ordreCanaux(contact.utilisationCanaux, !!email).filter((c) => liens[c])
+  const canaux = ordreCanaux(contact.utilisationCanaux, !!contact.emails[0]).filter((c) => lienPour(c, contact))
   if (canaux.length === 0) return null
   return (
     <div className="flex justify-center gap-5">
       {canaux.map((c) => {
-        const { libelle, icone: Icone, classe } = ACTIONS[c]
+        const { libelle, icone: Icone, classe } = CANAUX[c]
         return (
-          <a
-            key={c}
-            href={liens[c]}
-            target={c === 'whatsapp' ? '_blank' : undefined}
-            rel="noreferrer"
-            className="presse flex w-16 flex-col items-center gap-1.5 text-xs font-bold"
-          >
+          <button key={c} type="button" onClick={() => lancerAction(contact, c)} className="presse flex w-16 flex-col items-center gap-1.5 text-xs font-bold">
             <span className={`grid size-14 place-items-center rounded-full ${classe}`}>
               <Icone className="size-6" strokeWidth={2.2} aria-hidden />
             </span>
             {libelle}
-          </a>
+          </button>
         )
       })}
     </div>
@@ -112,6 +88,7 @@ function Ligne({ icone: Icone, children }: { icone: LucideIcon; children: React.
 
 function Identite({ contact }: { contact: Contact }) {
   const [voirAnciennes, setVoirAnciennes] = useState(false)
+  const [menuNumero, setMenuNumero] = useState<string | null>(null)
   return (
     <div className="flex flex-col gap-4">
       <Card>
@@ -122,9 +99,9 @@ function Identite({ contact }: { contact: Contact }) {
             return (
               <Ligne key={i} icone={Phone}>
                 {e164 ? (
-                  <a href={lienAppel(e164)} className="font-semibold">
+                  <button type="button" onClick={() => setMenuNumero(e164)} className="font-semibold text-primaire-texte underline-offset-2 hover:underline">
                     {formaterTelephone(t.numero)}
-                  </a>
+                  </button>
                 ) : (
                   <span className="font-semibold">{t.numero}</span>
                 )}
@@ -135,9 +112,9 @@ function Identite({ contact }: { contact: Contact }) {
           })}
           {contact.emails.map((e) => (
             <Ligne key={e} icone={Mail}>
-              <a href={lienEmail(e)} className="break-all font-semibold">
+              <button type="button" onClick={() => lancerAction(contact, 'email')} className="break-all text-left font-semibold text-primaire-texte">
                 {e}
-              </a>
+              </button>
             </Ligne>
           ))}
           {contact.adresse && (
@@ -185,6 +162,7 @@ function Identite({ contact }: { contact: Contact }) {
           {contact.notes && <p className="whitespace-pre-wrap text-sm">{contact.notes}</p>}
         </Card>
       )}
+      <MenuContact contact={contact} numero={menuNumero} ouvert={!!menuNumero} fermer={() => setMenuNumero(null)} />
     </div>
   )
 }
@@ -249,6 +227,70 @@ function Journal({ id }: { id: string }) {
           </li>
         ))}
       </ol>
+    </Card>
+  )
+}
+
+const ICONE_TYPE: Record<string, LucideIcon> = {
+  appel: Phone,
+  whatsapp: MessageCircle,
+  sms: MessageSquare,
+  email: Mail,
+  note: NotebookPen,
+}
+
+const TON_RESULTAT = {
+  positif: 'bg-suivi-vert/12 text-suivi-vert',
+  neutre: 'bg-surface-2 text-doux',
+  negatif: 'bg-suivi-rouge/10 text-suivi-rouge',
+} as const
+
+/** Ligne du temps des échanges : qui, quand, quel résultat, quelle suite. */
+function Historique({ contact }: { contact: Contact }) {
+  const liste = useLiveQuery(() => interactions.pour(contact.id), [contact.id])
+  if (!liste) return null
+  return (
+    <Card>
+      <SectionTitle
+        action={
+          <button type="button" onClick={() => noterEchange(contact.id)} className={`${classesBouton('fantome')} h-9 px-3 text-xs`}>
+            <NotebookPen className="size-4" aria-hidden /> Noter
+          </button>
+        }
+      >
+        Historique des échanges
+      </SectionTitle>
+      {liste.length === 0 ? (
+        <p className="text-sm text-doux">Aucun échange noté. Après chaque appel ou message, l’application vous propose d’en noter le résultat.</p>
+      ) : (
+        <ol className="relative flex flex-col gap-4 before:absolute before:bottom-2 before:left-5 before:top-2 before:w-px before:bg-bord">
+          {liste.map((i) => {
+            const Icone = ICONE_TYPE[i.type] ?? NotebookPen
+            const r = RESULTATS[i.resultat]
+            return (
+              <li key={i.id} className="relative flex gap-3">
+                <span className="relative z-10 grid size-10 shrink-0 place-items-center rounded-full bg-primaire-doux text-primaire-texte ring-4 ring-surface">
+                  <Icone className="size-[18px]" aria-hidden />
+                </span>
+                <div className="min-w-0 flex-1 pt-0.5">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className={`rounded-full px-2.5 py-0.5 text-xs font-bold ${TON_RESULTAT[r.ton]}`}>{r.libelle}</span>
+                    <span className="text-xs text-doux">
+                      {new Date(i.date).toLocaleString('fr-BE', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                    </span>
+                  </div>
+                  {i.commentaire && <p className="mt-1 whitespace-pre-wrap text-sm">{i.commentaire}</p>}
+                  {i.relanceAt && (
+                    <p className="mt-1 text-xs font-semibold text-doux">
+                      → relance le {new Date(i.relanceAt).toLocaleDateString('fr-BE', { day: 'numeric', month: 'long', year: 'numeric' })}
+                    </p>
+                  )}
+                </div>
+              </li>
+            )
+          })}
+        </ol>
+      )}
     </Card>
   )
 }
@@ -322,6 +364,9 @@ export default function ContactPage() {
           {!contact.nePasContacter && !contact.archivedAt && (
             <div className="mt-5 w-full">
               <BarreActions contact={contact} />
+              <button type="button" onClick={() => noterEchange(contact.id)} className="mt-3 inline-flex items-center gap-1.5 text-xs font-bold text-primaire-texte">
+                <NotebookPen className="size-4" aria-hidden /> Noter un échange (RDV, visite, rencontre…)
+              </button>
             </div>
           )}
           {contact.nePasContacter && (
@@ -374,6 +419,7 @@ export default function ContactPage() {
       <div key={onglet} className="animate-apparition">
         {onglet === 'identite' && <Identite contact={contact} />}
         {onglet === 'documents' && <PiecesJointes entite="contacts" entiteId={contact.id} />}
+        {onglet === 'historique' && <Historique contact={contact} />}
         {onglet === 'journal' && <Journal id={contact.id} />}
         {ongletCourant.etape && (
           <p className="rounded-3xl bg-surface p-8 text-center text-sm text-doux shadow-carte dark:shadow-none">

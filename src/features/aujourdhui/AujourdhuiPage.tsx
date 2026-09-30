@@ -1,11 +1,12 @@
-import { ChevronRight, PartyPopper } from 'lucide-react'
+import { PartyPopper } from 'lucide-react'
 import { useMemo } from 'react'
 import { Link } from 'react-router'
 import { Card } from '@/components/ui/Card'
 import { FOND_COULEUR } from '@/components/ui/StatusDot'
 import type { Couleur } from '@/domain/relance'
-import { ContactLigne } from '@/features/contacts/ContactLigne'
-import type { ContactColore, FiltreRapide } from '@/features/contacts/filtres'
+import type { FiltreRapide } from '@/features/contacts/filtres'
+import { classer } from '@/domain/priorite'
+import { SansAction, TopAppels } from './Sections'
 import { useContactsColores } from '@/features/contacts/useContacts'
 
 const TUILES: { couleur: Couleur; libelle: string; filtre: FiltreRapide }[] = [
@@ -15,56 +16,28 @@ const TUILES: { couleur: Couleur; libelle: string; filtre: FiltreRapide }[] = [
   { couleur: 'vert', libelle: 'À jour', filtre: 'ajour' },
 ]
 
-/** Nombre maximum de lignes par section sur l'accueil (le reste via « Tout voir »). */
-const MAX = 8
-
 function salutation(d: Date): string {
   const h = d.getHours()
   return h < 12 ? 'Bonjour' : h < 18 ? 'Bon après-midi' : 'Bonsoir'
 }
 
-function Section({ titre, couleur, lignes, filtre, maintenant }: { titre: string; couleur: Couleur; lignes: ContactColore[]; filtre: FiltreRapide; maintenant: Date }) {
-  if (lignes.length === 0) return null
-  return (
-    <Card className="overflow-hidden !p-0">
-      <div className="flex items-center justify-between px-4 pb-1 pt-4">
-        <h2 className="flex items-center gap-2 text-base font-bold">
-          <span className={`size-2.5 rounded-full ${FOND_COULEUR[couleur]}`} />
-          {titre}
-          <span className="rounded-full bg-surface-2 px-2 py-0.5 text-xs font-bold text-doux">{lignes.length}</span>
-        </h2>
-        {lignes.length > MAX && (
-          <Link to={`/contacts?filtre=${filtre}`} className="flex items-center text-sm font-bold text-primaire-texte">
-            Tout voir <ChevronRight className="size-4" />
-          </Link>
-        )}
-      </div>
-      <div className="divide-y divide-bord/70 pb-1">
-        {lignes.slice(0, MAX).map(({ contact, couleur: c }) => (
-          <ContactLigne key={contact.id} contact={contact} couleur={c} maintenant={maintenant} />
-        ))}
-      </div>
-    </Card>
-  )
-}
-
 export default function AujourdhuiPage() {
   const { liste, maintenant } = useContactsColores()
 
-  const { compte, retard, aujourdhui } = useMemo(() => {
+  const { compte, aTraiter, top, sansAction } = useMemo(() => {
     const actifs = (liste ?? []).filter(({ contact }) => !contact.archivedAt)
     const compte = (c: Couleur) => actifs.filter((l) => l.couleur === c).length
-    // Les plus en retard d'abord (relance la plus ancienne).
-    const retard = actifs
-      .filter((l) => l.couleur === 'rouge')
-      .sort((a, b) =>
-        (a.contact.prochaineRelanceAt ?? a.contact.dernierContactAt ?? '').localeCompare(b.contact.prochaineRelanceAt ?? b.contact.dernierContactAt ?? ''),
-      )
-    return { compte, retard, aujourdhui: actifs.filter((l) => l.couleur === 'orange') }
-  }, [liste])
+    const top = classer(
+      actifs.map((l) => ({ ...l, ...l.contact, couleur: l.couleur })),
+      maintenant,
+    ).map(({ element, priorite }) => ({ contact: element.contact, couleur: element.couleur, priorite }))
+    const dansTop = new Set(top.map((t) => t.contact.id))
+    // Toute fiche active doit avoir une prochaine action datée.
+    const sansAction = actifs.filter(({ contact }) => !contact.nePasContacter && !contact.prochaineRelanceAt && !dansTop.has(contact.id))
+    return { compte, aTraiter: compte('rouge') + compte('orange'), top, sansAction }
+  }, [liste, maintenant])
 
   const date = new Intl.DateTimeFormat('fr-BE', { weekday: 'long', day: 'numeric', month: 'long' }).format(maintenant)
-  const aTraiter = retard.length + aujourdhui.length
 
   return (
     <div className="flex flex-col gap-4">
@@ -97,8 +70,13 @@ export default function AujourdhuiPage() {
         </div>
       </section>
 
-      <Section titre="À appeler aujourd'hui" couleur="orange" lignes={aujourdhui} filtre="aujourdhui" maintenant={maintenant} />
-      <Section titre="En retard" couleur="rouge" lignes={retard} filtre="retard" maintenant={maintenant} />
+      <TopAppels lignes={top} />
+      {aTraiter > top.length && (
+        <Link to="/contacts?filtre=retard" className="-mt-2 px-4 text-center text-sm font-bold text-primaire-texte">
+          Voir les {aTraiter - top.length} autres relances à traiter
+        </Link>
+      )}
+      <SansAction lignes={sansAction} />
 
       {liste && aTraiter === 0 && (
         <Card className="flex items-center gap-3">

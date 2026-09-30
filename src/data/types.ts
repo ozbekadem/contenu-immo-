@@ -1,4 +1,5 @@
 import type { Empreinte } from '@/domain/doublons'
+import type { CodeResultat } from '@/domain/resultats'
 import type { Canal } from '@/domain/telephone'
 import type { Temperature } from '@/domain/relance'
 
@@ -108,12 +109,30 @@ export interface Contact extends Enregistrement {
   dernierContactAt: string | null
   prochaineRelanceAt: string | null
   dernierResultatPositif: boolean
+  /** Appels consécutifs sans réponse (remis à zéro dès que la personne est jointe). */
+  tentatives?: number
   // Champs locaux calculés
   _telNorm: string[]
   _recherche: string
   _rechPhon: string
   _tri: string
   _empreinte: Empreinte
+}
+
+export type TypeInteraction = Canal | 'note' | 'visite' | 'rdv' | 'courrier'
+
+/** Échange avec un contact (appel, SMS, WhatsApp, email, note…), daté et signé. */
+export interface Interaction extends Enregistrement {
+  contactId: string
+  type: TypeInteraction
+  resultat: CodeResultat
+  commentaire: string
+  /** Date de l'échange (ISO). */
+  date: string
+  /** Relance planifiée à l'issue de l'échange (ISO), pour l'historique. */
+  relanceAt: string | null
+  /** Numéro utilisé (E.164) le cas échéant. */
+  numero: string | null
 }
 
 /** Fiches auxquelles on peut joindre des documents et des liens. */

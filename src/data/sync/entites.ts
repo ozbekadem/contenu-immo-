@@ -8,6 +8,10 @@ export const ENTITES_SYNC: Record<string, ConfigEntite> = {
     table: (db) => db.contacts as never,
     deriver: (f: Enregistrement) => deriverContact(f as Contact),
   },
+  interactions: {
+    table: (db) => db.interactions as never,
+    deriver: (f: Enregistrement) => f,
+  },
   piecesJointes: {
     table: (db) => db.piecesJointes as never,
     deriver: (f: Enregistrement) => f,

@@ -1,6 +1,7 @@
 import { ajouterJours } from '@/domain/dates'
 import { db } from './db'
 import { contacts, contactVide, type DonneesContact } from './repositories/contacts'
+import { interactions } from './repositories/interactions'
 import { piecesJointes } from './repositories/piecesJointes'
 
 const CLE_INITIALISE = 'demo.initialise'
@@ -211,6 +212,7 @@ export async function initialiserDemo(): Promise<void> {
 
 export async function supprimerDemo(): Promise<number> {
   await piecesJointes.supprimerDemo()
+  await interactions.supprimerDemo()
   return contacts.supprimerDemo()
 }
 

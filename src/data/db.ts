@@ -1,6 +1,6 @@
 import Dexie, { type EntityTable, type Table } from 'dexie'
 import { deriverContact } from './derives'
-import type { Contact, EntreeJournal, FichierLocal, OperationSortante, PieceJointe } from './types'
+import type { Contact, EntreeJournal, FichierLocal, Interaction, OperationSortante, PieceJointe } from './types'
 
 export interface Meta {
   cle: string
@@ -10,6 +10,7 @@ export interface Meta {
 export class LinkimmoDB extends Dexie {
   contacts!: Table<Contact, string>
   piecesJointes!: Table<PieceJointe, string>
+  interactions!: Table<Interaction, string>
   fichiers!: Table<FichierLocal, string>
   journal!: EntityTable<EntreeJournal, 'id'>
   outbox!: EntityTable<OperationSortante, 'seq'>
@@ -53,6 +54,8 @@ export class LinkimmoDB extends Dexie {
             e.envoye = demo.has(e.rowId) ? 1 : 0
           })
       })
+    // v5 : historique des échanges (appels, messages, notes).
+    this.version(5).stores({ interactions: 'id, contactId, date' })
   }
 }
 

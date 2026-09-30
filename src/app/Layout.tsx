@@ -2,6 +2,7 @@ import { Camera } from 'lucide-react'
 import { Suspense } from 'react'
 import { Link, NavLink, Outlet, useLocation } from 'react-router'
 import { IndicateurSync } from '@/components/IndicateurSync'
+import { MenuContactGlobal, RetourAction } from '@/features/actions/Actions'
 import { MODULES, ONGLETS } from './navigation'
 import logo from '@/assets/logo.svg'
 
@@ -85,6 +86,9 @@ export function Layout() {
             <Outlet />
           </Suspense>
         </main>
+
+        <RetourAction />
+        <MenuContactGlobal />
 
         {!pleinEcran && (
           <>
