@@ -1,0 +1,84 @@
+@import 'tailwindcss';
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --font-sans: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+
+  /* Accent de marque */
+  --color-accent: #fff000;
+  --color-accent-ink: #0a0a0a;
+  --color-ink: #0a0a0a;
+
+  /* Surfaces (basculent en mode sombre, voir plus bas) */
+  --color-fond: var(--fond);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-bord: var(--bord);
+  --color-texte: var(--texte);
+  --color-doux: var(--doux);
+
+  /* Catégories de prospection */
+  --color-portefeuille: #2563eb;
+  --color-annonce: #f97316;
+  --color-maison-vide: #8b5cf6;
+
+  /* Couleurs de suivi */
+  --color-suivi-vert: #16a34a;
+  --color-suivi-jaune: #eab308;
+  --color-suivi-orange: #ea580c;
+  --color-suivi-rouge: #dc2626;
+  --color-suivi-gris: #9ca3af;
+
+  /* Température */
+  --color-chaud: #ef4444;
+  --color-tiede: #f59e0b;
+  --color-froid: #0ea5e9;
+
+  --animate-apparition: apparition 160ms ease-out;
+  @keyframes apparition {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: none; }
+  }
+}
+
+:root {
+  --fond: #f6f6f4;
+  --surface: #ffffff;
+  --surface-2: #efefec;
+  --bord: #e4e4e0;
+  --texte: #0a0a0a;
+  --doux: #6b6b66;
+  color-scheme: light;
+}
+
+.dark {
+  --fond: #0a0a0a;
+  --surface: #161616;
+  --surface-2: #222222;
+  --bord: #2c2c2c;
+  --texte: #f5f5f3;
+  --doux: #a1a19b;
+  color-scheme: dark;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  @apply bg-fond text-texte antialiased;
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior-y: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
