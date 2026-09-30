@@ -10,3 +10,4 @@ coverage
 
 # Valeurs publiques du serveur (URL et clé publishable) : versionnées volontairement
 !.env.production
+dist-apercu

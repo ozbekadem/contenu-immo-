@@ -13,6 +13,7 @@ import { depuisDateLocale, versDateLocale } from '@/domain/dates'
 import { LIBELLE_TEMPERATURE, type Temperature } from '@/domain/relance'
 import { formaterTelephone, normaliserTelephone, type Canal } from '@/domain/telephone'
 import { FichesSimilaires, useFichesSimilaires } from './FichesSimilaires'
+import { confirmer } from '@/components/ui/Confirmation'
 
 const CANAUX: { code: Canal; libelle: string }[] = [
   { code: 'appel', libelle: 'Appel' },
@@ -70,10 +71,21 @@ export default function ContactFormPage() {
 
   // Avertissement avant de quitter un formulaire modifié (navigation dans l'appli ou fermeture de l'onglet).
   const blocage = useBlocker(({ currentLocation, nextLocation }) => modifie && !enregistre.current && currentLocation.pathname !== nextLocation.pathname)
+  const questionEnCours = useRef(false)
   useEffect(() => {
-    if (blocage.state !== 'blocked') return
-    if (confirm('Quitter sans enregistrer ?\nLes modifications de cette fiche seront perdues.')) blocage.proceed()
-    else blocage.reset()
+    if (blocage.state !== 'blocked' || questionEnCours.current) return
+    questionEnCours.current = true
+    void confirmer({
+      titre: 'Quitter sans enregistrer ?',
+      message: 'Les modifications de cette fiche seront perdues.',
+      confirmer: 'Quitter',
+      annuler: 'Continuer la saisie',
+      danger: true,
+    }).then((ok) => {
+      questionEnCours.current = false
+      if (ok) blocage.proceed()
+      else blocage.reset()
+    })
   }, [blocage])
   useEffect(() => {
     if (!modifie) return

@@ -38,6 +38,7 @@ import {
   type Canal,
 } from '@/domain/telephone'
 import { couleurContact, dateNaissanceLisible, initiales, libelleStatut, nomAffiche } from './affichage'
+import { confirmer } from '@/components/ui/Confirmation'
 
 type Onglet = 'identite' | 'documents' | 'biens' | 'prospection' | 'historique' | 'rappels' | 'rgpd' | 'journal'
 
@@ -275,7 +276,8 @@ export default function ContactPage() {
 
   const basculerArchive = async () => {
     if (contact.archivedAt) await contacts.restaurer(contact.id)
-    else if (confirm(`Archiver ${nomAffiche(contact)} ?\nLa fiche sera masquée des listes mais jamais effacée.`)) await contacts.archiver(contact.id)
+    else if (await confirmer({ titre: `Archiver ${nomAffiche(contact)} ?`, message: 'La fiche sera masquée des listes mais jamais effacée.', confirmer: 'Archiver' }))
+      await contacts.archiver(contact.id)
   }
 
   const relance = contact.prochaineRelanceAt ? new Date(contact.prochaineRelanceAt) : null

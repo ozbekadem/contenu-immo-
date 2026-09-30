@@ -4,6 +4,7 @@ import { classesBouton } from '@/components/ui/Bouton'
 import { Card, SectionTitle } from '@/components/ui/Card'
 import { db } from '@/data/db'
 import { genererContactsTest, supprimerDemo } from '@/data/demo'
+import { confirmer } from '@/components/ui/Confirmation'
 
 export function DonneesDemo() {
   const nbDemo = useLiveQuery(() => db.contacts.filter((c) => c._demo === true).count(), [])
@@ -19,7 +20,13 @@ export function DonneesDemo() {
   }
 
   const supprimer = async () => {
-    if (!confirm(`Supprimer définitivement les ${nbDemo} contacts de démonstration ?\nVos vrais contacts ne sont pas touchés.`)) return
+    const ok = await confirmer({
+      titre: `Supprimer les ${nbDemo} contacts de démonstration ?`,
+      message: 'Suppression définitive. Vos vrais contacts ne sont pas touchés.',
+      confirmer: 'Supprimer',
+      danger: true,
+    })
+    if (!ok) return
     setOccupe('Suppression…')
     const n = await supprimerDemo()
     setMessage(`${n.toLocaleString('fr-BE')} contacts de démonstration supprimés.`)

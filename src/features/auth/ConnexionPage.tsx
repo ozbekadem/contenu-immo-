@@ -4,6 +4,7 @@ import { messageErreur, useAuth } from '@/app/auth'
 import { classesBouton } from '@/components/ui/Bouton'
 import { Champ, Saisie } from '@/components/ui/Champ'
 import { supabase } from '@/data/sync/supabase'
+import logo from '@/assets/logo.svg'
 
 function Cadre({ titre, sousTitre, children }: { titre: string; sousTitre: string; children: React.ReactNode }) {
   return (
@@ -11,7 +12,7 @@ function Cadre({ titre, sousTitre, children }: { titre: string; sousTitre: strin
       <div className="degrade pointer-events-none fixed inset-x-0 top-0 h-72 opacity-15 blur-3xl" />
       <div className="relative w-full max-w-sm animate-apparition">
         <div className="mb-8 flex flex-col items-center text-center">
-          <img src="/icon.svg" alt="" className="size-20 rounded-[26px] shadow-primaire" />
+          <img src={logo} alt="" className="size-20 rounded-[26px] shadow-primaire" />
           <h1 className="mt-5 text-[28px] font-extrabold tracking-tight">{titre}</h1>
           <p className="mt-1 text-sm font-medium text-doux">{sousTitre}</p>
         </div>

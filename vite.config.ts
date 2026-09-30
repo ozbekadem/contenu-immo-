@@ -5,8 +5,20 @@ import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import { VitePWA } from 'vite-plugin-pwa'
 
-export default defineConfig({
+export default defineConfig(({ mode }) => {
+  // « apercu » : un seul fichier HTML autonome (sans service worker) pour la démonstration en ligne.
+  const apercu = mode === 'apercu'
+  return {
   define: { __APP_VERSION__: JSON.stringify(process.env.npm_package_version ?? '0.1.0') },
+  ...(apercu && {
+    base: './',
+    build: {
+      outDir: 'dist-apercu',
+      assetsInlineLimit: 10_000_000,
+      cssCodeSplit: false,
+      rollupOptions: { output: { inlineDynamicImports: true } },
+    },
+  }),
   resolve: {
     alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) },
   },
@@ -14,6 +26,7 @@ export default defineConfig({
     react(),
     tailwindcss(),
     VitePWA({
+      disable: apercu,
       registerType: 'prompt',
       includeAssets: ['icon.svg', 'apple-touch-icon.png'],
       manifest: {
@@ -44,4 +57,5 @@ export default defineConfig({
     globals: true,
     setupFiles: ['src/test/setup.ts'],
   },
+}
 })

@@ -7,6 +7,7 @@ import { Card, SectionTitle } from '@/components/ui/Card'
 import { appareil as idAppareil } from '@/data/appareil'
 import { synchroniserMaintenant, useEtatSync } from '@/data/sync/service'
 import { supabase } from '@/data/sync/supabase'
+import { confirmer } from '@/components/ui/Confirmation'
 
 interface LigneAppareil {
   user_id: string
@@ -45,7 +46,13 @@ function Appareils({ estAdmin }: { estAdmin: boolean }) {
   }, [charger])
 
   const revoquer = async (a: LigneAppareil) => {
-    if (!confirm(`Déconnecter « ${a.nom} » à distance ?\nSes données locales seront effacées dès qu’il se reconnectera à Internet.`)) return
+    const ok = await confirmer({
+      titre: `Déconnecter « ${a.nom} » à distance ?`,
+      message: 'Ses données locales seront effacées dès qu’il se reconnectera à Internet.',
+      confirmer: 'Déconnecter',
+      danger: true,
+    })
+    if (!ok) return
     await supabase().from('appareils').update({ revoque: true, revoque_le: new Date().toISOString() }).eq('user_id', a.user_id).eq('id', a.id)
     await charger()
   }

@@ -1,6 +1,6 @@
 import { lazy } from 'react'
 import { BarChart3, Building2, CalendarDays, Download, LineChart, MessageSquareText, Smartphone } from 'lucide-react'
-import { createBrowserRouter, RouterProvider, type RouteObject } from 'react-router'
+import { createBrowserRouter, createMemoryRouter, RouterProvider, type RouteObject } from 'react-router'
 import { Bientot } from '@/components/ui/Bientot'
 import AujourdhuiPage from '@/features/aujourdhui/AujourdhuiPage'
 import { ConnexionPage, NouveauMotDePassePage } from '@/features/auth/ConnexionPage'
@@ -8,6 +8,7 @@ import { AuthProvider, useAuth } from './auth'
 import { Layout } from './Layout'
 import { ThemeProvider } from './theme'
 import { UpdatePrompt } from './UpdatePrompt'
+import { ZoneConfirmation } from '@/components/ui/Confirmation'
 
 // L'accueil est chargé immédiatement ; les autres écrans à la demande (ouverture plus rapide).
 const ProspectionPage = lazy(() => import('@/features/prospection/ProspectionPage'))
@@ -50,7 +51,8 @@ export const routes: RouteObject[] = [
   },
 ]
 
-const router = createBrowserRouter(routes)
+// L'aperçu de démonstration tourne dans un cadre sans barre d'adresse : navigation en mémoire.
+const router = import.meta.env.MODE === 'apercu' ? createMemoryRouter(routes) : createBrowserRouter(routes)
 
 /** Affiche l'application si l'utilisateur est connecté (ou en mode local), sinon l'écran de connexion. */
 function Portail() {
@@ -73,7 +75,8 @@ export function App() {
       <AuthProvider>
         <Portail />
       </AuthProvider>
-      <UpdatePrompt />
+      {import.meta.env.MODE !== 'apercu' && <UpdatePrompt />}
+      <ZoneConfirmation />
     </ThemeProvider>
   )
 }

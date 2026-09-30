@@ -3,11 +3,12 @@ import { Suspense } from 'react'
 import { Link, NavLink, Outlet, useLocation } from 'react-router'
 import { IndicateurSync } from '@/components/IndicateurSync'
 import { MODULES, ONGLETS } from './navigation'
+import logo from '@/assets/logo.svg'
 
 function Logo() {
   return (
     <Link to="/" className="flex items-center gap-2.5">
-      <img src="/icon.svg" alt="" className="size-9 rounded-xl shadow-primaire" />
+      <img src={logo} alt="" className="size-9 rounded-xl shadow-primaire" />
       <span className="text-lg font-extrabold tracking-tight">
         Link<span className="text-primaire">immo</span>
       </span>
@@ -21,6 +22,15 @@ function BoutonReperer({ className = '' }: { className?: string }) {
       <Camera className="size-5" strokeWidth={2.4} aria-hidden />
       <span>Repérer</span>
     </Link>
+  )
+}
+
+/** Bandeau de la version de démonstration en ligne. */
+function BandeauApercu() {
+  return (
+    <div className="degrade px-4 py-2 pt-[max(0.5rem,env(safe-area-inset-top))] text-center text-xs font-semibold text-white">
+      Aperçu de démonstration · contacts fictifs · rien n’est envoyé, tout reste dans votre navigateur
+    </div>
   )
 }
 
@@ -58,6 +68,7 @@ export function Layout() {
       </aside>
 
       <div className="flex min-w-0 flex-1 flex-col">
+        {import.meta.env.MODE === 'apercu' && <BandeauApercu />}
         {/* En-tête compact : smartphone et tablette portrait */}
         {!pleinEcran && (
           <header className="sticky top-0 z-20 flex h-[calc(3.5rem+env(safe-area-inset-top))] items-center justify-between bg-fond px-4 pt-[env(safe-area-inset-top)] lg:hidden">

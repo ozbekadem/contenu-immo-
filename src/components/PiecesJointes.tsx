@@ -20,6 +20,7 @@ import { Champ, Saisie, Zone } from '@/components/ui/Champ'
 import { piecesJointes } from '@/data/repositories/piecesJointes'
 import type { EntiteLiee, PieceJointe } from '@/data/types'
 import { detecterSource, FORMATS_ACCEPTES, normaliserUrl, tailleLisible, typeFichier, type TypeFichier } from '@/domain/liens'
+import { confirmer } from '@/components/ui/Confirmation'
 
 const ICONES: Record<TypeFichier | 'lien', { icone: LucideIcon; classe: string }> = {
   pdf: { icone: FileText, classe: 'bg-suivi-rouge/12 text-suivi-rouge' },
@@ -146,7 +147,8 @@ function Element({ p, setErreur }: { p: PieceJointe; setErreur: (e: string | nul
     .join(' · ')
 
   const retirer = async () => {
-    if (confirm(`Retirer « ${titre} » de la fiche ?\nIl reste récupérable via « Éléments retirés ».`)) await piecesJointes.archiver(p.id)
+    if (await confirmer({ titre: `Retirer « ${titre} » ?`, message: 'Il reste récupérable via « Éléments retirés ».', confirmer: 'Retirer' }))
+      await piecesJointes.archiver(p.id)
   }
 
   return (

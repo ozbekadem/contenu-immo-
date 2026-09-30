@@ -4,6 +4,7 @@ import { definirUtilisateur } from '@/data/appareil'
 import { db } from '@/data/db'
 import { arreterSynchronisation, demarrerSynchronisation } from '@/data/sync/service'
 import { serveurConfigure, supabase } from '@/data/sync/supabase'
+import { confirmer } from '@/components/ui/Confirmation'
 
 export type Role = 'admin' | 'collaborateur' | 'stagiaire'
 
@@ -108,7 +109,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const enAttente = await db.outbox.count()
     if (
       enAttente > 0 &&
-      !confirm(`${enAttente} modification(s) n’ont pas encore été envoyées au serveur et seront perdues.\nSe déconnecter quand même ?`)
+      !(await confirmer({
+        titre: 'Se déconnecter quand même ?',
+        message: `${enAttente} modification(s) n’ont pas encore été envoyées au serveur et seront perdues.`,
+        confirmer: 'Se déconnecter',
+        danger: true,
+      }))
     )
       return
     await effacerDonneesLocales()

@@ -30,8 +30,11 @@ function ecrire(cle: string, valeur: string) {
 }
 
 function appliquer(choix: ChoixTheme, palette: Palette) {
-  const sombre = choix === 'sombre' || (choix === 'auto' && matchMedia('(prefers-color-scheme: dark)').matches)
   const html = document.documentElement
+  // Thème imposé par la page hôte (aperçu de démonstration) : data-theme="dark" ou "light".
+  const impose = html.dataset.theme
+  const systemeSombre = impose ? impose === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches
+  const sombre = choix === 'sombre' || (choix === 'auto' && systemeSombre)
   html.classList.toggle('dark', sombre)
   html.dataset.palette = palette
   document.querySelector('meta[name="theme-color"]')?.setAttribute('content', sombre ? '#0B0F1C' : '#F4F5FA')
