@@ -236,5 +236,8 @@ Répondez simplement « OK » pour garder ma proposition, ou corrigez.
 - **Q6 – Hébergement** : tout reste fictif pour l'instant. On met l'application en ligne sur une
   adresse gratuite provisoire (ex. `linkimmo-demo.pages.dev`). Le vrai nom de domaine viendra
   quand l'application sera officielle : il suffira de le brancher, sans changer de code.
-- **Q7 – Données existantes** : explications données, en attente d'un fichier exemple
-  (ne bloque pas le démarrage : l'import est prévu à l'étape 13).
+- **Comptes Google** : Gmail (@gmail.com) pour tous → pas de Google Workspace.
+- **Q7 – Données existantes** : on construit l'application à partir de zéro, uniquement sur la
+  base du cahier des charges. L'import spécifique de l'ancienne application CRM Immo est mis
+  de côté ; il sera ajouté plus tard si un fichier exemple est fourni. Les anciennes données
+  pourront aussi être reprises via l'import CSV / Excel (étape 13).
