@@ -1,6 +1,6 @@
-import { cleTri, construireIndex } from '@/domain/recherche'
 import { normaliserTelephone } from '@/domain/telephone'
 import { db as dbDefaut, type LinkimmoDB } from '../db'
+import { deriverContact } from '../derives'
 import type { Adresse, Contact } from '../types'
 import { RepositoryBase, type Donnees } from './base'
 
@@ -45,17 +45,7 @@ export class ContactRepository extends RepositoryBase<Contact> {
   }
 
   protected deriver(c: Contact): Contact {
-    const telNorm = [...new Set(c.telephones.map((t) => normaliserTelephone(t.numero)).filter((n): n is string => !!n))]
-    const a = c.adresse
-    return {
-      ...c,
-      _telNorm: telNorm,
-      _tri: cleTri(c.nom, c.prenom, c.societe),
-      _recherche: construireIndex(
-        [c.prenom, c.nom, c.societe, a && `${a.rue} ${a.numero}`, a?.cp, a?.ville, ...c.emails, ...c.tags],
-        telNorm,
-      ),
-    }
+    return deriverContact(c)
   }
 
   /**

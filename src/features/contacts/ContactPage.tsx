@@ -3,6 +3,7 @@ import {
   Archive,
   ArchiveRestore,
   ArrowLeft,
+  CalendarClock,
   Cake,
   Mail,
   MapPin,
@@ -15,6 +16,9 @@ import {
 import { useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router'
 import { PiecesJointes } from '@/components/PiecesJointes'
+import { RelanceChoix } from '@/components/RelanceChoix'
+import { Feuille } from '@/components/ui/Feuille'
+import { ecartJours } from '@/domain/dates'
 import { TemperatureBadge } from '@/components/ui/Badges'
 import { Card, SectionTitle } from '@/components/ui/Card'
 import { Avatar } from '@/components/ui/Avatar'
@@ -202,6 +206,8 @@ const LIBELLES_CHAMPS: Record<string, string> = {
   tags: 'Tags',
   notes: 'Notes',
   nePasContacter: 'Ne pas contacter',
+  prochaineRelanceAt: 'Prochaine relance',
+  dernierContactAt: 'Dernier contact',
 }
 
 function valeurLisible(v: unknown): string {
@@ -212,6 +218,7 @@ function valeurLisible(v: unknown): string {
     return v.map((x) => (typeof x === 'object' && x ? ('numero' in x ? String(x.numero) : adresseLisible(x as Adresse)) : String(x))).join(', ')
   }
   if (typeof v === 'object') return adresseLisible(v as Adresse)
+  if (typeof v === 'string' && /^\d{4}-\d{2}-\d{2}T/.test(v)) return new Date(v).toLocaleDateString('fr-BE', { day: 'numeric', month: 'short', year: 'numeric' })
   return String(v)
 }
 
@@ -249,6 +256,7 @@ export default function ContactPage() {
   const navigate = useNavigate()
   const contact = useLiveQuery(() => contacts.get(id), [id], null)
   const [onglet, setOnglet] = useState<Onglet>('identite')
+  const [planifier, setPlanifier] = useState(false)
 
   if (contact === null) return null
   if (!contact)
@@ -271,6 +279,7 @@ export default function ContactPage() {
   }
 
   const relance = contact.prochaineRelanceAt ? new Date(contact.prochaineRelanceAt) : null
+  const contacteAujourdhui = !!contact.dernierContactAt && ecartJours(new Date(contact.dernierContactAt), maintenant) === 0
 
   return (
     <div className="flex flex-col gap-4">
@@ -315,16 +324,28 @@ export default function ContactPage() {
         </div>
 
         <div className="relative mt-5 grid grid-cols-2 gap-2 text-left">
-          <div className="rounded-2xl bg-surface-2 p-3">
+          <div className="flex flex-col rounded-2xl bg-surface-2 p-3">
             <div className="text-xs font-semibold text-doux">Dernier contact</div>
             <div className="mt-0.5 font-bold">{libelleDernierContact(contact.dernierContactAt ? new Date(contact.dernierContactAt) : null, maintenant)}</div>
+            {!contacteAujourdhui && (
+              <button
+                type="button"
+                onClick={() => contacts.modifier(contact.id, { dernierContactAt: new Date().toISOString() })}
+                className="mt-2 self-start rounded-full bg-surface px-3 py-1.5 text-xs font-bold text-primaire-texte shadow-carte dark:shadow-none"
+              >
+                Contacté aujourd’hui
+              </button>
+            )}
           </div>
-          <div className="rounded-2xl bg-surface-2 p-3">
-            <div className="text-xs font-semibold text-doux">Prochaine relance</div>
-            <div className="mt-1" title={LIBELLE_COULEUR[couleur]}>
+          <button type="button" onClick={() => setPlanifier(true)} className="presse flex flex-col items-start rounded-2xl bg-surface-2 p-3 text-left">
+            <span className="text-xs font-semibold text-doux">Prochaine relance</span>
+            <span className="mt-1" title={LIBELLE_COULEUR[couleur]}>
               <RelancePill couleur={couleur} relance={relance} maintenant={maintenant} />
-            </div>
-          </div>
+            </span>
+            <span className="mt-2 flex items-center gap-1 text-xs font-bold text-primaire-texte">
+              <CalendarClock className="size-3.5" aria-hidden /> Planifier
+            </span>
+          </button>
         </div>
       </Card>
 
@@ -354,6 +375,16 @@ export default function ContactPage() {
           </p>
         )}
       </div>
+
+      <Feuille titre="Planifier une relance" ouverte={planifier} fermer={() => setPlanifier(false)}>
+        <RelanceChoix
+          valeur={contact.prochaineRelanceAt}
+          onChange={async (iso) => {
+            await contacts.modifier(contact.id, { prochaineRelanceAt: iso })
+            setPlanifier(false)
+          }}
+        />
+      </Feuille>
 
       <button type="button" onClick={basculerArchive} className={`${classesBouton('fantome')} mt-2 w-full text-doux`}>
         {contact.archivedAt ? <ArchiveRestore className="size-4" aria-hidden /> : <Archive className="size-4" aria-hidden />}

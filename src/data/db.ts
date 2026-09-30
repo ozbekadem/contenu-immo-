@@ -1,4 +1,5 @@
 import Dexie, { type EntityTable, type Table } from 'dexie'
+import { deriverContact } from './derives'
 import type { Contact, EntreeJournal, FichierLocal, OperationSortante, PieceJointe } from './types'
 
 export interface Meta {
@@ -26,6 +27,17 @@ export class LinkimmoDB extends Dexie {
       piecesJointes: 'id, [entite+entiteId], updatedAt',
       fichiers: 'id',
     })
+    // v3 : recherche tolérante aux fautes et empreinte anti-doublons → recalcul des champs locaux.
+    this.version(3)
+      .stores({})
+      .upgrade((tx) =>
+        tx
+          .table<Contact, string>('contacts')
+          .toCollection()
+          .modify((c, ref) => {
+            ref.value = deriverContact(c)
+          }),
+      )
   }
 }
 

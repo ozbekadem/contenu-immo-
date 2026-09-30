@@ -1,3 +1,4 @@
+import type { Empreinte } from '@/domain/doublons'
 import type { Canal } from '@/domain/telephone'
 import type { Temperature } from '@/domain/relance'
 
@@ -84,7 +85,9 @@ export interface Contact extends Enregistrement {
   // Champs locaux calculés
   _telNorm: string[]
   _recherche: string
+  _rechPhon: string
   _tri: string
+  _empreinte: Empreinte
 }
 
 /** Fiches auxquelles on peut joindre des documents et des liens. */

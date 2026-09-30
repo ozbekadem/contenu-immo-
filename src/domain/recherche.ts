@@ -1,3 +1,5 @@
+import { clePhonetique, clesMots } from './phonetique'
+
 /** Minuscules, sans accents ni ponctuation superflue : « Évêché » → « eveche ». */
 export function normaliserTexte(t: string): string {
   return t
@@ -34,10 +36,26 @@ export function preparerRequete(requete: string): string[] {
   return normaliserTexte(brut).split(' ').filter(Boolean)
 }
 
-/** Tous les jetons doivent se trouver dans le texte indexé. */
-export function correspond(index: string, jetons: string[]): boolean {
-  for (const j of jetons) if (!index.includes(j)) return false
+/**
+ * Tous les jetons doivent se trouver dans le texte indexé. Si un mot (3 lettres ou plus)
+ * n'est pas trouvé tel quel, on tolère les fautes d'orthographe grâce à l'index phonétique
+ * (« dupond » trouve « Dupont », « rosi » trouve « Rossi »).
+ */
+export function correspond(index: string, jetons: string[], indexPhonetique = ''): boolean {
+  for (const j of jetons) {
+    if (index.includes(j)) continue
+    if (indexPhonetique && j.length >= 3 && !/^\d+$/.test(j)) {
+      const cle = clePhonetique(j)
+      if (cle.length >= 2 && indexPhonetique.includes(cle)) continue
+    }
+    return false
+  }
   return true
+}
+
+/** Index phonétique : clés des mots importants (noms, rue, localité). */
+export function construireIndexPhonetique(morceaux: (string | null | undefined)[]): string {
+  return [...new Set(morceaux.filter(Boolean).flatMap((m) => clesMots(m!)))].join(' ')
 }
 
 /** Clé de tri alphabétique « nom prénom ». */

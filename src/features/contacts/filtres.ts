@@ -51,5 +51,30 @@ export function appliquerFiltre(liste: ContactColore[], filtre: FiltreRapide, ma
 export function rechercher(liste: ContactColore[], requete: string): ContactColore[] {
   const jetons = preparerRequete(requete)
   if (jetons.length === 0) return liste
-  return liste.filter(({ contact }) => correspond(contact._recherche, jetons))
+  return liste.filter(({ contact }) => correspond(contact._recherche, jetons, contact._rechPhon))
+}
+
+export type Tri = 'nom' | 'relance' | 'dernier' | 'ajout'
+
+export const TRIS: { code: Tri; libelle: string }[] = [
+  { code: 'nom', libelle: 'Nom (A → Z)' },
+  { code: 'relance', libelle: 'Prochaine relance' },
+  { code: 'dernier', libelle: 'Dernier contact' },
+  { code: 'ajout', libelle: 'Ajout récent' },
+]
+
+/** Trie sans modifier la liste d'origine ; les dates manquantes vont en fin de liste. */
+export function trier(liste: ContactColore[], tri: Tri): ContactColore[] {
+  if (tri === 'nom') return liste // déjà triée par nom à la lecture
+  const cle = (c: ContactColore['contact']): string | null =>
+    tri === 'relance' ? c.prochaineRelanceAt : tri === 'dernier' ? c.dernierContactAt : c.createdAt
+  const sens = tri === 'ajout' ? -1 : 1
+  return [...liste].sort((a, b) => {
+    const ka = cle(a.contact)
+    const kb = cle(b.contact)
+    if (ka === kb) return 0
+    if (!ka) return tri === 'dernier' ? -1 : 1 // jamais contacté = le plus « ancien »
+    if (!kb) return tri === 'dernier' ? 1 : -1
+    return ka < kb ? -sens : sens
+  })
 }

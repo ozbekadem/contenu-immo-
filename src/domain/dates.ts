@@ -27,3 +27,18 @@ export function ajouterMois(d: Date, n: number): Date {
   r.setDate(Math.min(jour, dernier))
   return r
 }
+
+/** ISO → « AAAA-MM-JJ » (date locale, pour les champs date). */
+export function versDateLocale(iso: string | null | undefined): string {
+  if (!iso) return ''
+  const d = new Date(iso)
+  const p = (n: number) => String(n).padStart(2, '0')
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`
+}
+
+/** « AAAA-MM-JJ » → ISO à l'heure indiquée (9 h par défaut, heure de début des appels). */
+export function depuisDateLocale(jour: string, heure = 9): string | null {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(jour)
+  if (!m) return null
+  return new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]), heure).toISOString()
+}

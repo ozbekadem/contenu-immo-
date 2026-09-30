@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { construireIndex, correspond, normaliserTexte, preparerRequete } from './recherche'
+import { construireIndex, construireIndexPhonetique, correspond, normaliserTexte, preparerRequete } from './recherche'
 
 const index = construireIndex(['Élodie', 'Lefèvre', 'Rue de la Montagne 12', 'Charleroi', 'elodie@exemple.be'], ['+32476123456'])
 const cherche = (q: string) => correspond(index, preparerRequete(q))
@@ -26,6 +26,15 @@ describe('recherche', () => {
   it('trouve par adresse et email', () => {
     expect(cherche('montagne')).toBe(true)
     expect(cherche('elodie@exemple')).toBe(true)
+  })
+
+  it('tolère les fautes de frappe sur les noms et les rues', () => {
+    const idx = construireIndex(['Marc', 'Dupont', 'Rue Puissant', 'Gilly'])
+    const phon = construireIndexPhonetique(['Marc', 'Dupont', 'Rue Puissant', 'Gilly'])
+    expect(correspond(idx, preparerRequete('dupond'), phon)).toBe(true)
+    expect(correspond(idx, preparerRequete('puisant'), phon)).toBe(true)
+    expect(correspond(idx, preparerRequete('durand'), phon)).toBe(false)
+    expect(correspond(idx, preparerRequete('dupond'))).toBe(false) // sans index phonétique
   })
 
   it('une requête vide ne filtre rien', () => {

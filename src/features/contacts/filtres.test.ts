@@ -3,7 +3,7 @@ import { contactVide } from '@/data/repositories/contacts'
 import type { Contact } from '@/data/types'
 import { ajouterJours } from '@/domain/dates'
 import { couleurContact } from './affichage'
-import { appliquerFiltre, rechercher, type ContactColore } from './filtres'
+import { appliquerFiltre, rechercher, trier, type ContactColore } from './filtres'
 
 const maintenant = new Date(2026, 8, 30, 10)
 const iso = (n: number) => ajouterJours(maintenant, n).toISOString()
@@ -57,5 +57,17 @@ describe('filtres rapides', () => {
   })
   it('recherche combinée au filtre', () => {
     expect(noms(rechercher(liste, 'sem'))).toEqual(['Semaine'])
+  })
+})
+
+describe('tri', () => {
+  it('par prochaine relance, sans relance en dernier', () => {
+    expect(noms(trier(liste, 'relance')).slice(0, 3)).toEqual(['Retard', 'Jour', 'Semaine'])
+    expect(noms(trier(liste, 'relance')).at(-1)).toBe('Archive')
+  })
+  it('par dernier contact : jamais contacté d’abord, puis le plus ancien', () => {
+    const t = noms(trier(liste, 'dernier'))
+    expect(t.indexOf('Oublie')).toBeLessThan(t.indexOf('Chaud'))
+    expect(t.at(-1)).toBe('Chaud')
   })
 })

@@ -139,7 +139,7 @@ arriver par 4 chemins : panneau dans la rue, Immoweb, une autre agence, une reco
 
 ## D. Priorités proposées
 
-**Tout de suite (avant l'étape 3, environ 1 étape de travail)**
+**Tout de suite (avant l'étape 3)** — ✅ réalisé le 30/09 (A1 à A12 corrigés et revérifiés dans le navigateur)
 1. Anti-doublons niveaux 1 à 5 : fiches similaires en direct, email, nom phonétique,
    adresse normalisée, CP → localité. (A1-A4, A10)
 2. Champ « Prochaine relance » + « Dernier contact » éditables. (A7)

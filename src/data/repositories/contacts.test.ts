@@ -27,6 +27,9 @@ describe('ContactRepository', () => {
     expect(c._recherche).toContain('charleroi')
     expect(c._recherche).toContain('0476123456')
     expect(Object.keys(c._ts)).toContain('nom')
+    expect(c._empreinte.phonNom).toBe('duboi')
+    expect(c._empreinte.adresse).toBe('rue station|5||6000')
+    expect(c._rechPhon).toContain('charleroi')
   })
 
   it("prépare l'envoi au serveur et journalise la création", async () => {

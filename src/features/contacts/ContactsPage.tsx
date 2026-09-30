@@ -1,5 +1,5 @@
 import { useWindowVirtualizer } from '@tanstack/react-virtual'
-import { Plus, Search, Users, X } from 'lucide-react'
+import { ArrowUpDown, Plus, Search, Users, X } from 'lucide-react'
 import { useDeferredValue, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { Link, useSearchParams } from 'react-router'
 import { EmptyState } from '@/components/ui/EmptyState'
@@ -7,19 +7,20 @@ import { PageHeader } from '@/components/ui/PageHeader'
 import { Puce } from '@/components/ui/Champ'
 import { classesBouton } from '@/components/ui/Bouton'
 import { ContactLigne, HAUTEUR_LIGNE } from './ContactLigne'
-import { appliquerFiltre, FILTRES, rechercher, type FiltreRapide } from './filtres'
+import { appliquerFiltre, FILTRES, rechercher, trier, TRIS, type FiltreRapide, type Tri } from './filtres'
 import { useContactsColores } from './useContacts'
 
 export default function ContactsPage() {
   const [params, setParams] = useSearchParams()
   const filtre = (params.get('filtre') as FiltreRapide | null) ?? 'tous'
+  const tri = (params.get('tri') as Tri | null) ?? 'nom'
   const [requete, setRequete] = useState('')
   const requeteDiff = useDeferredValue(requete)
   const { liste, maintenant } = useContactsColores()
 
   const resultats = useMemo(
-    () => (liste ? rechercher(appliquerFiltre(liste, filtre, maintenant), requeteDiff) : []),
-    [liste, filtre, requeteDiff, maintenant],
+    () => (liste ? trier(rechercher(appliquerFiltre(liste, filtre, maintenant), requeteDiff), tri) : []),
+    [liste, filtre, tri, requeteDiff, maintenant],
   )
 
   const listeRef = useRef<HTMLDivElement>(null)
@@ -35,7 +36,13 @@ export default function ContactsPage() {
     scrollMargin: decalage,
   })
 
-  const choisirFiltre = (f: FiltreRapide) => setParams(f === 'tous' ? {} : { filtre: f }, { replace: true })
+  const changerParam = (cle: string, valeur: string, defaut: string) => {
+    const p = new URLSearchParams(params)
+    if (valeur === defaut) p.delete(cle)
+    else p.set(cle, valeur)
+    setParams(p, { replace: true })
+  }
+  const choisirFiltre = (f: FiltreRapide) => changerParam('filtre', f, 'tous')
 
   return (
     <>
@@ -75,7 +82,25 @@ export default function ContactsPage() {
             </button>
           )}
         </div>
-        <div className="sans-barre -mx-4 mt-3 flex gap-2 overflow-x-auto px-4 pb-1 lg:mx-0 lg:flex-wrap lg:px-0">
+        <div className="mt-3 flex items-center justify-end">
+          <label className="relative flex h-9 items-center gap-1.5 rounded-full bg-surface px-3 text-[13px] font-bold text-doux ring-1 ring-bord">
+            <ArrowUpDown className="size-4" aria-hidden />
+            <span className="sr-only">Trier par</span>
+            <select
+              value={tri}
+              onChange={(e) => changerParam('tri', e.target.value, 'nom')}
+              className="appearance-none bg-transparent pr-1 text-texte outline-none"
+              aria-label="Trier par"
+            >
+              {TRIS.map((t) => (
+                <option key={t.code} value={t.code}>
+                  {t.libelle}
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
+        <div className="sans-barre -mx-4 mt-2 flex gap-2 overflow-x-auto px-4 pb-1 lg:mx-0 lg:flex-wrap lg:px-0">
           {FILTRES.map((f) => (
             <Puce key={f.code} actif={filtre === f.code} onClick={() => choisirFiltre(f.code)}>
               {f.libelle}
