@@ -118,6 +118,10 @@ export interface FichierLocal {
 
 export interface EntreeJournal {
   id?: number
+  /** Identifiant unique partagé avec le serveur. */
+  uid: string
+  /** 1 = déjà envoyé au serveur (ou donnée de démo, jamais envoyée). */
+  envoye: 0 | 1
   table: string
   rowId: string
   /** « creation », « archivage », « restauration » ou nom du champ modifié. */
@@ -127,7 +131,7 @@ export interface EntreeJournal {
   auteur: string | null
   appareil: string
   at: string
-  /** Rempli à l'étape 3 : valeur perdante lors d'un conflit de synchronisation. */
+  /** Conflit de synchronisation : « avant » = valeur perdante, « après » = valeur gardée. */
   conflit?: boolean
 }
 

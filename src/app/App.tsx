@@ -3,6 +3,8 @@ import { BarChart3, Building2, CalendarDays, Download, LineChart, MessageSquareT
 import { createBrowserRouter, RouterProvider, type RouteObject } from 'react-router'
 import { Bientot } from '@/components/ui/Bientot'
 import AujourdhuiPage from '@/features/aujourdhui/AujourdhuiPage'
+import { ConnexionPage, NouveauMotDePassePage } from '@/features/auth/ConnexionPage'
+import { AuthProvider, useAuth } from './auth'
 import { Layout } from './Layout'
 import { ThemeProvider } from './theme'
 import { UpdatePrompt } from './UpdatePrompt'
@@ -50,10 +52,27 @@ export const routes: RouteObject[] = [
 
 const router = createBrowserRouter(routes)
 
+/** Affiche l'application si l'utilisateur est connecté (ou en mode local), sinon l'écran de connexion. */
+function Portail() {
+  const { etat } = useAuth()
+  switch (etat.etape) {
+    case 'chargement':
+      return null
+    case 'deconnecte':
+      return <ConnexionPage message={etat.message} />
+    case 'mot_de_passe':
+      return <NouveauMotDePassePage />
+    default:
+      return <RouterProvider router={router} />
+  }
+}
+
 export function App() {
   return (
     <ThemeProvider>
-      <RouterProvider router={router} />
+      <AuthProvider>
+        <Portail />
+      </AuthProvider>
       <UpdatePrompt />
     </ThemeProvider>
   )

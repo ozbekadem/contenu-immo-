@@ -18,6 +18,16 @@ npm run build      # version de production dans dist/
 npm run preview    # tester la version de production (installable, hors ligne)
 ```
 
+## Serveur (Supabase) et mise en ligne
+
+Sans configuration, l'application fonctionne en **mode local** (un seul appareil).
+Pour activer la connexion et la synchronisation : suivre `docs/GUIDE_INSTALLATION.md`,
+puis renseigner `VITE_SUPABASE_URL` et `VITE_SUPABASE_ANON_KEY` (voir `.env.example`).
+
+```bash
+bash supabase/tests/lancer.sh   # tests SQL du serveur (PostgreSQL local requis)
+```
+
 ## Organisation du code
 
 | Dossier | Rôle |
@@ -25,5 +35,7 @@ npm run preview    # tester la version de production (installable, hors ligne)
 | `src/domain/` | Règles métier pures et testées (couleurs de relance, téléphone +32…) |
 | `src/features/` | Un dossier par module (Aujourd'hui, Prospection, Contacts…) |
 | `src/components/ui/` | Composants visuels réutilisables |
-| `src/app/` | Démarrage, navigation, thème clair/sombre |
+| `src/app/` | Démarrage, navigation, thème, connexion |
+| `src/data/` | Base locale (Dexie), repositories, synchronisation (`sync/`) |
+| `supabase/` | Schéma du serveur, sécurité, fusion champ par champ, tests SQL |
 | `public/` | Icônes de l'application |

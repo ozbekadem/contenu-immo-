@@ -37,9 +37,18 @@ async function ouvrir(p: PieceJointe, setErreur: (e: string | null) => void) {
     window.open(p.url, '_blank', 'noopener')
     return
   }
-  const blob = await piecesJointes.contenu(p.id)
+  let blob: Blob | undefined
+  try {
+    blob = await piecesJointes.contenu(p.id)
+  } catch {
+    blob = undefined
+  }
   if (!blob) {
-    setErreur('Ce document n’est pas encore sur cet appareil : il sera disponible après la synchronisation.')
+    setErreur(
+      p.cheminStockage
+        ? 'Impossible de télécharger ce document : vérifiez la connexion Internet.'
+        : 'Ce document n’est pas encore sur cet appareil : il sera disponible après sa synchronisation.',
+    )
     return
   }
   const url = URL.createObjectURL(blob)

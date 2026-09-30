@@ -1,0 +1,19 @@
+# Mise en ligne sur Netlify (hébergement gratuit du site)
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "22"
+
+# Application d'une seule page : toutes les adresses ouvrent index.html
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Le service worker doit toujours être revérifié (mises à jour de l'application)
+[[headers]]
+  for = "/sw.js"
+  [headers.values]
+    Cache-Control = "no-cache"

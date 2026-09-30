@@ -7,3 +7,6 @@ coverage
 .env.*
 !.env.example
 .DS_Store
+
+# Valeurs publiques du serveur (URL et clé publishable) : versionnées volontairement
+!.env.production

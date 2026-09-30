@@ -3,6 +3,13 @@ import { db as dbDefaut, type LinkimmoDB } from '../db'
 import type { EntiteLiee, PieceJointe } from '../types'
 import { RepositoryBase } from './base'
 
+let telechargeur: ((p: PieceJointe) => Promise<Blob | undefined>) | null = null
+
+/** Branché par la synchronisation : permet de récupérer un fichier absent de cet appareil. */
+export function definirTelechargeur(f: typeof telechargeur): void {
+  telechargeur = f
+}
+
 export class PieceJointeRepository extends RepositoryBase<PieceJointe> {
   constructor(db: LinkimmoDB = dbDefaut) {
     super(db, db.piecesJointes, 'piecesJointes')
@@ -72,9 +79,15 @@ export class PieceJointeRepository extends RepositoryBase<PieceJointe> {
     return super.supprimerDemo()
   }
 
-  /** Contenu du fichier s'il est présent sur cet appareil. */
+  /**
+   * Contenu du fichier : depuis l'appareil s'il y est, sinon téléchargé depuis le serveur
+   * (et gardé ensuite pour la consultation hors ligne).
+   */
   async contenu(id: string): Promise<Blob | undefined> {
-    return (await this.db.fichiers.get(id))?.blob
+    const local = (await this.db.fichiers.get(id))?.blob
+    if (local || !telechargeur) return local
+    const piece = await this.db.piecesJointes.get(id)
+    return piece?.cheminStockage ? telechargeur(piece) : undefined
   }
 }
 

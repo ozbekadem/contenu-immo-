@@ -38,6 +38,21 @@ export class LinkimmoDB extends Dexie {
             ref.value = deriverContact(c)
           }),
       )
+    // v4 : le journal devient synchronisable (identifiant unique + indicateur d'envoi).
+    this.version(4)
+      .stores({ journal: '++id, [table+rowId], at, &uid, envoye' })
+      .upgrade(async (tx) => {
+        const demo = new Set(
+          (await tx.table<Contact, string>('contacts').toArray()).filter((c) => c._demo).map((c) => c.id),
+        )
+        await tx
+          .table<EntreeJournal, number>('journal')
+          .toCollection()
+          .modify((e) => {
+            e.uid = crypto.randomUUID()
+            e.envoye = demo.has(e.rowId) ? 1 : 0
+          })
+      })
   }
 }
 

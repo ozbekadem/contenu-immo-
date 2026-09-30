@@ -1,6 +1,7 @@
 import { Camera } from 'lucide-react'
 import { Suspense } from 'react'
 import { Link, NavLink, Outlet, useLocation } from 'react-router'
+import { IndicateurSync } from '@/components/IndicateurSync'
 import { MODULES, ONGLETS } from './navigation'
 
 function Logo() {
@@ -32,7 +33,10 @@ export function Layout() {
     <div className="flex min-h-dvh">
       {/* Barre latérale : tablette paysage et ordinateur */}
       <aside className="sticky top-0 hidden h-dvh w-72 shrink-0 flex-col gap-6 bg-surface px-5 py-6 shadow-carte lg:flex dark:shadow-none dark:ring-1 dark:ring-bord">
-        <Logo />
+        <div className="flex items-center justify-between">
+          <Logo />
+          <IndicateurSync />
+        </div>
         <BoutonReperer className="h-12 rounded-2xl" />
         <nav className="flex flex-col gap-1" aria-label="Navigation principale">
           {[...ONGLETS.filter((o) => o.chemin !== '/plus'), ...MODULES].map(({ chemin, libelle, icone: Icone }) => (
@@ -56,8 +60,9 @@ export function Layout() {
       <div className="flex min-w-0 flex-1 flex-col">
         {/* En-tête compact : smartphone et tablette portrait */}
         {!pleinEcran && (
-          <header className="sticky top-0 z-20 flex h-[calc(3.5rem+env(safe-area-inset-top))] items-center bg-fond px-4 pt-[env(safe-area-inset-top)] lg:hidden">
+          <header className="sticky top-0 z-20 flex h-[calc(3.5rem+env(safe-area-inset-top))] items-center justify-between bg-fond px-4 pt-[env(safe-area-inset-top)] lg:hidden">
             <Logo />
+            <IndicateurSync />
           </header>
         )}
 

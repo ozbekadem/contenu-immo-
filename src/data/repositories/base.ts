@@ -66,7 +66,7 @@ export abstract class RepositoryBase<T extends Enregistrement> {
         )
       }
       if (journaliser) {
-        await this.db.journal.bulkAdd(fiches.map((f) => this.entreeJournal(f.id, 'creation', null, null, maintenant)))
+        await this.db.journal.bulkAdd(fiches.map((f) => this.entreeJournal(f.id, 'creation', null, null, maintenant, demo)))
       }
     })
     return fiches
@@ -105,7 +105,7 @@ export abstract class RepositoryBase<T extends Enregistrement> {
       }
       await this.db.journal.bulkAdd(
         Object.entries(changes).map(([champ, apres]) =>
-          this.entreeJournal(id, champ, (actuelle as Record<string, unknown>)[champ], apres, maintenant),
+          this.entreeJournal(id, champ, (actuelle as Record<string, unknown>)[champ], apres, maintenant, !!actuelle._demo),
         ),
       )
       return suivante
@@ -138,7 +138,18 @@ export abstract class RepositoryBase<T extends Enregistrement> {
     return Object.fromEntries(Object.entries(f).filter(([c]) => !TECHNIQUES.has(c) && !estLocal(c)))
   }
 
-  private entreeJournal(rowId: string, champ: string, avant: unknown, apres: unknown, at: string): EntreeJournal {
-    return { table: this.nomTable, rowId, champ, avant: avant ?? null, apres: apres ?? null, auteur: utilisateurCourant, appareil, at }
+  private entreeJournal(rowId: string, champ: string, avant: unknown, apres: unknown, at: string, demo: boolean): EntreeJournal {
+    return {
+      uid: crypto.randomUUID(),
+      envoye: demo ? 1 : 0,
+      table: this.nomTable,
+      rowId,
+      champ,
+      avant: avant ?? null,
+      apres: apres ?? null,
+      auteur: utilisateurCourant,
+      appareil,
+      at,
+    }
   }
 }

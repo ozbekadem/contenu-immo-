@@ -1,9 +1,12 @@
 import { Check, Monitor, Moon, Sun } from 'lucide-react'
+import { useEffect } from 'react'
+import { useLocation } from 'react-router'
 import { PALETTES, useTheme, type ChoixTheme } from '@/app/theme'
 import { Card, SectionTitle } from '@/components/ui/Card'
 import { PageHeader } from '@/components/ui/PageHeader'
 import { PARAMETRES_DEFAUT, SEUILS_ROUGE_DEFAUT } from '@/domain/relance'
 import { CATEGORIES } from '@/domain/categories'
+import { CompteSync } from './CompteSync'
 import { DonneesDemo } from './DonneesDemo'
 
 const POINT = { portefeuille: 'bg-portefeuille', annonce: 'bg-annonce', maison_vide: 'bg-maison-vide' } as const
@@ -16,10 +19,16 @@ const CHOIX: { code: ChoixTheme; libelle: string; icone: typeof Sun }[] = [
 
 export default function ParametresPage() {
   const { theme, setTheme, palette, setPalette } = useTheme()
+  const { hash } = useLocation()
+  useEffect(() => {
+    if (hash) document.querySelector(hash)?.scrollIntoView({ behavior: 'smooth' })
+  }, [hash])
   return (
     <>
       <PageHeader titre="Paramètres" />
       <div className="flex flex-col gap-4">
+        <CompteSync />
+
         <Card>
           <SectionTitle>Apparence</SectionTitle>
           <div role="radiogroup" aria-label="Thème" className="grid grid-cols-3 gap-2 rounded-2xl bg-surface-2 p-1">
