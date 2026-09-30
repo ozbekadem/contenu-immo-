@@ -4,6 +4,7 @@ import { Card, SectionTitle } from '@/components/ui/Card'
 import { PageHeader } from '@/components/ui/PageHeader'
 import { PARAMETRES_DEFAUT, SEUILS_ROUGE_DEFAUT } from '@/domain/relance'
 import { CATEGORIES } from '@/domain/categories'
+import { DonneesDemo } from './DonneesDemo'
 
 const CHOIX: { code: ChoixTheme; libelle: string; icone: typeof Sun }[] = [
   { code: 'auto', libelle: 'Automatique', icone: Monitor },
@@ -53,6 +54,8 @@ export default function ParametresPage() {
           </ul>
           <p className="mt-3 text-xs text-doux">Ces seuils deviendront modifiables à l'étape 12.</p>
         </Card>
+
+        <DonneesDemo />
 
         <p className="text-center text-xs text-doux">Linkimmo · version {__APP_VERSION__}</p>
       </div>

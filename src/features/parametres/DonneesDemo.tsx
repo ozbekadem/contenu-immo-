@@ -1,0 +1,56 @@
+import { useLiveQuery } from 'dexie-react-hooks'
+import { useState } from 'react'
+import { Card, SectionTitle } from '@/components/ui/Card'
+import { db } from '@/data/db'
+import { genererContactsTest, supprimerDemo } from '@/data/demo'
+
+export function DonneesDemo() {
+  const nbDemo = useLiveQuery(() => db.contacts.filter((c) => c._demo === true).count(), [])
+  const [occupe, setOccupe] = useState<string | null>(null)
+  const [message, setMessage] = useState<string | null>(null)
+
+  const generer = async () => {
+    setOccupe('Génération de 5 000 contacts…')
+    const debut = performance.now()
+    await genererContactsTest(5000)
+    setMessage(`5 000 contacts de test créés en ${((performance.now() - debut) / 1000).toFixed(1)} s.`)
+    setOccupe(null)
+  }
+
+  const supprimer = async () => {
+    if (!confirm(`Supprimer définitivement les ${nbDemo} contacts de démonstration ?\nVos vrais contacts ne sont pas touchés.`)) return
+    setOccupe('Suppression…')
+    const n = await supprimerDemo()
+    setMessage(`${n.toLocaleString('fr-BE')} contacts de démonstration supprimés.`)
+    setOccupe(null)
+  }
+
+  return (
+    <Card>
+      <SectionTitle>Données de démonstration</SectionTitle>
+      <p className="text-sm text-doux">
+        {nbDemo === undefined ? '…' : `${nbDemo.toLocaleString('fr-BE')} contact(s) de démonstration sur cet appareil.`} Elles restent sur
+        cet appareil et ne sont jamais synchronisées.
+      </p>
+      <div className="mt-3 flex flex-col gap-2 sm:flex-row">
+        <button
+          type="button"
+          disabled={!!occupe || !nbDemo}
+          onClick={supprimer}
+          className="h-12 flex-1 rounded-xl bg-suivi-rouge px-4 text-sm font-bold text-white disabled:opacity-40"
+        >
+          Supprimer les données de démonstration
+        </button>
+        <button
+          type="button"
+          disabled={!!occupe}
+          onClick={generer}
+          className="h-12 flex-1 rounded-xl border border-bord px-4 text-sm font-semibold disabled:opacity-40"
+        >
+          Test de vitesse : générer 5 000 contacts
+        </button>
+      </div>
+      {(occupe || message) && <p className="mt-2 text-sm font-semibold">{occupe ?? message}</p>}
+    </Card>
+  )
+}

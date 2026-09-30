@@ -66,8 +66,8 @@ pour la fusion), `server_seq` (numéro d'ordre serveur pour la synchronisation).
 | **profils** | utilisateur : nom, rôle (admin / collaborateur / stagiaire), couleur, préférences de notifications (types, heure du résumé, heures de silence) |
 | **appareils** | appareils connectés : nom, dernière activité, abonnement push, `revoque` (déconnexion à distance + effacement des données locales) |
 | **contacts** | civilité, prénom, nom, société, date de naissance, photo, **statuts multiples** (prospect vendeur, vendeur, acheteur, locataire, propriétaire bailleur, partenaire, ancien client…), température (chaud/tiède/froid), canal préféré, compteur d'utilisation des canaux (pour mettre le plus utilisé en premier), collaborateur attitré, tags, notes, `ne_pas_contacter`, et champs calculés : `dernier_contact_at`, `prochaine_relance_at` |
-| **coordonnees** | téléphones et emails d'un contact (plusieurs possibles), valeur saisie + **valeur normalisée** (+32…) indexée → détection de doublon instantanée |
-| **adresses_contact** | historique des adresses : du / au / actuelle — jamais effacées, seulement archivées |
+| *(dans contacts)* | téléphones et emails (plusieurs possibles) ; les numéros normalisés (+32…) sont indexés → détection de doublon instantanée. *Simplification retenue à l'étape 2 : stockés dans la fiche contact plutôt que dans une table séparée.* |
+| *(dans contacts)* | adresse actuelle + historique des anciennes adresses (date de fin) — jamais effacées |
 | **consentements** | par contact et par finalité (appel, SMS, email, WhatsApp, newsletter) : accordé / refusé / retiré, date, preuve, date d'expiration |
 
 ### Biens et marché

@@ -26,7 +26,8 @@ function BoutonReperer({ className = '' }: { className?: string }) {
 
 export function Layout() {
   const { pathname } = useLocation()
-  const pleinEcran = pathname.startsWith('/reperer')
+  // Capture terrain et formulaires : pas d'onglets ni de bouton flottant (place pour le bouton « Enregistrer »).
+  const pleinEcran = pathname.startsWith('/reperer') || /\/(nouveau|modifier)$/.test(pathname)
 
   return (
     <div className="flex min-h-full">
@@ -56,7 +57,7 @@ export function Layout() {
       <div className="flex min-w-0 flex-1 flex-col">
         {/* En-tête compact : smartphone et tablette portrait */}
         {!pleinEcran && (
-          <header className="sticky top-0 z-20 flex items-center justify-between border-b border-bord bg-fond/85 px-4 pb-2 pt-[max(0.5rem,env(safe-area-inset-top))] backdrop-blur lg:hidden">
+          <header className="sticky top-0 z-20 flex h-[calc(3rem+env(safe-area-inset-top))] items-center justify-between border-b border-bord bg-fond px-4 pt-[env(safe-area-inset-top)] lg:hidden">
             <Logo />
           </header>
         )}

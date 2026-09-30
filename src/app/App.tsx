@@ -1,5 +1,5 @@
 import { lazy } from 'react'
-import { BarChart3, Building2, CalendarDays, Download, LineChart, MessageSquareText, Smartphone, Users } from 'lucide-react'
+import { BarChart3, Building2, CalendarDays, Download, LineChart, MessageSquareText, Smartphone } from 'lucide-react'
 import { createBrowserRouter, RouterProvider, type RouteObject } from 'react-router'
 import { Bientot } from '@/components/ui/Bientot'
 import AujourdhuiPage from '@/features/aujourdhui/AujourdhuiPage'
@@ -12,6 +12,9 @@ const ProspectionPage = lazy(() => import('@/features/prospection/ProspectionPag
 const PlusPage = lazy(() => import('@/features/plus/PlusPage'))
 const ParametresPage = lazy(() => import('@/features/parametres/ParametresPage'))
 const RepererPage = lazy(() => import('@/features/reperer/RepererPage'))
+const ContactsPage = lazy(() => import('@/features/contacts/ContactsPage'))
+const ContactPage = lazy(() => import('@/features/contacts/ContactPage'))
+const ContactFormPage = lazy(() => import('@/features/contacts/ContactFormPage'))
 
 export const routes: RouteObject[] = [
   {
@@ -20,14 +23,10 @@ export const routes: RouteObject[] = [
       { index: true, element: <AujourdhuiPage /> },
       { path: 'prospection', element: <ProspectionPage /> },
       { path: 'reperer', element: <RepererPage /> },
-      {
-        path: 'contacts',
-        element: (
-          <Bientot titre="Contacts" icone={Users} etape={2}>
-            Liste fluide de milliers de contacts, recherche instantanée par nom, téléphone, adresse ou ville.
-          </Bientot>
-        ),
-      },
+      { path: 'contacts', element: <ContactsPage /> },
+      { path: 'contacts/nouveau', element: <ContactFormPage /> },
+      { path: 'contacts/:id', element: <ContactPage /> },
+      { path: 'contacts/:id/modifier', element: <ContactFormPage key="modifier" /> },
       {
         path: 'agenda',
         element: (
