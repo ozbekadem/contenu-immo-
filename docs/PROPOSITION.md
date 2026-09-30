@@ -225,3 +225,16 @@ Répondez simplement « OK » pour garder ma proposition, ou corrigez.
 8. **RGPD et prospection** : le blocage sans consentement s'applique aux **campagnes et modèles**
    uniquement ; un appel individuel à un prospect (intérêt légitime) reste possible, avec un
    avertissement si le contact est marqué « ne pas contacter ». Correct ?
+
+---
+
+## 7. Décisions validées
+
+- **Q5 – Google Agenda** : oui. Chaque collaborateur a son agenda « Linkimmo » dans son Google
+  Agenda, où apparaissent ses relances et tâches pour qu'il y pense.
+  L'**email** reste une action disponible dans l'application : rare, mais indispensable.
+- **Q6 – Hébergement** : tout reste fictif pour l'instant. On met l'application en ligne sur une
+  adresse gratuite provisoire (ex. `linkimmo-demo.pages.dev`). Le vrai nom de domaine viendra
+  quand l'application sera officielle : il suffira de le brancher, sans changer de code.
+- **Q7 – Données existantes** : explications données, en attente d'un fichier exemple
+  (ne bloque pas le démarrage : l'import est prévu à l'étape 13).
