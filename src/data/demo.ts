@@ -1,6 +1,7 @@
 import { ajouterJours } from '@/domain/dates'
 import { db } from './db'
 import { contacts, contactVide, type DonneesContact } from './repositories/contacts'
+import { piecesJointes } from './repositories/piecesJointes'
 
 const CLE_INITIALISE = 'demo.initialise'
 
@@ -102,7 +103,8 @@ export async function initialiserDemo(): Promise<void> {
   if ((await contacts.compter()) === 0) await contacts.creerPlusieurs(contactsDemo(), { demo: true })
 }
 
-export function supprimerDemo(): Promise<number> {
+export async function supprimerDemo(): Promise<number> {
+  await piecesJointes.supprimerDemo()
   return contacts.supprimerDemo()
 }
 

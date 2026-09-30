@@ -1,17 +1,28 @@
 import type { Contact } from '@/data/types'
+import { formaterTelephone } from '@/domain/telephone'
 import { STATUTS_CONTACT } from '@/data/types'
 import { couleurSuivi, parametresPour, type Couleur } from '@/domain/relance'
 
 const date = (iso: string | null) => (iso ? new Date(iso) : null)
 
-export function nomAffiche(c: Pick<Contact, 'civilite' | 'prenom' | 'nom' | 'societe'>): string {
+/**
+ * Nom à afficher. Aucun champ n'étant obligatoire, on se rabat sur la société,
+ * le téléphone, l'email ou la rue pour toujours pouvoir reconnaître la fiche.
+ */
+export function nomAffiche(c: Partial<Pick<Contact, 'prenom' | 'nom' | 'societe' | 'telephones' | 'emails' | 'adresse'>>): string {
   const personne = [c.prenom, c.nom].filter(Boolean).join(' ')
-  return personne || c.societe || 'Sans nom'
+  if (personne) return personne
+  if (c.societe) return c.societe
+  if (c.telephones?.[0]?.numero) return formaterTelephone(c.telephones[0].numero)
+  if (c.emails?.[0]) return c.emails[0]
+  const a = c.adresse
+  if (a && (a.rue || a.ville)) return [[a.rue, a.numero].filter(Boolean).join(' '), a.ville].filter(Boolean).join(', ')
+  return 'Contact sans nom'
 }
 
 export function initiales(c: Pick<Contact, 'prenom' | 'nom' | 'societe'>): string {
-  const lettres = [c.prenom, c.nom].filter(Boolean).map((m) => m.trim()[0])
-  return (lettres.join('') || c.societe.slice(0, 2) || '?').toUpperCase()
+  const lettres = [c.prenom, c.nom].filter((m) => m.trim()).map((m) => m.trim()[0])
+  return (lettres.join('') || c.societe.trim().slice(0, 2) || '?').toUpperCase()
 }
 
 /**

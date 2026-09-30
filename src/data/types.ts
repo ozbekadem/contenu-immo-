@@ -87,6 +87,32 @@ export interface Contact extends Enregistrement {
   _tri: string
 }
 
+/** Fiches auxquelles on peut joindre des documents et des liens. */
+export type EntiteLiee = 'contacts' | 'biens' | 'pistes'
+
+/** Document (PDF, Word…) ou lien Internet (annonce Immoweb, site d'agence…) joint à une fiche. */
+export interface PieceJointe extends Enregistrement {
+  entite: EntiteLiee
+  entiteId: string
+  type: 'fichier' | 'lien'
+  titre: string
+  note: string
+  /** Lien : adresse web. */
+  url: string | null
+  /** Fichier : nom d'origine, type et taille. */
+  nomFichier: string | null
+  mime: string | null
+  taille: number | null
+  /** Chemin dans le stockage serveur, rempli après l'envoi (étape 3). */
+  cheminStockage: string | null
+}
+
+/** Contenu d'un fichier, conservé sur l'appareil (fonctionne hors ligne). */
+export interface FichierLocal {
+  id: string
+  blob: Blob
+}
+
 export interface EntreeJournal {
   id?: number
   table: string

@@ -1,5 +1,5 @@
 import Dexie, { type EntityTable, type Table } from 'dexie'
-import type { Contact, EntreeJournal, OperationSortante } from './types'
+import type { Contact, EntreeJournal, FichierLocal, OperationSortante, PieceJointe } from './types'
 
 export interface Meta {
   cle: string
@@ -8,6 +8,8 @@ export interface Meta {
 
 export class LinkimmoDB extends Dexie {
   contacts!: Table<Contact, string>
+  piecesJointes!: Table<PieceJointe, string>
+  fichiers!: Table<FichierLocal, string>
   journal!: EntityTable<EntreeJournal, 'id'>
   outbox!: EntityTable<OperationSortante, 'seq'>
   meta!: EntityTable<Meta, 'cle'>
@@ -19,6 +21,10 @@ export class LinkimmoDB extends Dexie {
       journal: '++id, [table+rowId], at',
       outbox: '++seq, [table+rowId]',
       meta: 'cle',
+    })
+    this.version(2).stores({
+      piecesJointes: 'id, [entite+entiteId], updatedAt',
+      fichiers: 'id',
     })
   }
 }

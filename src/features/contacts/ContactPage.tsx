@@ -14,6 +14,7 @@ import {
 } from 'lucide-react'
 import { useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router'
+import { PiecesJointes } from '@/components/PiecesJointes'
 import { TemperatureBadge } from '@/components/ui/Badges'
 import { Card, SectionTitle } from '@/components/ui/Card'
 import { StatusDot } from '@/components/ui/StatusDot'
@@ -32,10 +33,11 @@ import {
 } from '@/domain/telephone'
 import { couleurContact, dateNaissanceLisible, initiales, libelleStatut, nomAffiche } from './affichage'
 
-type Onglet = 'identite' | 'biens' | 'prospection' | 'historique' | 'rappels' | 'rgpd' | 'journal'
+type Onglet = 'identite' | 'documents' | 'biens' | 'prospection' | 'historique' | 'rappels' | 'rgpd' | 'journal'
 
 const ONGLETS: { code: Onglet; libelle: string; etape?: number }[] = [
   { code: 'identite', libelle: 'Identité' },
+  { code: 'documents', libelle: 'Documents et liens' },
   { code: 'biens', libelle: 'Biens et photos', etape: 7 },
   { code: 'prospection', libelle: 'Prospection', etape: 5 },
   { code: 'historique', libelle: 'Historique', etape: 4 },
@@ -338,6 +340,7 @@ export default function ContactPage() {
       </nav>
 
       {onglet === 'identite' && <Identite contact={contact} />}
+      {onglet === 'documents' && <PiecesJointes entite="contacts" entiteId={contact.id} />}
       {onglet === 'journal' && <Journal id={contact.id} />}
       {ongletCourant.etape && (
         <p className="rounded-2xl border border-dashed border-bord p-6 text-center text-sm text-doux">

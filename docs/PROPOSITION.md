@@ -75,7 +75,7 @@ pour la fusion), `server_seq` (numéro d'ordre serveur pour la synchronisation).
 |---|---|
 | **biens** | adresse (rue, n°, boîte, CP, commune), GPS, **code secteur statistique** et **code INS commune** (calculés automatiquement), type (maison 2-3 façades, 4 façades, appartement, terrain, immeuble de rapport, commerce…), état (occupé, vide, à l'abandon), chambres, surface, source, lien CadGIS / capakey, notes |
 | **photos** | liée à un bien, une piste ou un contact : chemin fichier + miniature, dimensions, ordre, date/GPS de prise, état d'envoi |
-| **documents** | PDF liés à un bien (cadastre, PEB, compromis…) |
+| **piecesJointes** | documents (PDF, Word, Excel, photos) **et liens Internet** joints à un contact, un bien ou une piste : annonce Immoweb / 2ememain / site d'agence, annonce enregistrée en PDF, cadastre, PEB, compromis… Le fichier est gardé sur l'appareil (hors ligne) puis envoyé au serveur |
 | **bien_contacts** | lien bien ↔ contact avec un rôle (propriétaire, copropriétaire, locataire, acheteur, voisin, notaire…) et des dates |
 | **transactions** | historique d'un bien : mandat, vente, location, achat privé — date, prix, contacts concernés |
 | **stat_secteurs**, **stat_ventes_secteur**, **stat_prix_commune**, **stat_prix_region**, **stat_imports** | données Statbel (contours simplifiés des secteurs, médianes, quartiles, nb de ventes par année et par type, données masquées, date d'import) — non personnelles |
@@ -237,6 +237,13 @@ Répondez simplement « OK » pour garder ma proposition, ou corrigez.
   adresse gratuite provisoire (ex. `linkimmo-demo.pages.dev`). Le vrai nom de domaine viendra
   quand l'application sera officielle : il suffira de le brancher, sans changer de code.
 - **Comptes Google** : Gmail (@gmail.com) pour tous → pas de Google Workspace.
+- **Aucun champ obligatoire** (demande du 30/09) : dans tous les formulaires (contacts, biens,
+  vendeurs, pistes…), on complète ce qu'on veut, quand on veut. Une fiche sans nom s'affiche avec
+  son téléphone, son email ou son adresse.
+- **Documents et liens** (demande du 30/09) : sur chaque fiche, ajout de PDF, Word, Excel, photos
+  et de liens Internet (annonces d'autres agences ou de particuliers), avec source reconnue
+  automatiquement. À l'étape 5, les sources de prospection comprendront aussi « Autre agence »
+  et « Site Internet de particulier ».
 - **Q7 – Données existantes** : on construit l'application à partir de zéro, uniquement sur la
   base du cahier des charges. L'import spécifique de l'ancienne application CRM Immo est mis
   de côté ; il sera ajouté plus tard si un fichier exemple est fourni. Les anciennes données

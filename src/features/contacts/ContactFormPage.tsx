@@ -73,11 +73,9 @@ export default function ContactFormPage() {
   const maj = (patch: Partial<DonneesContact>) => setD({ ...d, ...patch })
   const adresse = d.adresse ?? adresseVide()
 
-  const valide = !!(d.prenom.trim() || d.nom.trim() || d.societe.trim())
-
   const enregistrer = async (e: FormEvent) => {
     e.preventDefault()
-    if (!valide || enregistrement) return
+    if (enregistrement) return
     setEnregistrement(true)
     try {
       const propre = nettoyer(d)
@@ -124,7 +122,7 @@ export default function ContactFormPage() {
             <Saisie type="date" value={d.dateNaissance ?? ''} onChange={(e) => maj({ dateNaissance: e.target.value || null })} />
           </Champ>
         </div>
-        {!valide && <p className="mt-2 text-xs text-doux">Indiquez au moins un prénom, un nom ou une société.</p>}
+        <p className="mt-2 text-xs text-doux">Aucun champ n’est obligatoire : complétez ce que vous savez, quand vous le savez.</p>
       </Card>
 
       <Card>
@@ -305,7 +303,7 @@ export default function ContactFormPage() {
       <div className="fixed inset-x-0 bottom-0 z-30 border-t border-bord bg-surface/95 p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur lg:static lg:border-0 lg:bg-transparent lg:p-0">
         <button
           type="submit"
-          disabled={!valide || enregistrement}
+          disabled={enregistrement}
           className="h-14 w-full rounded-2xl bg-accent text-base font-extrabold text-accent-ink transition-transform active:scale-[0.98] disabled:opacity-50"
         >
           {enregistrement ? 'Enregistrement…' : 'Enregistrer'}
