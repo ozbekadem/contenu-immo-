@@ -25,7 +25,7 @@ import { Avatar } from '@/components/ui/Avatar'
 import { classesBouton } from '@/components/ui/Bouton'
 import { RelancePill } from '@/components/ui/RelancePill'
 import { contacts } from '@/data/repositories/contacts'
-import type { Adresse, Contact, EntreeJournal } from '@/data/types'
+import { SOURCES_CONTACT, type Adresse, type Contact, type EntreeJournal } from '@/data/types'
 import { LIBELLE_COULEUR, libelleDernierContact } from '@/domain/relance'
 import {
   formaterTelephone,
@@ -202,6 +202,7 @@ const LIBELLES_CHAMPS: Record<string, string> = {
   anciennesAdresses: 'Anciennes adresses',
   dateNaissance: 'Date de naissance',
   statuts: 'Statuts',
+  source: 'Origine',
   temperature: 'Température',
   canalPrefere: 'Canal préféré',
   tags: 'Tags',
@@ -314,6 +315,9 @@ export default function ContactPage() {
             ))}
             {contact.temperature && <TemperatureBadge temperature={contact.temperature} />}
           </div>
+          {contact.source && (
+            <p className="mt-2 text-xs font-semibold text-doux">Origine : {SOURCES_CONTACT.find((x) => x.code === contact.source)?.libelle}</p>
+          )}
 
           {!contact.nePasContacter && !contact.archivedAt && (
             <div className="mt-5 w-full">
@@ -333,7 +337,7 @@ export default function ContactPage() {
               <button
                 type="button"
                 onClick={() => contacts.modifier(contact.id, { dernierContactAt: new Date().toISOString() })}
-                className="mt-2 self-start rounded-full bg-surface px-3 py-1.5 text-xs font-bold text-primaire-texte shadow-carte dark:shadow-none"
+                className="presse mt-2 self-start whitespace-nowrap rounded-full bg-surface px-2.5 py-1.5 text-[11px] font-bold text-primaire-texte shadow-carte dark:shadow-none"
               >
                 Contacté aujourd’hui
               </button>

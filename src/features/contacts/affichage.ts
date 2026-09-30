@@ -13,16 +13,18 @@ export function nomAffiche(c: Partial<Pick<Contact, 'prenom' | 'nom' | 'societe'
   const personne = [c.prenom, c.nom].filter(Boolean).join(' ')
   if (personne) return personne
   if (c.societe) return c.societe
-  if (c.telephones?.[0]?.numero) return formaterTelephone(c.telephones[0].numero)
-  if (c.emails?.[0]) return c.emails[0]
+  // Prospect repéré sans nom (affiche, maison vide) : l'adresse du bien le rend reconnaissable.
   const a = c.adresse
   if (a && (a.rue || a.ville)) return [[a.rue, a.numero].filter(Boolean).join(' '), a.ville].filter(Boolean).join(', ')
+  if (c.telephones?.[0]?.numero) return formaterTelephone(c.telephones[0].numero)
+  if (c.emails?.[0]) return c.emails[0]
   return 'Contact sans nom'
 }
 
+/** Initiales de l'avatar ; chaîne vide pour un prospect sans nom (l'avatar affiche alors une maison). */
 export function initiales(c: Pick<Contact, 'prenom' | 'nom' | 'societe'>): string {
   const lettres = [c.prenom, c.nom].filter((m) => m.trim()).map((m) => m.trim()[0])
-  return (lettres.join('') || c.societe.trim().slice(0, 2) || '?').toUpperCase()
+  return (lettres.join('') || c.societe.trim().slice(0, 2)).toUpperCase()
 }
 
 /**

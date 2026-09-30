@@ -12,7 +12,7 @@ const TUILES: { couleur: Couleur; libelle: string; filtre: FiltreRapide }[] = [
   { couleur: 'rouge', libelle: 'En retard', filtre: 'retard' },
   { couleur: 'orange', libelle: "Aujourd'hui", filtre: 'aujourdhui' },
   { couleur: 'jaune', libelle: 'Semaine', filtre: 'semaine' },
-  { couleur: 'vert', libelle: 'À jour', filtre: 'tous' },
+  { couleur: 'vert', libelle: 'À jour', filtre: 'ajour' },
 ]
 
 /** Nombre maximum de lignes par section sur l'accueil (le reste via « Tout voir »). */
@@ -86,7 +86,7 @@ export default function AujourdhuiPage() {
           {TUILES.map(({ couleur, libelle, filtre }) => (
             <Link
               key={couleur}
-              to={filtre === 'tous' ? '/contacts' : `/contacts?filtre=${filtre}`}
+              to={`/contacts?filtre=${filtre}`}
               className="presse relative rounded-2xl bg-white/15 px-1 pb-2.5 pt-3 text-center ring-1 ring-white/20 backdrop-blur"
             >
               <span className={`absolute right-2 top-2 size-2.5 rounded-full ring-2 ring-white/70 ${FOND_COULEUR[couleur]}`} />

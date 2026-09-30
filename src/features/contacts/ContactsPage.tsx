@@ -7,7 +7,7 @@ import { PageHeader } from '@/components/ui/PageHeader'
 import { Puce } from '@/components/ui/Champ'
 import { classesBouton } from '@/components/ui/Bouton'
 import { ContactLigne, HAUTEUR_LIGNE } from './ContactLigne'
-import { appliquerFiltre, FILTRES, rechercher, trier, TRIS, type FiltreRapide, type Tri } from './filtres'
+import { appliquerFiltre, FILTRES, FILTRES_CACHES, rechercher, trier, TRIS, type FiltreRapide, type Tri } from './filtres'
 import { useContactsColores } from './useContacts'
 
 export default function ContactsPage() {
@@ -101,6 +101,11 @@ export default function ContactsPage() {
           </label>
         </div>
         <div className="sans-barre -mx-4 mt-2 flex gap-2 overflow-x-auto px-4 pb-1 lg:mx-0 lg:flex-wrap lg:px-0">
+          {FILTRES_CACHES[filtre] && (
+            <Puce actif onClick={() => choisirFiltre('tous')}>
+              {FILTRES_CACHES[filtre]} ✕
+            </Puce>
+          )}
           {FILTRES.map((f) => (
             <Puce key={f.code} actif={filtre === f.code} onClick={() => choisirFiltre(f.code)}>
               {f.libelle}

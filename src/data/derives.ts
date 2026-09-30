@@ -1,7 +1,7 @@
 import { empreinte } from '@/domain/doublons'
 import { cleTri, construireIndex, construireIndexPhonetique } from '@/domain/recherche'
 import { normaliserTelephone } from '@/domain/telephone'
-import type { Contact } from './types'
+import { SOURCES_CONTACT, type Contact } from './types'
 
 /**
  * Champs locaux calculés d'un contact : index de recherche (texte et phonétique),
@@ -15,7 +15,18 @@ export function deriverContact(c: Contact): Contact {
     _telNorm: telNorm,
     _tri: cleTri(c.nom, c.prenom, c.societe),
     _recherche: construireIndex(
-      [c.prenom, c.nom, c.societe, a && `${a.rue} ${a.numero}`, a?.cp, a?.ville, ...c.emails, ...c.tags, c.notes],
+      [
+        c.prenom,
+        c.nom,
+        c.societe,
+        a && `${a.rue} ${a.numero}`,
+        a?.cp,
+        a?.ville,
+        ...c.emails,
+        ...c.tags,
+        c.notes,
+        SOURCES_CONTACT.find((s) => s.code === c.source)?.libelle,
+      ],
       telNorm,
     ),
     _rechPhon: construireIndexPhonetique([c.prenom, c.nom, c.societe, a?.rue, a?.ville]),

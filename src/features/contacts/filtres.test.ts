@@ -51,6 +51,8 @@ describe('filtres rapides', () => {
     expect(noms(appliquerFiltre(liste, 'positifs', maintenant))).toEqual(['Chaud'])
     expect(noms(appliquerFiltre(liste, 'sans6mois', maintenant))).toContain('Oublie')
     expect(noms(appliquerFiltre(liste, 'sans6mois', maintenant))).not.toContain('Chaud')
+    // Fiche créée hier, jamais contactée : pas « sans contact depuis 6 mois »
+    expect(noms(appliquerFiltre(liste, 'sans6mois', maintenant))).not.toContain('Retard')
   })
   it('Archivés', () => {
     expect(noms(appliquerFiltre(liste, 'archives', maintenant))).toEqual(['Archive'])

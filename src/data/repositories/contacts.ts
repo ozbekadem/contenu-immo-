@@ -18,6 +18,7 @@ export function contactVide(): DonneesContact {
     anciennesAdresses: [],
     dateNaissance: null,
     statuts: [],
+    source: null,
     temperature: null,
     canalPrefere: null,
     utilisationCanaux: {},

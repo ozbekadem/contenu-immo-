@@ -35,7 +35,12 @@ const dateCourte = (iso: string) => new Date(iso).toLocaleDateString('fr-BE', { 
 
 async function ouvrir(p: PieceJointe, setErreur: (e: string | null) => void) {
   if (p.type === 'lien' && p.url) {
-    window.open(p.url, '_blank', 'noopener')
+    // Un vrai lien (et non window.open) : fonctionne aussi dans l'application installée sur iPhone.
+    const a = document.createElement('a')
+    a.href = p.url
+    a.target = '_blank'
+    a.rel = 'noopener noreferrer'
+    a.click()
     return
   }
   let blob: Blob | undefined
@@ -217,14 +222,14 @@ export function PiecesJointes({ entite, entiteId }: { entite: EntiteLiee; entite
           type="button"
           disabled={envoi}
           onClick={() => input.current?.click()}
-          className={classesBouton('primaire', 'lg')}
+          className={`${classesBouton('primaire', 'lg')} whitespace-nowrap px-3`}
         >
           <Paperclip className="size-5" aria-hidden /> {envoi ? 'Ajout…' : 'Document'}
         </button>
         <button
           type="button"
           onClick={() => setFormLien(true)}
-          className={classesBouton('secondaire', 'lg')}
+          className={`${classesBouton('secondaire', 'lg')} whitespace-nowrap px-3`}
         >
           <Link2 className="size-5" aria-hidden /> Lien Internet
         </button>

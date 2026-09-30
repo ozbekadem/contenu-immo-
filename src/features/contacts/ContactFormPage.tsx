@@ -7,9 +7,10 @@ import { classesBouton } from '@/components/ui/Bouton'
 import { Card, SectionTitle } from '@/components/ui/Card'
 import { Champ, Liste, Puce, Saisie, Zone } from '@/components/ui/Champ'
 import { adresseVide, contacts, contactVide, type DonneesContact } from '@/data/repositories/contacts'
-import { STATUTS_CONTACT, type Adresse, type Civilite, type Contact, type StatutContact } from '@/data/types'
+import { SOURCES_CONTACT, STATUTS_CONTACT, type Adresse, type Civilite, type Contact, type SourceContact, type StatutContact } from '@/data/types'
 import { CODES_POSTAUX, cpPourLocalite, localitesPourCp } from '@/domain/adresse'
 import { depuisDateLocale, versDateLocale } from '@/domain/dates'
+import { champsModifies } from '@/domain/diff'
 import { LIBELLE_TEMPERATURE, type Temperature } from '@/domain/relance'
 import { formaterTelephone, normaliserTelephone, type Canal } from '@/domain/telephone'
 import { FichesSimilaires, useFichesSimilaires } from './FichesSimilaires'
@@ -46,6 +47,7 @@ function nettoyer(d: DonneesContact): DonneesContact {
       .filter((t) => t.numero.trim())
       .map((t) => ({ ...t, numero: normaliserTelephone(t.numero) ? formaterTelephone(t.numero) : t.numero.trim(), libelle: t.libelle?.trim() || undefined })),
     emails: d.emails.map((e) => e.trim()).filter(Boolean),
+    adresse: d.adresse && Object.values(d.adresse).some((v) => v.trim()) ? d.adresse : null,
     tags: d.tags.map((t) => t.trim().replace(/^#/, '')).filter(Boolean),
   }
 }
@@ -96,7 +98,18 @@ export default function ContactFormPage() {
 
   const similaires = useFichesSimilaires(d, id)
 
-  if (!d) return null
+  if (!d) {
+    if (id && existant === undefined)
+      return (
+        <div className="py-16 text-center">
+          <p className="text-doux">Ce contact n’existe pas (ou plus sur cet appareil).</p>
+          <button type="button" onClick={() => navigate('/contacts')} className="mt-4 font-semibold text-primaire-texte underline">
+            Retour aux contacts
+          </button>
+        </div>
+      )
+    return null
+  }
   const maj = (patch: Partial<DonneesContact>) => setD({ ...d, ...patch })
   const adresse = d.adresse ?? adresseVide()
   const majAdresse = (patch: Partial<Adresse>) => maj({ adresse: { ...adresse, ...patch } })
@@ -116,7 +129,11 @@ export default function ContactFormPage() {
     setEnregistrement(true)
     try {
       const propre = nettoyer(d)
-      const fiche = id ? await contacts.modifier(id, propre) : await contacts.creer(propre)
+      // En modification, on n'envoie que ce que l'utilisateur a changé dans le formulaire :
+      // les champs modifiés entre-temps par un collègue ne sont pas écrasés.
+      const fiche = id
+        ? await contacts.modifier(id, champsModifies(nettoyer(JSON.parse(initial.current!) as DonneesContact), propre))
+        : await contacts.creer(propre)
       enregistre.current = true
       navigate(`/contacts/${fiche.id}`, { replace: true })
     } finally {
@@ -320,6 +337,16 @@ export default function ContactFormPage() {
       <Card>
         <SectionTitle>Profil</SectionTitle>
         <div className="flex flex-col gap-4">
+          <Champ libelle="Origine du contact" aide="D’où vient ce numéro ? (utile pour le suivi et le RGPD)">
+            <Liste value={d.source ?? ''} onChange={(e) => maj({ source: (e.target.value || null) as SourceContact | null })}>
+              <option value="">—</option>
+              {SOURCES_CONTACT.map((s) => (
+                <option key={s.code} value={s.code}>
+                  {s.libelle}
+                </option>
+              ))}
+            </Liste>
+          </Champ>
           <div>
             <div className="mb-1.5 text-[13px] font-semibold text-doux">Statuts</div>
             <div className="flex flex-wrap gap-2">

@@ -3,7 +3,7 @@ import { ecartJours } from '@/domain/dates'
 import type { Couleur } from '@/domain/relance'
 import { correspond, preparerRequete } from '@/domain/recherche'
 
-export type FiltreRapide = 'tous' | 'retard' | 'aujourdhui' | 'semaine' | 'positifs' | 'sans6mois' | 'archives'
+export type FiltreRapide = 'tous' | 'retard' | 'aujourdhui' | 'semaine' | 'positifs' | 'sans6mois' | 'archives' | 'ajour'
 
 export const FILTRES: { code: FiltreRapide; libelle: string }[] = [
   { code: 'tous', libelle: 'Tous' },
@@ -14,6 +14,9 @@ export const FILTRES: { code: FiltreRapide; libelle: string }[] = [
   { code: 'sans6mois', libelle: 'Sans contact depuis 6 mois' },
   { code: 'archives', libelle: 'Archivés' },
 ]
+
+/** Libellés des filtres qui ne sont pas proposés comme pastille (ouverts depuis l'accueil). */
+export const FILTRES_CACHES: Partial<Record<FiltreRapide, string>> = { ajour: 'À jour' }
 
 export interface ContactColore {
   contact: Contact
@@ -42,9 +45,14 @@ export function appliquerFiltre(liste: ContactColore[], filtre: FiltreRapide, ma
     case 'positifs':
       return actifs.filter(({ contact }) => contact.dernierResultatPositif || contact.temperature === 'chaud')
     case 'sans6mois':
-      return actifs.filter(
-        ({ contact }) => !contact.nePasContacter && (!contact.dernierContactAt || ecartJours(new Date(contact.dernierContactAt), maintenant) > 180),
-      )
+      // Jamais contacté : on compte depuis la création de la fiche (une fiche d'hier n'est pas « oubliée »).
+      return actifs.filter(({ contact }) => {
+        if (contact.nePasContacter) return false
+        const reference = contact.dernierContactAt ?? contact.createdAt
+        return ecartJours(new Date(reference), maintenant) > 180
+      })
+    case 'ajour':
+      return actifs.filter(({ couleur }) => couleur === 'vert')
   }
 }
 

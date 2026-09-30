@@ -33,6 +33,7 @@ export function ConnexionPage({ message }: { message?: string }) {
   const connecter = async (e: FormEvent) => {
     e.preventDefault()
     setErreur(null)
+    if (!email.trim() || !motDePasse) return setErreur('Indiquez votre email et votre mot de passe.')
     setOccupe(true)
     const { error } = await supabase().auth.signInWithPassword({ email: email.trim(), password: motDePasse })
     setOccupe(false)
@@ -54,7 +55,7 @@ export function ConnexionPage({ message }: { message?: string }) {
 
   return (
     <Cadre titre="Linkimmo" sousTitre="Connectez-vous pour retrouver vos données sur tous vos appareils.">
-      <form onSubmit={connecter} className="flex flex-col gap-4">
+      <form noValidate onSubmit={connecter} className="flex flex-col gap-4">
         <Champ libelle="Email">
           <div className="relative">
             <Mail className="pointer-events-none absolute left-4 top-1/2 size-5 -translate-y-1/2 text-doux" aria-hidden />
@@ -101,7 +102,7 @@ export function NouveauMotDePassePage() {
 
   return (
     <Cadre titre="Choisissez votre mot de passe" sousTitre="Il vous servira à vous connecter sur tous vos appareils.">
-      <form onSubmit={valider} className="flex flex-col gap-4">
+      <form noValidate onSubmit={valider} className="flex flex-col gap-4">
         <Champ libelle="Nouveau mot de passe" aide="Au moins 8 caractères.">
           <Saisie type="password" autoComplete="new-password" value={mdp} onChange={(e) => setMdp(e.target.value)} />
         </Champ>

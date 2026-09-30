@@ -73,6 +73,20 @@ create policy appareils_ajout on public.appareils for insert with check (user_id
 drop policy if exists appareils_maj on public.appareils;
 create policy appareils_maj on public.appareils for update using (user_id = auth.uid() or public.est_admin());
 
+-- Un appareil déconnecté à distance ne peut pas annuler lui-même sa déconnexion (seul l'admin le peut).
+create or replace function public.proteger_revocation() returns trigger
+language plpgsql security definer set search_path = public as $$
+begin
+  if old.revoque and not new.revoque and not public.est_admin() then
+    raise exception 'Seul un administrateur peut réactiver un appareil déconnecté' using errcode = '42501';
+  end if;
+  return new;
+end $$;
+
+drop trigger if exists proteger_revocation on public.appareils;
+create trigger proteger_revocation before update on public.appareils
+  for each row execute function public.proteger_revocation();
+
 -- ─── Fiches synchronisées ───────────────────────────────────────────────────
 -- Chaque fiche (contact, document, bien, piste…) est stockée avec ses données et,
 -- pour chaque champ, l'horodatage de sa dernière modification (fusion champ par champ).
@@ -122,7 +136,8 @@ alter table public.journal enable row level security;
 drop policy if exists journal_lecture on public.journal;
 create policy journal_lecture on public.journal for select using (public.est_membre());
 drop policy if exists journal_ajout on public.journal;
-create policy journal_ajout on public.journal for insert with check (public.est_membre());
+-- On ne peut pas écrire au journal au nom d'un collègue.
+create policy journal_ajout on public.journal for insert with check (public.est_membre() and (auteur is null or auteur = auth.uid()));
 
 -- ─── Envoi des modifications : fusion « dernière modification gagnante par champ » ──
 -- ops = [{ entite, id, champs: {champ: valeur}, ts: {champ: horodatage HLC} }, …]

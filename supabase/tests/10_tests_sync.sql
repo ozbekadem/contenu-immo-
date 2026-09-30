@@ -113,4 +113,24 @@ do $$ begin
   assert (select revoque from appareils where id = 'B'), 'appareil B déconnecté à distance par l''admin';
 end $$;
 
+-- L'appareil B ne peut pas annuler sa propre déconnexion
+do $$ begin
+  begin
+    update appareils set revoque = false where id = 'B';
+    raise exception 'la réactivation aurait dû être refusée';
+  exception when insufficient_privilege then null;
+  end;
+  assert (select revoque from appareils where id = 'B');
+end $$;
+
+-- Journal : impossible d'écrire au nom d'un collègue
+do $$ begin
+  begin
+    insert into journal (entite, row_id, champ, auteur) values ('contacts', gen_random_uuid(), 'nom', '00000000-0000-0000-0000-00000000000a');
+    raise exception 'écriture au nom d''un autre aurait dû être refusée';
+  exception when insufficient_privilege then null;
+  end;
+  insert into journal (entite, row_id, champ, auteur) values ('contacts', gen_random_uuid(), 'nom', '00000000-0000-0000-0000-00000000000b');
+end $$;
+
 \echo '✅ Tous les tests SQL sont passés.'

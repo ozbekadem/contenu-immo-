@@ -39,6 +39,30 @@ export const STATUTS_CONTACT: { code: StatutContact; libelle: string }[] = [
   { code: 'ancien_client', libelle: 'Ancien client' },
 ]
 
+/** Origine du contact : d'où vient le numéro (utile pour le suivi et exigé par le RGPD). */
+export type SourceContact =
+  | 'affiche'
+  | 'reperage'
+  | 'immoweb'
+  | '2ememain'
+  | 'autre_site'
+  | 'autre_agence'
+  | 'recommandation'
+  | 'ancien_client'
+  | 'autre'
+
+export const SOURCES_CONTACT: { code: SourceContact; libelle: string }[] = [
+  { code: 'affiche', libelle: 'Affiche « à vendre » (fenêtre, panneau)' },
+  { code: 'reperage', libelle: 'Repérage dans la rue' },
+  { code: 'immoweb', libelle: 'Annonce Immoweb' },
+  { code: '2ememain', libelle: 'Annonce 2ememain' },
+  { code: 'autre_site', libelle: 'Autre site d’annonces' },
+  { code: 'autre_agence', libelle: 'Bien chez une autre agence' },
+  { code: 'recommandation', libelle: 'Recommandation' },
+  { code: 'ancien_client', libelle: 'Ancien client' },
+  { code: 'autre', libelle: 'Autre' },
+]
+
 export type Civilite = 'M.' | 'Mme' | 'M. et Mme' | ''
 
 export interface Telephone {
@@ -72,6 +96,8 @@ export interface Contact extends Enregistrement {
   /** « AAAA-MM-JJ » */
   dateNaissance: string | null
   statuts: StatutContact[]
+  /** Origine du contact (facultatif). */
+  source?: SourceContact | null
   temperature: Temperature | null
   canalPrefere: Canal | null
   utilisationCanaux: Partial<Record<Canal, number>>

@@ -42,7 +42,7 @@ export const ContactLigne = memo(function ContactLigne({
           {temp && <temp.Icone className={`size-3.5 shrink-0 ${temp.cls}`} aria-label={temp.libelle} />}
         </div>
         <div className="truncate text-[13px] text-doux">
-          {[contact.adresse?.ville, `contact ${libelleDernierContact(dernier, maintenant)}`].filter(Boolean).join(' · ')}
+          {[contact.adresse?.ville, dernier ? `contacté ${libelleDernierContact(dernier, maintenant)}` : 'jamais contacté'].filter(Boolean).join(' · ')}
         </div>
       </div>
       <RelancePill couleur={couleur} relance={relance} maintenant={maintenant} />

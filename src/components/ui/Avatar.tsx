@@ -1,3 +1,4 @@
+import { Home } from 'lucide-react'
 import type { Couleur } from '@/domain/relance'
 import { StatusDot } from './StatusDot'
 
@@ -33,7 +34,7 @@ export function Avatar({
   const t = taille === 'lg' ? 'size-[72px] rounded-[26px] text-2xl' : 'size-11 rounded-2xl text-sm'
   return (
     <span className={`relative grid shrink-0 place-items-center font-bold ${t} ${teinte(cle)}`}>
-      {initiales}
+      {initiales || <Home className={taille === 'lg' ? 'size-8' : 'size-5'} aria-hidden />}
       {couleur && (
         <span className={`absolute rounded-full bg-surface p-[3px] ${taille === 'lg' ? '-bottom-1 -right-1' : '-bottom-0.5 -right-0.5'}`}>
           <StatusDot couleur={couleur} taille={taille === 'lg' ? 'lg' : 'sm'} />

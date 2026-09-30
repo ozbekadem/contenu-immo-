@@ -4,10 +4,12 @@ import { contacts, contactVide, type DonneesContact } from './repositories/conta
 import { piecesJointes } from './repositories/piecesJointes'
 
 const CLE_INITIALISE = 'demo.initialise'
+/** Deuxième série d'exemples (affiche, annonce Internet, contact à suivre), ajoutée le 30/09. */
+const CLE_SERIE_2 = 'demo.serie2'
 
 const iso = (d: Date) => d.toISOString()
 
-/** 5 contacts fictifs de la région de Charleroi, dans des situations de suivi variées. */
+/** Contacts fictifs de la région de Charleroi, dans des situations de suivi variées. */
 function contactsDemo(maintenant = new Date()): DonneesContact[] {
   const j = (n: number) => iso(ajouterJours(maintenant, n))
   return [
@@ -16,6 +18,7 @@ function contactsDemo(maintenant = new Date()): DonneesContact[] {
       civilite: 'Mme',
       prenom: 'Nathalie',
       nom: 'Lambert',
+      source: 'ancien_client',
       telephones: [{ numero: '0475 21 43 65', libelle: 'GSM' }],
       emails: ['nathalie.lambert@exemple.be'],
       adresse: { rue: 'Rue de Marchienne', numero: '48', boite: '', cp: '6110', ville: 'Montigny-le-Tilleul' },
@@ -32,6 +35,7 @@ function contactsDemo(maintenant = new Date()): DonneesContact[] {
       civilite: 'M.',
       prenom: 'Marc',
       nom: 'Dupont',
+      source: 'affiche',
       telephones: [{ numero: '0472 18 90 33', libelle: 'GSM' }],
       adresse: { rue: 'Chaussée de Bruxelles', numero: '212', boite: '', cp: '6040', ville: 'Jumet' },
       statuts: ['prospect_vendeur'],
@@ -47,6 +51,7 @@ function contactsDemo(maintenant = new Date()): DonneesContact[] {
       civilite: 'M. et Mme',
       prenom: 'Giuseppe et Anna',
       nom: 'Rossi',
+      source: 'reperage',
       telephones: [
         { numero: '0486 55 12 09', libelle: 'GSM Giuseppe' },
         { numero: '071 45 67 89', libelle: 'Fixe' },
@@ -65,6 +70,7 @@ function contactsDemo(maintenant = new Date()): DonneesContact[] {
       civilite: 'Mme',
       prenom: 'Sophie',
       nom: 'Claes',
+      source: 'immoweb',
       telephones: [{ numero: '0499 73 28 14', libelle: 'GSM' }],
       emails: ['sophie.claes@exemple.be'],
       adresse: { rue: 'Avenue Paul Pastur', numero: '301', boite: '2', cp: '6032', ville: 'Mont-sur-Marchienne' },
@@ -81,6 +87,7 @@ function contactsDemo(maintenant = new Date()): DonneesContact[] {
       civilite: 'M.',
       prenom: 'Karim',
       nom: 'Benali',
+      source: 'autre',
       societe: 'Benali Rénovation SRL',
       telephones: [{ numero: '0478 64 20 51', libelle: 'GSM' }],
       emails: ['contact@benali-renovation.exemple.be'],
@@ -96,11 +103,110 @@ function contactsDemo(maintenant = new Date()): DonneesContact[] {
   ]
 }
 
-/** Au tout premier lancement, installe les contacts de démonstration (une seule fois). */
+/**
+ * Exemples de prospection réalistes :
+ * 1. une affiche « à vendre » collée sur une fenêtre (seul le numéro est connu) ;
+ * 2. une annonce de particulier trouvée sur Internet (lien de l'annonce joint à la fiche) ;
+ * 3. une propriétaire rencontrée par recommandation, à suivre sur plusieurs mois.
+ */
+function contactsDemoSerie2(maintenant = new Date()): { contact: DonneesContact; liens?: { url: string; titre: string; note: string }[] }[] {
+  const j = (n: number) => iso(ajouterJours(maintenant, n))
+  return [
+    {
+      contact: {
+        ...contactVide(),
+        telephones: [{ numero: '0477 31 52 86', libelle: 'Lu sur l’affiche' }],
+        adresse: { rue: 'Rue de la Montagne', numero: '88', boite: '', cp: '6000', ville: 'Charleroi' },
+        statuts: ['prospect_vendeur'],
+        source: 'affiche',
+        tags: ['affiche', 'particulier'],
+        notes:
+          'Affiche « À VENDRE – particulier » collée à la fenêtre du rez-de-chaussée. Maison 2 façades, ' +
+          'probablement 3 chambres, châssis récents, pas de panneau d’agence. Numéro lu sur l’affiche ; ' +
+          'nom du propriétaire encore inconnu. Premier appel à faire aujourd’hui.',
+        prochaineRelanceAt: j(0),
+      },
+    },
+    {
+      contact: {
+        ...contactVide(),
+        civilite: 'M.',
+        prenom: 'Jacques',
+        nom: 'Hermans',
+        telephones: [{ numero: '0468 12 77 40', libelle: 'GSM (annonce)' }],
+        adresse: { rue: 'Rue Wilmet', numero: '23', boite: '', cp: '6041', ville: 'Gosselies' },
+        statuts: ['prospect_vendeur'],
+        source: '2ememain',
+        temperature: 'tiede',
+        tags: ['particulier', 'baisse de prix'],
+        notes:
+          'Vend lui-même sa maison sur 2ememain (3 chambres, jardin, garage). En ligne depuis 3 mois, ' +
+          'prix baissé de 235 000 € à 219 000 €. Appelé : veut encore essayer seul jusqu’à fin octobre, ' +
+          'd’accord pour qu’on le rappelle. Argument : estimation gratuite + photos professionnelles.',
+        dernierContactAt: j(-18),
+        prochaineRelanceAt: j(2),
+      },
+      liens: [
+        {
+          url: 'https://www.2ememain.be/v/immo/maisons-a-vendre/m0000000000-maison-3-ch-jardin-garage-gosselies',
+          titre: 'Annonce 2ememain – Maison 3 ch. avec jardin – 219 000 €',
+          note: 'Prix initial 235 000 € (juin), baissé à 219 000 € (septembre).',
+        },
+      ],
+    },
+    {
+      contact: {
+        ...contactVide(),
+        civilite: 'Mme',
+        prenom: 'Isabelle',
+        nom: 'Renard',
+        telephones: [{ numero: '0494 60 18 27', libelle: 'GSM' }],
+        emails: ['isabelle.renard@exemple.be'],
+        adresse: { rue: 'Avenue Meurée', numero: '54', boite: '', cp: '6001', ville: 'Marcinelle' },
+        statuts: ['prospect_vendeur', 'bailleur'],
+        source: 'recommandation',
+        temperature: 'tiede',
+        canalPrefere: 'whatsapp',
+        tags: ['recommandée par Karim Benali'],
+        notes:
+          'Recommandée par Karim Benali (entrepreneur). Propriétaire d’un appartement 2 chambres loué ' +
+          'à Marcinelle, bail jusqu’à fin mars. Souhaite vendre après le départ du locataire. ' +
+          'Rappeler début janvier pour préparer l’estimation et la visite.',
+        dernierContactAt: j(-5),
+        prochaineRelanceAt: j(95),
+      },
+    },
+  ]
+}
+
+async function creerSerie2(): Promise<void> {
+  for (const { contact, liens } of contactsDemoSerie2()) {
+    const fiche = await contacts.creer(contact, { demo: true })
+    for (const lien of liens ?? []) await piecesJointes.ajouterLien('contacts', fiche.id, lien)
+  }
+}
+
+/**
+ * Au tout premier lancement, installe les contacts de démonstration (une seule fois).
+ * Sur un appareil qui a déjà les premiers exemples, ajoute la deuxième série — sauf si
+ * les données de démonstration ont été supprimées.
+ */
 export async function initialiserDemo(): Promise<void> {
-  if (await db.meta.get(CLE_INITIALISE)) return
-  await db.meta.put({ cle: CLE_INITIALISE, valeur: new Date().toISOString() })
-  if ((await contacts.compter()) === 0) await contacts.creerPlusieurs(contactsDemo(), { demo: true })
+  if (!(await db.meta.get(CLE_INITIALISE))) {
+    await db.meta.bulkPut([
+      { cle: CLE_INITIALISE, valeur: new Date().toISOString() },
+      { cle: CLE_SERIE_2, valeur: new Date().toISOString() },
+    ])
+    if ((await contacts.compter()) === 0) {
+      await contacts.creerPlusieurs(contactsDemo(), { demo: true })
+      await creerSerie2()
+    }
+    return
+  }
+  if (await db.meta.get(CLE_SERIE_2)) return
+  await db.meta.put({ cle: CLE_SERIE_2, valeur: new Date().toISOString() })
+  const demoPresente = (await db.contacts.filter((c) => c._demo === true).count()) > 0
+  if (demoPresente) await creerSerie2()
 }
 
 export async function supprimerDemo(): Promise<number> {
