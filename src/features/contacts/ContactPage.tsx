@@ -16,7 +16,10 @@ import {
 } from 'lucide-react'
 import { useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router'
+import { DatesCles } from '@/components/DatesCles'
 import { PiecesJointes } from '@/components/PiecesJointes'
+import { PisteLigne } from '@/features/prospection/ProspectionPage'
+import { usePistes } from '@/features/prospection/usePistes'
 import { RelanceChoix } from '@/components/RelanceChoix'
 import { Feuille } from '@/components/ui/Feuille'
 import { ecartJours } from '@/domain/dates'
@@ -42,7 +45,7 @@ const ONGLETS: { code: Onglet; libelle: string; etape?: number }[] = [
   { code: 'identite', libelle: 'Identité' },
   { code: 'documents', libelle: 'Documents et liens' },
   { code: 'biens', libelle: 'Biens et photos', etape: 7 },
-  { code: 'prospection', libelle: 'Prospection', etape: 5 },
+  { code: 'prospection', libelle: 'Prospection' },
   { code: 'historique', libelle: 'Historique' },
   { code: 'rappels', libelle: 'Rappels', etape: 8 },
   { code: 'rgpd', libelle: 'RGPD', etape: 11 },
@@ -181,6 +184,7 @@ const LIBELLES_CHAMPS: Record<string, string> = {
   dateNaissance: 'Date de naissance',
   statuts: 'Statuts',
   source: 'Origine',
+  datesCles: 'Dates clés',
   temperature: 'Température',
   canalPrefere: 'Canal préféré',
   tags: 'Tags',
@@ -228,6 +232,35 @@ function Journal({ id }: { id: string }) {
         ))}
       </ol>
     </Card>
+  )
+}
+
+/** Pistes (annonces, maisons vides) de ce contact + ses dates clés. */
+function ProspectionContact({ contact }: { contact: Contact }) {
+  const { liste, maintenant } = usePistes()
+  const siennes = (liste ?? []).filter((v) => v.piste.contactId === contact.id)
+  return (
+    <div className="flex flex-col gap-4">
+      <Card className="overflow-hidden !p-0">
+        <div className="px-4 pt-4">
+          <SectionTitle>Biens suivis</SectionTitle>
+        </div>
+        {siennes.length === 0 ? (
+          <p className="px-4 pb-4 text-sm text-doux">Aucune annonce ni maison vide reliée à ce contact.</p>
+        ) : (
+          <div className="pb-1 [&>div:not(:last-child)]:border-b [&>div:not(:last-child)]:border-bord/60">
+            {siennes.map((v) => (
+              <PisteLigne key={v.piste.id} vue={v} maintenant={maintenant} />
+            ))}
+          </div>
+        )}
+      </Card>
+      <DatesCles
+        dates={contact.datesCles ?? []}
+        prochaineRelanceAt={contact.prochaineRelanceAt}
+        enregistrer={(datesCles, prochaineRelanceAt) => contacts.modifier(contact.id, { datesCles, prochaineRelanceAt })}
+      />
+    </div>
   )
 }
 
@@ -420,6 +453,7 @@ export default function ContactPage() {
         {onglet === 'identite' && <Identite contact={contact} />}
         {onglet === 'documents' && <PiecesJointes entite="contacts" entiteId={contact.id} />}
         {onglet === 'historique' && <Historique contact={contact} />}
+        {onglet === 'prospection' && <ProspectionContact contact={contact} />}
         {onglet === 'journal' && <Journal id={contact.id} />}
         {ongletCourant.etape && (
           <p className="rounded-3xl bg-surface p-8 text-center text-sm text-doux shadow-carte dark:shadow-none">

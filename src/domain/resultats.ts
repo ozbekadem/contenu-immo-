@@ -13,6 +13,11 @@ export type CodeResultat =
   | 'ne_pas_rappeler'
   | 'message_envoye'
   | 'note'
+  // Maisons vides
+  | 'visite'
+  | 'accord'
+  | 'introuvable'
+  | 'pas_vendeur'
 
 export interface DefinitionResultat {
   code: CodeResultat
@@ -45,13 +50,25 @@ export const RESULTATS: Record<CodeResultat, DefinitionResultat> = {
   ne_pas_rappeler: { code: 'ne_pas_rappeler', libelle: 'Ne plus rappeler', joint: true, positif: false, tentative: false, relanceParDefaut: null, ton: 'negatif' },
   message_envoye: { code: 'message_envoye', libelle: 'Message envoyé', joint: true, positif: false, tentative: false, relanceParDefaut: (d) => ajouterJours(d, 3), ton: 'neutre' },
   note: { code: 'note', libelle: 'Note', joint: false, positif: false, tentative: false, relanceParDefaut: null, ton: 'neutre' },
+  visite: { code: 'visite', libelle: 'Visite obtenue', joint: true, positif: true, tentative: false, relanceParDefaut: (d) => ajouterJours(d, 7), ton: 'positif' },
+  accord: { code: 'accord', libelle: 'Accord d’achat', joint: true, positif: true, tentative: false, relanceParDefaut: (d) => ajouterMois(d, 1), ton: 'positif' },
+  introuvable: { code: 'introuvable', libelle: 'Propriétaire introuvable', joint: false, positif: false, tentative: false, relanceParDefaut: (d) => ajouterJours(d, 14), ton: 'neutre' },
+  pas_vendeur: { code: 'pas_vendeur', libelle: 'Pas vendeur', joint: true, positif: false, tentative: false, relanceParDefaut: (d) => ajouterMois(d, 6), ton: 'negatif' },
 }
 
-/** Résultats proposés après une action, dans l'ordre d'affichage. */
-export function resultatsPour(canal: Canal | 'note'): CodeResultat[] {
+/**
+ * Résultats proposés après une action, dans l'ordre d'affichage, selon la catégorie de prospection :
+ * annonces (objectif mandat) ou maisons vides (objectif achat en privé).
+ */
+export function resultatsPour(canal: Canal | 'note', categorie: 'portefeuille' | 'annonce' | 'maison_vide' = 'portefeuille'): CodeResultat[] {
+  if (categorie === 'maison_vide') {
+    if (canal === 'appel') return ['visite', 'rappeler', 'pas_reponse', 'messagerie', 'accord', 'introuvable', 'pas_vendeur', 'numero_errone', 'ne_pas_rappeler']
+    if (canal === 'note') return ['note', 'visite', 'rappeler', 'accord', 'introuvable', 'pas_vendeur', 'ne_pas_rappeler']
+    return ['message_envoye', 'visite', 'rappeler', 'accord', 'pas_vendeur', 'numero_errone', 'ne_pas_rappeler']
+  }
   if (canal === 'appel') return ['rdv', 'interesse', 'rappeler', 'pas_reponse', 'messagerie', 'pas_interesse', 'mandat', 'numero_errone', 'ne_pas_rappeler']
   if (canal === 'note') return ['note', 'rdv', 'interesse', 'rappeler', 'pas_interesse', 'mandat', 'ne_pas_rappeler']
-  return ['message_envoye', 'rdv', 'interesse', 'rappeler', 'pas_interesse', 'numero_errone', 'ne_pas_rappeler']
+  return ['message_envoye', 'rdv', 'interesse', 'rappeler', 'pas_interesse', 'mandat', 'numero_errone', 'ne_pas_rappeler']
 }
 
 export interface EtatSuiviContact {
@@ -87,9 +104,11 @@ export function appliquerResultat(
     suivant.dernierResultatPositif = r.positif
   }
   if (r.tentative) suivant.tentatives = etat.tentatives + 1
-  if (code === 'pas_interesse') suivant.temperature = 'froid'
-  if (code === 'rdv' || code === 'mandat') suivant.temperature = 'chaud'
-  if (code === 'mandat' && !etat.statuts.includes('vendeur')) suivant.statuts = [...etat.statuts, 'vendeur']
+  if (code === 'pas_interesse' || code === 'pas_vendeur') suivant.temperature = 'froid'
+  if (code === 'rdv' || code === 'mandat' || code === 'visite' || code === 'accord') suivant.temperature = 'chaud'
+  // Mandat signé ou accord d'achat : le prospect devient client (vendeur), sans ressaisie.
+  if ((code === 'mandat' || code === 'accord') && !etat.statuts.includes('vendeur'))
+    suivant.statuts = [...etat.statuts.filter((s) => s !== 'prospect_vendeur'), 'vendeur']
   if (code === 'ne_pas_rappeler') {
     suivant.nePasContacter = true
     suivant.prochaineRelanceAt = null

@@ -1,4 +1,5 @@
 import { ecartJours } from './dates'
+import { baisseRecente, prochaineDateCle, TYPES_DATE_CLE, type DateCle, type PointPrix } from './prospection'
 import type { Couleur, Temperature } from './relance'
 
 export interface ProspectAClasser {
@@ -9,6 +10,11 @@ export interface ProspectAClasser {
   temperature: Temperature | null
   dernierResultatPositif: boolean
   tentatives?: number
+  /** Signal urgent de la veille (« Annonce retirée », « Prix baissé de … »). */
+  alerte?: string | null
+  historiquePrix?: PointPrix[]
+  enVenteDepuis?: string | null
+  datesCles?: DateCle[]
 }
 
 export interface Priorite {
@@ -24,6 +30,28 @@ export function priorite(p: ProspectAClasser, maintenant: Date): Priorite | null
   if (p.couleur !== 'orange' && p.couleur !== 'rouge') return null
   let score = 0
   const raisons: string[] = []
+
+  if (p.alerte) {
+    score += 45
+    raisons.push(p.alerte.charAt(0).toLowerCase() + p.alerte.slice(1))
+  }
+  const baisse = !p.alerte ? baisseRecente(p.historiquePrix, maintenant) : null
+  if (baisse) {
+    score += 25
+    raisons.push(`prix baissé il y a ${baisse.il_y_a} j`)
+  }
+  const dc = prochaineDateCle(p.datesCles, maintenant)
+  if (dc && dc.jours <= 60) {
+    score += 20
+    raisons.push(`${TYPES_DATE_CLE[dc.dc.type].libelle.toLowerCase()} dans ${dc.jours} j`)
+  }
+  if (p.enVenteDepuis) {
+    const depuis = ecartJours(new Date(p.enVenteDepuis), maintenant)
+    if (depuis >= 90) {
+      score += 10
+      raisons.push(`en vente depuis ${depuis} j`)
+    }
+  }
 
   if (p.dernierResultatPositif) {
     score += 40

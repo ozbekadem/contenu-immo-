@@ -18,6 +18,7 @@ const RepererPage = lazy(() => import('@/features/reperer/RepererPage'))
 const ContactsPage = lazy(() => import('@/features/contacts/ContactsPage'))
 const ContactPage = lazy(() => import('@/features/contacts/ContactPage'))
 const ContactFormPage = lazy(() => import('@/features/contacts/ContactFormPage'))
+const PistePage = lazy(() => import('@/features/prospection/PistePage'))
 
 export const routes: RouteObject[] = [
   {
@@ -26,6 +27,7 @@ export const routes: RouteObject[] = [
       { index: true, element: <AujourdhuiPage /> },
       { path: 'prospection', element: <ProspectionPage /> },
       { path: 'reperer', element: <RepererPage /> },
+      { path: 'pistes/:id', element: <PistePage /> },
       { path: 'contacts', element: <ContactsPage /> },
       { path: 'contacts/nouveau', element: <ContactFormPage /> },
       { path: 'contacts/:id', element: <ContactPage /> },

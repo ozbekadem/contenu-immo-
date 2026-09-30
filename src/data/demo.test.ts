@@ -23,6 +23,22 @@ describe('données de démonstration', () => {
     expect(liens[0]).toMatchObject({ type: 'lien', _demo: true })
     expect(liens[0]!.url).toContain('2ememain.be')
     expect(liste.find((c) => c.nom === 'Renard')!.source).toBe('recommandation')
+    // Pistes de prospection de démonstration
+    const lesPistes = await db.pistes.toArray()
+    expect(lesPistes.map((p) => p.categorie).sort()).toEqual(['annonce', 'annonce', 'maison_vide', 'maison_vide'])
+    expect(lesPistes.every((p) => p._demo)).toBe(true)
+    expect(lesPistes.filter((p) => !p.contactId)).toHaveLength(1) // propriétaire inconnu
+    expect(await db.outbox.count()).toBe(0) // rien ne part au serveur
+  })
+
+  it('« supprimer la démo » efface aussi pistes, biens et photos', async () => {
+    await initialiserDemo()
+    await supprimerDemo()
+    expect(await db.pistes.count()).toBe(0)
+    expect(await db.biens.count()).toBe(0)
+    expect(await db.contacts.count()).toBe(0)
+    expect(await db.photos.count()).toBe(0)
+    expect(await db.photosLocales.count()).toBe(0)
   })
 
   it('aucun doublon au redémarrage', async () => {
@@ -31,18 +47,21 @@ describe('données de démonstration', () => {
     expect(await demo()).toHaveLength(8)
   })
 
-  it('un appareil qui a déjà la première série reçoit les 3 nouveaux exemples', async () => {
+  it('un appareil qui a déjà la première série reçoit les nouveaux exemples', async () => {
     await db.meta.put({ cle: 'demo.initialise', valeur: 'ancien' })
     await contacts.creer({ ...contactVide(), nom: 'Ancien' }, { demo: true })
     await initialiserDemo()
     expect(await demo()).toHaveLength(4)
+    expect(await db.pistes.count()).toBeGreaterThan(0)
   })
 
   it('rien n’est ajouté si la démonstration a été supprimée', async () => {
     await initialiserDemo()
     await supprimerDemo()
     await db.meta.delete('demo.serie2')
+    await db.meta.delete('demo.serie3')
     await initialiserDemo()
     expect(await demo()).toHaveLength(0)
+    expect(await db.pistes.count()).toBe(0)
   })
 })

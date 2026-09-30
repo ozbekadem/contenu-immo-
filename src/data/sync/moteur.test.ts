@@ -3,6 +3,8 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { Horloge } from '@/domain/hlc'
 import { LinkimmoDB } from '../db'
 import { ContactRepository, contactVide } from '../repositories/contacts'
+import { BienRepository, bienVide } from '../repositories/biens'
+import { PhotoRepository } from '../repositories/photos'
 import { PieceJointeRepository } from '../repositories/piecesJointes'
 import { ENTITES_SYNC } from './entites'
 import { FauxServeur } from './fauxServeur'
@@ -134,6 +136,27 @@ describe('Synchronisation entre appareils', () => {
     const blob = await b.moteur.telechargerFichier(recue!)
     expect(blob).toBeDefined()
     expect(await b.db.fichiers.get(p.id)).toBeDefined() // gardé pour la consultation hors ligne
+  })
+
+  it('une photo de terrain est envoyée (pleine taille + miniature) puis récupérable ailleurs', async () => {
+    const a = appareil('a')
+    const b = appareil('b')
+    const bien = await new BienRepository(a.db).creer({ ...bienVide(), lat: 50.41, lng: 4.44 })
+    const [photo] = await new PhotoRepository(a.db).ajouter(bien.id, null, [
+      { image: new Blob(['grande'], { type: 'image/webp' }), miniature: new Blob(['mini'], { type: 'image/webp' }), largeur: 1600, hauteur: 1200 },
+    ])
+    await a.moteur.synchroniser()
+    // (L'extension dépend du format gardé par le navigateur : webp, ou jpg en repli.)
+    const chemins = [...serveur.fichiers.keys()].map((c) => c.replace(/\.(webp|jpg)$/, '')).sort()
+    expect(chemins).toEqual([`photos/${bien.id}/${photo!.id}`, `photos/${bien.id}/${photo!.id}-mini`])
+    expect(await a.db.outbox.count()).toBe(0)
+
+    await b.moteur.synchroniser()
+    const recue = await b.db.photos.get(photo!.id)
+    expect(recue).toMatchObject({ bienId: bien.id })
+    expect(recue!.cheminStockage).toMatch(new RegExp(`^photos/${bien.id}/${photo!.id}\\.`))
+    expect(await b.moteur.telechargerPhoto(recue!, true)).toBeDefined()
+    expect((await b.db.photosLocales.get(photo!.id))!.miniature).toBeDefined()
   })
 
   it('un appareil déconnecté à distance est prévenu', async () => {

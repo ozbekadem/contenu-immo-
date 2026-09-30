@@ -45,8 +45,15 @@ describe('appliquerResultat', () => {
     expect(new Date(e.prochaineRelanceAt!).getMonth()).toBe(2) // mars
   })
 
-  it('mandat signé : le prospect devient vendeur', () => {
-    expect(appliquerResultat(etat, 'mandat', quand).statuts).toEqual(['prospect_vendeur', 'vendeur'])
+  it('mandat signé ou accord d’achat : le prospect devient client (vendeur)', () => {
+    expect(appliquerResultat(etat, 'mandat', quand).statuts).toEqual(['vendeur'])
+    expect(appliquerResultat({ ...etat, statuts: ['bailleur', 'prospect_vendeur'] }, 'accord', quand).statuts).toEqual(['bailleur', 'vendeur'])
+  })
+
+  it('propriétaire introuvable : relance automatique à 14 jours, pas de « dernier contact »', () => {
+    const e = appliquerResultat(etat, 'introuvable', quand)
+    expect(e.dernierContactAt).toBeNull()
+    expect(new Date(e.prochaineRelanceAt!)).toEqual(new Date(2026, 9, 14, 14, 0))
   })
 
   it('ne plus rappeler : bloqué et plus de relance', () => {
@@ -77,6 +84,24 @@ describe('Qui appeler en premier', () => {
     ]
     const ordre = classer(liste, quand).map((x) => x.element.id)
     expect(ordre).toEqual(['chaud', 'affiche', 'retard'])
+  })
+
+  it('les signaux de veille et les dates clés passent en tête, avec leur raison', () => {
+    const liste = [
+      { id: 'retard', ...base, couleur: 'rouge' as const, prochaineRelanceAt: jour(-5) },
+      { id: 'retiree', ...base, couleur: 'orange' as const, prochaineRelanceAt: jour(0), alerte: 'Annonce retirée' },
+      {
+        id: 'bail',
+        ...base,
+        couleur: 'orange' as const,
+        prochaineRelanceAt: jour(0),
+        datesCles: [{ id: 'd', type: 'fin_bail' as const, date: '2026-11-10', note: '' }],
+      },
+    ]
+    const c = classer(liste, quand)
+    expect(c.map((x) => x.element.id)).toEqual(['retiree', 'bail', 'retard'])
+    expect(c[0]!.priorite.raisons[0]).toBe('annonce retirée')
+    expect(c[1]!.priorite.raisons[0]).toBe('fin de bail dans 41 j')
   })
 
   it('donne les raisons en clair et pénalise les appels sans réponse', () => {

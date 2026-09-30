@@ -33,6 +33,10 @@ export abstract class RepositoryBase<T extends Enregistrement> {
     return this.table.get(id)
   }
 
+  filtrer(f: (fiche: T) => boolean): Promise<T[]> {
+    return this.table.filter(f).toArray()
+  }
+
   async creer(donnees: Donnees<T>, options: { demo?: boolean; journaliser?: boolean } = {}): Promise<T> {
     const [fiche] = await this.creerPlusieurs([donnees], options)
     return fiche!

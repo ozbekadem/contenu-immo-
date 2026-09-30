@@ -2,11 +2,17 @@ import { ajouterJours } from '@/domain/dates'
 import { db } from './db'
 import { contacts, contactVide, type DonneesContact } from './repositories/contacts'
 import { interactions } from './repositories/interactions'
+import { biens } from './repositories/biens'
+import { photos } from './repositories/photos'
+import { pistes } from './repositories/pistes'
+import type { PhotoCompressee } from './repositories/photos'
 import { piecesJointes } from './repositories/piecesJointes'
 
 const CLE_INITIALISE = 'demo.initialise'
 /** Deuxième série d'exemples (affiche, annonce Internet, contact à suivre), ajoutée le 30/09. */
 const CLE_SERIE_2 = 'demo.serie2'
+/** Troisième série : pistes de prospection (affiche, annonce, maisons vides), ajoutée à l'étape 5. */
+const CLE_SERIE_3 = 'demo.serie3'
 
 const iso = (d: Date) => d.toISOString()
 
@@ -201,18 +207,202 @@ export async function initialiserDemo(): Promise<void> {
     if ((await contacts.compter()) === 0) {
       await contacts.creerPlusieurs(contactsDemo(), { demo: true })
       await creerSerie2()
+      await db.meta.put({ cle: CLE_SERIE_3, valeur: new Date().toISOString() })
+      await creerSerie3()
     }
     return
   }
-  if (await db.meta.get(CLE_SERIE_2)) return
-  await db.meta.put({ cle: CLE_SERIE_2, valeur: new Date().toISOString() })
-  const demoPresente = (await db.contacts.filter((c) => c._demo === true).count()) > 0
-  if (demoPresente) await creerSerie2()
+  const demoPresente = async () => (await db.contacts.filter((c) => c._demo === true).count()) > 0
+  if (!(await db.meta.get(CLE_SERIE_2))) {
+    await db.meta.put({ cle: CLE_SERIE_2, valeur: new Date().toISOString() })
+    if (await demoPresente()) await creerSerie2()
+  }
+  if (!(await db.meta.get(CLE_SERIE_3))) {
+    await db.meta.put({ cle: CLE_SERIE_3, valeur: new Date().toISOString() })
+    if (await demoPresente()) await creerSerie3()
+  }
+}
+
+/** Photo d'illustration dessinée sur l'appareil (façade stylisée), pour la démonstration. */
+async function photoIllustration(teinte: string, fenetresFermees: boolean): Promise<PhotoCompressee | null> {
+  if (typeof document === 'undefined') return null
+  const canvas = document.createElement('canvas')
+  const ctx = canvas.getContext?.('2d')
+  if (!ctx) return null
+  canvas.width = 800
+  canvas.height = 600
+  const ciel = ctx.createLinearGradient(0, 0, 0, 600)
+  ciel.addColorStop(0, '#9cc9f5')
+  ciel.addColorStop(1, '#e8f2fb')
+  ctx.fillStyle = ciel
+  ctx.fillRect(0, 0, 800, 600)
+  ctx.fillStyle = '#7a8b6f'
+  ctx.fillRect(0, 500, 800, 100)
+  ctx.fillStyle = teinte
+  ctx.fillRect(170, 220, 460, 290)
+  ctx.fillStyle = '#5b4a45'
+  ctx.beginPath()
+  ctx.moveTo(140, 230)
+  ctx.lineTo(400, 90)
+  ctx.lineTo(660, 230)
+  ctx.closePath()
+  ctx.fill()
+  for (const [x, y] of [
+    [220, 270],
+    [480, 270],
+    [220, 390],
+  ]) {
+    ctx.fillStyle = fenetresFermees ? '#6b6b6b' : '#cfe6f7'
+    ctx.fillRect(x!, y!, 100, 80)
+    ctx.strokeStyle = '#ffffff'
+    ctx.lineWidth = 6
+    ctx.strokeRect(x!, y!, 100, 80)
+  }
+  ctx.fillStyle = '#3b2f2b'
+  ctx.fillRect(470, 380, 80, 130)
+  const versBlob = (l: number, h: number) =>
+    new Promise<Blob | null>((ok) => {
+      if (l === 800) return canvas.toBlob(ok, 'image/jpeg', 0.8)
+      const petit = document.createElement('canvas')
+      petit.width = l
+      petit.height = h
+      petit.getContext('2d')!.drawImage(canvas, 0, 0, l, h)
+      petit.toBlob(ok, 'image/jpeg', 0.7)
+    })
+  const [image, miniature] = await Promise.all([versBlob(800, 600), versBlob(400, 300)])
+  return image && miniature ? { image, miniature, largeur: 800, hauteur: 600 } : null
+}
+
+/** Pistes de démonstration reliées aux contacts fictifs. */
+async function creerSerie3(): Promise<void> {
+  const maintenant = new Date()
+  const j = (n: number) => ajouterJours(maintenant, n).toISOString()
+  const demo = await db.contacts.filter((c) => c._demo === true).toArray()
+  const parNom = (n: string) => demo.find((c) => c.nom === n)
+  const montagne = demo.find((c) => !c.nom && c.adresse?.rue === 'Rue de la Montagne')
+  const hermans = parNom('Hermans')
+  const rossi = parNom('Rossi')
+  const renard = parNom('Renard')
+  const avecPhoto = async (teinte: string, ferme: boolean) => {
+    const p = await photoIllustration(teinte, ferme)
+    return p ? [p] : []
+  }
+
+  if (montagne) {
+    await pistes.creerDepuisTerrain(
+      {
+        categorie: 'annonce',
+        source: 'affiche',
+        telephone: '',
+        nomProprietaire: '',
+        adresse: montagne.adresse,
+        position: { lat: 50.40797, lng: 4.44006, precision: 6 },
+        adresseAChercher: false,
+        typeBien: 'maison',
+        prix: null,
+        sourceUrl: null,
+        indices: [],
+        notes: 'Affiche « À VENDRE – particulier » collée à la fenêtre du rez. Maison 2 façades, châssis récents.',
+        photos: await avecPhoto('#d9b38c', false),
+        contactExistantId: montagne.id,
+      },
+      { demo: true, maintenant },
+    )
+  }
+
+  if (hermans) {
+    const p = await pistes.creerDepuisTerrain(
+      {
+        categorie: 'annonce',
+        source: '2ememain',
+        telephone: '',
+        nomProprietaire: '',
+        adresse: hermans.adresse,
+        position: { lat: 50.4602, lng: 4.4331, precision: 10 },
+        adresseAChercher: false,
+        typeBien: 'maison',
+        prix: 235000,
+        sourceUrl: 'https://www.2ememain.be/v/immo/maisons-a-vendre/m0000000000-maison-3-ch-jardin-garage-gosselies',
+        indices: [],
+        notes: 'Vend seul depuis juin. Estimation gratuite + photos pro comme arguments.',
+        photos: await avecPhoto('#c9c2b4', false),
+        contactExistantId: hermans.id,
+      },
+      { demo: true, maintenant },
+    )
+    await pistes.modifier(p.id, {
+      historiquePrix: [
+        { date: j(-95), prix: 235000 },
+        { date: j(-12), prix: 219000 },
+      ],
+      prix: 219000,
+      enVenteDepuis: j(-95),
+      veilleProchaine: j(0),
+      statut: 'en_cours',
+      dernierContactAt: j(-18),
+      temperature: 'tiede',
+      prochaineRelanceAt: j(2),
+    })
+  }
+
+  if (rossi) {
+    const p = await pistes.creerDepuisTerrain(
+      {
+        categorie: 'maison_vide',
+        source: 'reperage',
+        telephone: '',
+        nomProprietaire: '',
+        adresse: rossi.adresse,
+        position: { lat: 50.4205, lng: 4.4868, precision: 8 },
+        adresseAChercher: false,
+        typeBien: 'maison',
+        prix: null,
+        sourceUrl: null,
+        indices: ['boite_pleine', 'volets_fermes', 'jardin', 'lumiere'],
+        notes: 'Maison de la mère décédée. Les enfants hésitent entre vendre et louer.',
+        photos: await avecPhoto('#bfb3a3', true),
+        contactExistantId: rossi.id,
+      },
+      { demo: true, maintenant },
+    )
+    await pistes.modifier(p.id, { statut: 'en_cours', dernierContactAt: j(-40), prochaineRelanceAt: j(-3), temperature: 'froid' })
+  }
+
+  // Maison vide dont le propriétaire est encore inconnu
+  await pistes.creerDepuisTerrain(
+    {
+      categorie: 'maison_vide',
+      source: 'reperage',
+      telephone: '',
+      nomProprietaire: '',
+      adresse: { rue: 'Rue du Moulin', numero: '14', boite: '', cp: '6061', ville: 'Montignies-sur-Sambre' },
+      position: { lat: 50.4072, lng: 4.4812, precision: 7 },
+      adresseAChercher: false,
+      typeBien: 'maison',
+      prix: null,
+      sourceUrl: null,
+      indices: ['boite_pleine', 'volets_fermes', 'vitres', 'facade', 'compteurs'],
+      notes: 'Voisine (n° 16) : vide depuis 2 ans, propriétaire parti en maison de repos. Demander l’extrait cadastral.',
+      photos: await avecPhoto('#a89f94', true),
+    },
+    { demo: true, maintenant },
+  )
+
+  if (renard) {
+    await contacts.modifier(renard.id, {
+      datesCles: [{ id: crypto.randomUUID(), type: 'fin_bail', date: `${maintenant.getFullYear() + 1}-03-31`, note: 'Locataire prévenu, départ confirmé' }],
+    })
+  }
 }
 
 export async function supprimerDemo(): Promise<number> {
   await piecesJointes.supprimerDemo()
   await interactions.supprimerDemo()
+  const idsPhotos = (await db.photos.filter((p) => p._demo === true).primaryKeys()) as string[]
+  await db.photosLocales.bulkDelete(idsPhotos)
+  await photos.supprimerDemo()
+  await pistes.supprimerDemo()
+  await biens.supprimerDemo()
   return contacts.supprimerDemo()
 }
 

@@ -69,8 +69,9 @@ export class PieceJointeRepository extends RepositoryBase<PieceJointe> {
 
   /** Un document joint à une fiche de démonstration reste lui aussi local (jamais synchronisé). */
   private async parentEstDemo(entite: EntiteLiee, entiteId: string): Promise<boolean> {
-    if (entite !== 'contacts') return false
-    return (await this.db.contacts.get(entiteId))?._demo === true
+    if (entite === 'contacts') return (await this.db.contacts.get(entiteId))?._demo === true
+    if (entite === 'pistes') return (await this.db.pistes.get(entiteId))?._demo === true
+    return (await this.db.biens.get(entiteId))?._demo === true
   }
 
   override async supprimerDemo(): Promise<number> {

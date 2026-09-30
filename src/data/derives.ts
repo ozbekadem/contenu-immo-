@@ -1,7 +1,9 @@
 import { empreinte } from '@/domain/doublons'
 import { cleTri, construireIndex, construireIndexPhonetique } from '@/domain/recherche'
 import { normaliserTelephone } from '@/domain/telephone'
-import { SOURCES_CONTACT, type Contact } from './types'
+import { cleAdresse } from '@/domain/adresse'
+import { cleAnnonce } from '@/domain/prospection'
+import { SOURCES_CONTACT, type Bien, type Contact, type Piste } from './types'
 
 /**
  * Champs locaux calculés d'un contact : index de recherche (texte et phonétique),
@@ -32,4 +34,12 @@ export function deriverContact(c: Contact): Contact {
     _rechPhon: construireIndexPhonetique([c.prenom, c.nom, c.societe, a?.rue, a?.ville]),
     _empreinte: empreinte(c),
   }
+}
+
+export function deriverBien(b: Bien): Bien {
+  return { ...b, _cleAdresse: cleAdresse(b.adresse) }
+}
+
+export function deriverPiste(p: Piste): Piste {
+  return { ...p, _cleAnnonce: cleAnnonce(p.sourceUrl) }
 }

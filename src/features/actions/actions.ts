@@ -5,7 +5,9 @@ import { lienAppel, lienEmail, lienSms, lienWhatsapp, type Canal } from '@/domai
 
 /** Action lancée (appel, SMS…) dont on attend le résultat au retour dans l'application. */
 export interface ActionEnCours {
-  contactId: string
+  contactId: string | null
+  /** Piste de prospection concernée (le résultat s'y enregistre). */
+  pisteId?: string | null
   canal: Canal | 'note'
   numero: string | null
   lanceeLe: string
@@ -64,12 +66,12 @@ export function lienPour(canal: Canal, contact: Contact, numero?: string | null)
  * Lance un appel, un SMS, une conversation WhatsApp ou un email, mémorise le canal le plus
  * utilisé pour ce contact, puis proposera de noter le résultat au retour dans l'application.
  */
-export function lancerAction(contact: Contact, canal: Canal, numero?: string | null): void {
+export function lancerAction(contact: Contact, canal: Canal, numero?: string | null, pisteId: string | null = null): void {
   const lien = lienPour(canal, contact, numero)
   if (!lien) return
   const utilisation = { ...contact.utilisationCanaux, [canal]: (contact.utilisationCanaux[canal] ?? 0) + 1 }
   void contacts.modifier(contact.id, { utilisationCanaux: utilisation })
-  publier({ contactId: contact.id, canal, numero: numero ?? contact._telNorm[0] ?? null, lanceeLe: new Date().toISOString(), afficher: false })
+  publier({ contactId: contact.id, pisteId, canal, numero: numero ?? contact._telNorm[0] ?? null, lanceeLe: new Date().toISOString(), afficher: false })
 
   const a = document.createElement('a')
   a.href = lien
@@ -86,8 +88,8 @@ export function lancerAction(contact: Contact, canal: Canal, numero?: string | n
 }
 
 /** Ouvre directement la saisie d'un échange (note, rendez-vous…) sans appeler. */
-export function noterEchange(contactId: string): void {
-  publier({ contactId, canal: 'note', numero: null, lanceeLe: new Date().toISOString(), afficher: true })
+export function noterEchange(contactId: string | null, pisteId: string | null = null): void {
+  publier({ contactId, pisteId, canal: 'note', numero: null, lanceeLe: new Date().toISOString(), afficher: true })
 }
 
 /** Au retour dans l'application après un appel ou un message : afficher la saisie du résultat. */
@@ -101,11 +103,11 @@ export function terminerAction(): void {
 }
 
 // ── Menu de contact partagé (listes) : une seule fenêtre pour toute l'application ──
-let menu: { contactId: string; numero: string | null } | null = null
+let menu: { contactId: string; numero: string | null; pisteId: string | null } | null = null
 const abonnesMenu = new Set<() => void>()
 
-export function ouvrirMenuContact(contactId: string, numero: string | null = null): void {
-  menu = { contactId, numero }
+export function ouvrirMenuContact(contactId: string, numero: string | null = null, pisteId: string | null = null): void {
+  menu = { contactId, numero, pisteId }
   for (const f of abonnesMenu) f()
 }
 

@@ -7,7 +7,10 @@ import { Zone } from '@/components/ui/Champ'
 import { Feuille } from '@/components/ui/Feuille'
 import { contacts } from '@/data/repositories/contacts'
 import { interactions } from '@/data/repositories/interactions'
-import type { Contact } from '@/data/types'
+import { biens } from '@/data/repositories/biens'
+import { pistes } from '@/data/repositories/pistes'
+import type { Contact, Piste } from '@/data/types'
+import { adresseCourte } from '@/features/prospection/affichage'
 import { depuisDateLocale, versDateLocale } from '@/domain/dates'
 import { RESULTATS, resultatsPour, type CodeResultat } from '@/domain/resultats'
 import { formaterTelephone, ordreCanaux, type Canal } from '@/domain/telephone'
@@ -25,7 +28,19 @@ export const CANAUX: Record<Canal, { libelle: string; icone: LucideIcon; classe:
  * Menu de contact en un appui : le canal le plus utilisé pour ce contact en premier,
  * puis noter un échange sans appeler.
  */
-export function MenuContact({ contact, numero, ouvert, fermer }: { contact: Contact; numero?: string | null; ouvert: boolean; fermer: () => void }) {
+export function MenuContact({
+  contact,
+  numero,
+  pisteId = null,
+  ouvert,
+  fermer,
+}: {
+  contact: Contact
+  numero?: string | null
+  pisteId?: string | null
+  ouvert: boolean
+  fermer: () => void
+}) {
   const tel = numero ?? contact._telNorm[0]
   const canaux = ordreCanaux(contact.utilisationCanaux, !!contact.emails[0]).filter((c) => lienPour(c, contact, numero))
   return (
@@ -43,7 +58,7 @@ export function MenuContact({ contact, numero, ouvert, fermer }: { contact: Cont
               type="button"
               onClick={() => {
                 fermer()
-                lancerAction(contact, c, numero)
+                lancerAction(contact, c, numero, pisteId)
               }}
               className={`presse flex h-14 items-center gap-3 rounded-2xl px-4 text-left font-bold ${i === 0 ? classe : 'bg-surface-2'}`}
             >
@@ -57,7 +72,7 @@ export function MenuContact({ contact, numero, ouvert, fermer }: { contact: Cont
           type="button"
           onClick={() => {
             fermer()
-            noterEchange(contact.id)
+            noterEchange(contact.id, pisteId)
           }}
           className="presse flex h-14 items-center gap-3 rounded-2xl bg-surface-2 px-4 text-left font-bold"
         >
@@ -82,11 +97,24 @@ const TITRE: Record<string, string> = {
   note: 'Noter un échange',
 }
 
-function SaisieResultat({ contact, canal, numero, fermer }: { contact: Contact; canal: Canal | 'note'; numero: string | null; fermer: () => void }) {
-  const choix = resultatsPour(canal)
+function SaisieResultat({
+  contact,
+  piste,
+  canal,
+  numero,
+  fermer,
+}: {
+  contact: Contact | null
+  piste: Piste | null
+  canal: Canal | 'note'
+  numero: string | null
+  fermer: () => void
+}) {
+  const choix = resultatsPour(canal, piste?.categorie ?? 'portefeuille')
+  const suivi = piste ?? contact!
   const [resultat, setResultat] = useState<CodeResultat | null>(canal === 'note' ? 'note' : null)
   const [commentaire, setCommentaire] = useState('')
-  const [relance, setRelance] = useState<string | null>(contact.prochaineRelanceAt)
+  const [relance, setRelance] = useState<string | null>(suivi.prochaineRelanceAt)
   const [relanceManuelle, setRelanceManuelle] = useState(false)
   const [occupe, setOccupe] = useState(false)
 
@@ -95,7 +123,7 @@ function SaisieResultat({ contact, canal, numero, fermer }: { contact: Contact; 
     // Relance proposée selon le résultat (demain pour « pas de réponse », +1 mois pour « rappeler »…)
     if (!relanceManuelle) {
       const defaut = RESULTATS[code].relanceParDefaut?.(new Date())
-      setRelance(defaut ? depuisDateLocale(versDateLocale(defaut.toISOString()), defaut.getHours() || 9) : code === 'note' ? contact.prochaineRelanceAt : null)
+      setRelance(defaut ? depuisDateLocale(versDateLocale(defaut.toISOString()), defaut.getHours() || 9) : code === 'note' ? suivi.prochaineRelanceAt : null)
     }
   }
 
@@ -103,7 +131,8 @@ function SaisieResultat({ contact, canal, numero, fermer }: { contact: Contact; 
     if (!resultat) return
     setOccupe(true)
     await interactions.enregistrerResultat({
-      contactId: contact.id,
+      contactId: contact?.id ?? null,
+      pisteId: piste?.id ?? null,
       type: canal,
       resultat,
       commentaire,
@@ -167,7 +196,9 @@ function SaisieResultat({ contact, canal, numero, fermer }: { contact: Contact; 
  */
 export function RetourAction() {
   const action = useActionEnCours()
-  const contact = useLiveQuery(() => (action ? contacts.get(action.contactId) : undefined), [action?.contactId])
+  const contact = useLiveQuery(async () => (action?.contactId ? ((await contacts.get(action.contactId)) ?? null) : null), [action?.contactId])
+  const piste = useLiveQuery(async () => (action?.pisteId ? ((await pistes.get(action.pisteId)) ?? null) : null), [action?.pisteId])
+  const bien = useLiveQuery(async () => (piste ? ((await biens.get(piste.bienId)) ?? null) : null), [piste?.bienId])
 
   useEffect(() => {
     const visible = () => document.visibilityState === 'visible' && surRetour()
@@ -180,10 +211,12 @@ export function RetourAction() {
     }
   }, [])
 
-  if (!action?.afficher || !contact) return null
+  if (!action?.afficher || contact === undefined || piste === undefined || (piste && bien === undefined)) return null
+  if (!contact && !piste) return null
+  const nom = piste && bien ? adresseCourte(bien) : contact ? nomAffiche(contact) : ''
   return (
-    <Feuille titre={`${TITRE[action.canal]} · ${nomAffiche(contact)}`} ouverte fermer={terminerAction}>
-      <SaisieResultat key={action.lanceeLe} contact={contact} canal={action.canal} numero={action.numero} fermer={terminerAction} />
+    <Feuille titre={`${TITRE[action.canal]} · ${nom}`} ouverte fermer={terminerAction}>
+      <SaisieResultat key={action.lanceeLe} contact={contact} piste={piste} canal={action.canal} numero={action.numero} fermer={terminerAction} />
     </Feuille>
   )
 }
@@ -193,5 +226,5 @@ export function MenuContactGlobal() {
   const menu = useMenuContact()
   const contact = useLiveQuery(() => (menu ? contacts.get(menu.contactId) : undefined), [menu?.contactId])
   if (!menu || !contact) return null
-  return <MenuContact contact={contact} numero={menu.numero} ouvert fermer={fermerMenuContact} />
+  return <MenuContact contact={contact} numero={menu.numero} pisteId={menu.pisteId} ouvert fermer={fermerMenuContact} />
 }

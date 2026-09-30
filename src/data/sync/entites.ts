@@ -1,5 +1,5 @@
-import { deriverContact } from '../derives'
-import type { Contact, Enregistrement } from '../types'
+import { deriverBien, deriverContact, deriverPiste } from '../derives'
+import type { Bien, Contact, Enregistrement, Piste } from '../types'
 import type { ConfigEntite } from './moteur'
 
 /** Tables synchronisées : nom côté serveur → table locale et calcul des champs locaux. */
@@ -10,6 +10,18 @@ export const ENTITES_SYNC: Record<string, ConfigEntite> = {
   },
   interactions: {
     table: (db) => db.interactions as never,
+    deriver: (f: Enregistrement) => f,
+  },
+  biens: {
+    table: (db) => db.biens as never,
+    deriver: (f: Enregistrement) => deriverBien(f as Bien),
+  },
+  pistes: {
+    table: (db) => db.pistes as never,
+    deriver: (f: Enregistrement) => deriverPiste(f as Piste),
+  },
+  photos: {
+    table: (db) => db.photos as never,
     deriver: (f: Enregistrement) => f,
   },
   piecesJointes: {

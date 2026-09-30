@@ -2,6 +2,7 @@ import { useSyncExternalStore } from 'react'
 import { appareil, horloge } from '../appareil'
 import { db } from '../db'
 import { definirTelechargeur } from '../repositories/piecesJointes'
+import { definirTelechargeurPhoto } from '../repositories/photos'
 import { ENTITES_SYNC } from './entites'
 import { MoteurSync, type EtatSync } from './moteur'
 import { serveurConfigure, transportSupabase } from './supabase'
@@ -41,6 +42,7 @@ export function demarrerSynchronisation(surRevoque: () => void): void {
   const m = moteur
   const desabonner = m.abonner(publier)
   definirTelechargeur((p) => m.telechargerFichier(p))
+  definirTelechargeurPhoto((p, mini) => m.telechargerPhoto(p, mini))
 
   let minuterie: ReturnType<typeof setTimeout> | undefined
   const bientot = (delai: number) => {
@@ -72,6 +74,7 @@ export function demarrerSynchronisation(surRevoque: () => void): void {
     db.outbox.hook('creating').unsubscribe(surAjout)
     desabonner()
     definirTelechargeur(null)
+    definirTelechargeurPhoto(null)
   }
   maintenant()
 }

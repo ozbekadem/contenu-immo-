@@ -1,4 +1,5 @@
 import type { Empreinte } from '@/domain/doublons'
+import type { CategoriePiste, DateCle, EtatVeille, PointPrix, StatutPiste } from '@/domain/prospection'
 import type { CodeResultat } from '@/domain/resultats'
 import type { Canal } from '@/domain/telephone'
 import type { Temperature } from '@/domain/relance'
@@ -111,6 +112,8 @@ export interface Contact extends Enregistrement {
   dernierResultatPositif: boolean
   /** Appels consécutifs sans réponse (remis à zéro dès que la personne est jointe). */
   tentatives?: number
+  /** Dates importantes (fin de bail, pension…) qui déclenchent une relance au bon moment. */
+  datesCles?: DateCle[]
   // Champs locaux calculés
   _telNorm: string[]
   _recherche: string
@@ -123,7 +126,8 @@ export type TypeInteraction = Canal | 'note' | 'visite' | 'rdv' | 'courrier'
 
 /** Échange avec un contact (appel, SMS, WhatsApp, email, note…), daté et signé. */
 export interface Interaction extends Enregistrement {
-  contactId: string
+  /** Contact concerné (null pour une piste dont le propriétaire est encore inconnu). */
+  contactId: string | null
   type: TypeInteraction
   resultat: CodeResultat
   commentaire: string
@@ -133,6 +137,87 @@ export interface Interaction extends Enregistrement {
   relanceAt: string | null
   /** Numéro utilisé (E.164) le cas échéant. */
   numero: string | null
+  /** Piste de prospection concernée (annonce, maison vide), le cas échéant. */
+  pisteId?: string | null
+}
+
+export type TypeBien = 'maison' | 'appartement' | 'immeuble' | 'terrain' | 'commerce' | 'autre'
+
+export const TYPES_BIEN: { code: TypeBien; libelle: string }[] = [
+  { code: 'maison', libelle: 'Maison' },
+  { code: 'appartement', libelle: 'Appartement' },
+  { code: 'immeuble', libelle: 'Immeuble de rapport' },
+  { code: 'terrain', libelle: 'Terrain' },
+  { code: 'commerce', libelle: 'Commerce' },
+  { code: 'autre', libelle: 'Autre' },
+]
+
+/** Bien immobilier (une seule fiche par bien, même s'il arrive par plusieurs sources). */
+export interface Bien extends Enregistrement {
+  adresse: Adresse | null
+  lat: number | null
+  lng: number | null
+  /** Précision du GPS en mètres. */
+  precisionGps: number | null
+  /** Adresse à retrouver automatiquement dès que le réseau revient (repérage hors ligne). */
+  adresseAChercher: boolean
+  type: TypeBien | null
+  facades: number | null
+  chambres: number | null
+  notes: string
+  // Champs locaux calculés
+  _cleAdresse: string | null
+}
+
+/** Piste de prospection : une annonce de particulier ou une maison vide, suivie dans le temps. */
+export interface Piste extends Enregistrement {
+  categorie: CategoriePiste
+  bienId: string
+  /** Propriétaire / vendeur (peut être encore inconnu). */
+  contactId: string | null
+  statut: StatutPiste
+  source: SourceContact | null
+  /** Lien de l'annonce en ligne, le cas échéant. */
+  sourceUrl: string | null
+  prix: number | null
+  historiquePrix: PointPrix[]
+  /** Première fois que le bien a été vu en vente (« en vente depuis X jours »). */
+  enVenteDepuis: string | null
+  indices: string[]
+  datesCles: DateCle[]
+  /** Veille : prochaine vérification de l'annonce ou de l'affiche, et son état. */
+  veilleProchaine: string | null
+  veilleEtat: EtatVeille
+  /** Raison d'une relance urgente (« Annonce retirée », « Prix baissé »…). */
+  alerte: string | null
+  temperature: Temperature | null
+  dernierContactAt: string | null
+  prochaineRelanceAt: string | null
+  dernierResultatPositif: boolean
+  dernierResultat: CodeResultat | null
+  tentatives: number
+  notes: string
+  collaborateurId: string | null
+  // Champs locaux calculés
+  _cleAnnonce: string | null
+}
+
+/** Photo d'un bien (compressée sur l'appareil, envoyée ensuite au serveur). */
+export interface Photo extends Enregistrement {
+  bienId: string
+  pisteId: string | null
+  largeur: number
+  hauteur: number
+  prisLe: string
+  cheminStockage: string | null
+  miniatureStockage: string | null
+}
+
+/** Contenu d'une photo gardé sur l'appareil (fonctionne hors ligne). */
+export interface PhotoLocale {
+  id: string
+  image: Blob | null
+  miniature: Blob | null
 }
 
 /** Fiches auxquelles on peut joindre des documents et des liens. */

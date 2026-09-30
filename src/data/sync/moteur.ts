@@ -1,7 +1,7 @@
 import type { Table } from 'dexie'
 import type { Horloge } from '@/domain/hlc'
 import type { LinkimmoDB } from '../db'
-import type { EntreeJournal, Enregistrement, PieceJointe } from '../types'
+import type { EntreeJournal, Enregistrement, Photo, PieceJointe } from '../types'
 import type { JournalServeur, LigneServeur, Transport } from './transport'
 
 export type StatutSync = 'local' | 'hors_ligne' | 'en_cours' | 'a_jour' | 'erreur' | 'revoque'
@@ -225,7 +225,7 @@ export class MoteurSync {
     const aEnvoyer = await this.db.piecesJointes
       .filter((p) => p.type === 'fichier' && !p.cheminStockage && !p._demo && !p.archivedAt)
       .toArray()
-    let envoye = false
+    let envoye = await this.envoyerPhotos()
     for (const p of aEnvoyer) {
       const fichier = await this.db.fichiers.get(p.id)
       if (!fichier) continue
@@ -235,6 +235,44 @@ export class MoteurSync {
       envoye = true
     }
     return envoye
+  }
+
+  /** Photos repérées sur le terrain : envoyées une par une (pleine taille + miniature). */
+  private async envoyerPhotos(): Promise<boolean> {
+    const aEnvoyer = await this.db.photos.filter((p) => !p.cheminStockage && !p._demo && !p.archivedAt).toArray()
+    let envoye = false
+    for (const p of aEnvoyer) {
+      const local = await this.db.photosLocales.get(p.id)
+      if (!local?.image || !local.miniature) continue
+      const ext = local.image.type === 'image/webp' ? 'webp' : 'jpg'
+      const chemin = `photos/${p.bienId}/${p.id}.${ext}`
+      const cheminMini = `photos/${p.bienId}/${p.id}-mini.${ext}`
+      await this.transport.envoyerFichier(chemin, local.image)
+      await this.transport.envoyerFichier(cheminMini, local.miniature)
+      const tic = this.horloge.tic()
+      await this.db.transaction('rw', [this.db.photos, this.db.outbox], async () => {
+        await this.db.photos.update(p.id, { cheminStockage: chemin, miniatureStockage: cheminMini, _ts: { ...p._ts, cheminStockage: tic, miniatureStockage: tic } })
+        await this.db.outbox.add({
+          table: 'photos',
+          rowId: p.id,
+          champs: { cheminStockage: chemin, miniatureStockage: cheminMini },
+          ts: { cheminStockage: tic, miniatureStockage: tic },
+          creeLe: new Date().toISOString(),
+        })
+      })
+      envoye = true
+    }
+    return envoye
+  }
+
+  /** Télécharge une photo absente de cet appareil (miniature d'abord) et la garde hors ligne. */
+  async telechargerPhoto(p: Photo, miniature: boolean): Promise<Blob | undefined> {
+    const chemin = miniature ? (p.miniatureStockage ?? p.cheminStockage) : p.cheminStockage
+    if (!chemin) return undefined
+    const blob = await this.transport.telechargerFichier(chemin)
+    const existant = (await this.db.photosLocales.get(p.id)) ?? { id: p.id, image: null, miniature: null }
+    await this.db.photosLocales.put(miniature ? { ...existant, miniature: blob } : { ...existant, image: blob })
+    return blob
   }
 
   private async marquerEnvoye(p: PieceJointe, chemin: string) {

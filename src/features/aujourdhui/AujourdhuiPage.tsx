@@ -6,8 +6,9 @@ import { FOND_COULEUR } from '@/components/ui/StatusDot'
 import type { Couleur } from '@/domain/relance'
 import type { FiltreRapide } from '@/features/contacts/filtres'
 import { classer } from '@/domain/priorite'
-import { SansAction, TopAppels } from './Sections'
-import { useContactsColores } from '@/features/contacts/useContacts'
+import { usePistes } from '@/features/prospection/usePistes'
+import { SansAction, TopAppels, Veille } from './Sections'
+import { useSuivables } from './useSuivables'
 
 const TUILES: { couleur: Couleur; libelle: string; filtre: FiltreRapide }[] = [
   { couleur: 'rouge', libelle: 'En retard', filtre: 'retard' },
@@ -22,20 +23,22 @@ function salutation(d: Date): string {
 }
 
 export default function AujourdhuiPage() {
-  const { liste, maintenant } = useContactsColores()
+  const { liste, maintenant } = useSuivables()
+  const { liste: vuesPistes } = usePistes()
 
-  const { compte, aTraiter, top, sansAction } = useMemo(() => {
-    const actifs = (liste ?? []).filter(({ contact }) => !contact.archivedAt)
+  const { compte, aTraiter, top, sansAction, aVerifier } = useMemo(() => {
+    const actifs = liste ?? []
     const compte = (c: Couleur) => actifs.filter((l) => l.couleur === c).length
-    const top = classer(
-      actifs.map((l) => ({ ...l, ...l.contact, couleur: l.couleur })),
-      maintenant,
-    ).map(({ element, priorite }) => ({ contact: element.contact, couleur: element.couleur, priorite }))
-    const dansTop = new Set(top.map((t) => t.contact.id))
+    const top = classer(actifs, maintenant).map(({ element, priorite }) => ({ suivable: element, priorite }))
+    const dansTop = new Set(top.map((t) => t.suivable.cle))
     // Toute fiche active doit avoir une prochaine action datée.
-    const sansAction = actifs.filter(({ contact }) => !contact.nePasContacter && !contact.prochaineRelanceAt && !dansTop.has(contact.id))
-    return { compte, aTraiter: compte('rouge') + compte('orange'), top, sansAction }
-  }, [liste, maintenant])
+    const sansAction = actifs.filter((s) => !s.contact?.nePasContacter && !s.prochaineRelanceAt && !dansTop.has(s.cle))
+    const aVerifier = (vuesPistes ?? []).filter(
+      ({ piste }) =>
+        !piste.archivedAt && piste.veilleEtat === 'actif' && piste.statut !== 'gagne' && piste.statut !== 'perdu' && piste.veilleProchaine && new Date(piste.veilleProchaine) <= maintenant,
+    )
+    return { compte, aTraiter: compte('rouge') + compte('orange'), top, sansAction, aVerifier }
+  }, [liste, vuesPistes, maintenant])
 
   const date = new Intl.DateTimeFormat('fr-BE', { weekday: 'long', day: 'numeric', month: 'long' }).format(maintenant)
 
@@ -76,6 +79,7 @@ export default function AujourdhuiPage() {
           Voir les {aTraiter - top.length} autres relances à traiter
         </Link>
       )}
+      <Veille lignes={aVerifier} />
       <SansAction lignes={sansAction} />
 
       {liste && aTraiter === 0 && (
