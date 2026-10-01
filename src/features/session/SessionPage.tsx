@@ -2,6 +2,7 @@ import { useLiveQuery } from 'dexie-react-hooks'
 import { ChevronLeft, ChevronRight, CircleCheck, History, Mail, MessageCircle, Pencil, Phone, SkipForward, Sparkles, X } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router'
+import { useNomAgence } from '@/app/agence'
 import { useAuth } from '@/app/auth'
 import { classesBouton } from '@/components/ui/Bouton'
 import { Card } from '@/components/ui/Card'
@@ -67,7 +68,8 @@ function Historique({ s }: { s: Suivable }) {
 
 function CarteArgumentaire({ s, maintenant }: { s: Suivable; maintenant: Date }) {
   const { profil } = useAuth()
-  const prenom = profil?.nom?.split(' ')[0] ?? null
+  const agence = useNomAgence()
+  const noms = { prenom: profil?.nom?.split(' ')[0] ?? null, agence }
   const cas = casPour(
     {
       categorie: s.categorie,
@@ -89,7 +91,12 @@ function CarteArgumentaire({ s, maintenant }: { s: Suivable; maintenant: Date })
           <Pencil className="size-4" aria-hidden />
         </Link>
       </div>
-      <p className="rounded-2xl bg-primaire-doux p-3 text-[15px] font-semibold leading-snug text-primaire-texte">{personnaliserTexte(a.accroche, prenom)}</p>
+      {!agence && (
+        <Link to="/parametres#agence" className="mb-2 block text-xs font-semibold text-doux underline">
+          Renseignez le nom de votre agence dans les Paramètres pour compléter [agence].
+        </Link>
+      )}
+      <p className="rounded-2xl bg-primaire-doux p-3 text-[15px] font-semibold leading-snug text-primaire-texte">{personnaliserTexte(a.accroche, noms)}</p>
       <ol className="mt-3 flex list-decimal flex-col gap-1.5 pl-5 text-sm">
         {a.points.map((p) => (
           <li key={p}>{p}</li>
@@ -103,7 +110,7 @@ function CarteArgumentaire({ s, maintenant }: { s: Suivable; maintenant: Date })
               <summary className="cursor-pointer list-none font-bold">
                 <span className="mr-1 inline-block transition group-open:rotate-90">›</span> « {o.objection} »
               </summary>
-              <p className="mt-1.5 leading-snug">{personnaliserTexte(o.reponse, prenom)}</p>
+              <p className="mt-1.5 leading-snug">{personnaliserTexte(o.reponse, noms)}</p>
             </details>
           ))}
         </div>

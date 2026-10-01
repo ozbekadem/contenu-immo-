@@ -25,8 +25,9 @@ describe('Argumentaires', () => {
     }
   })
 
-  it('remplace [prénom] par le prénom de l’agent', () => {
-    expect(personnaliserTexte('Je suis [prénom] de l’agence', 'Adem')).toBe('Je suis Adem de l’agence')
-    expect(personnaliserTexte('Je suis [prénom]', null)).toBe('Je suis [prénom]')
+  it('remplace [prénom] et [agence]', () => {
+    expect(personnaliserTexte('Je suis [prénom] de l’agence [agence]', { prenom: 'Adem', agence: 'Agence du Centre' })).toBe('Je suis Adem de l’agence Agence du Centre')
+    expect(personnaliserTexte('Je suis [prénom]', {})).toBe('Je suis [prénom]')
+    for (const cas of ORDRE_CAS) expect(ARGUMENTAIRES_DEFAUT[cas].accroche).not.toMatch(/vision/i)
   })
 })

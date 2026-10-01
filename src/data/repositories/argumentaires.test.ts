@@ -16,9 +16,9 @@ describe('Argumentaires modifiables', () => {
     const origine = await repo.pour('affiche')
     expect(origine.modifie).toBe(false)
 
-    await repo.enregistrer('affiche', { accroche: ' Bonjour, Adem d’IMMO VISION. ', points: ['Toujours à vendre ?', '  '], objections: [{ objection: 'Je vends seul', reponse: 'Estimation gratuite' }] })
+    await repo.enregistrer('affiche', { accroche: ' Bonjour, Adem, de l’agence [agence]. ', points: ['Toujours à vendre ?', '  '], objections: [{ objection: 'Je vends seul', reponse: 'Estimation gratuite' }] })
     const modifie = await repo.pour('affiche')
-    expect(modifie).toMatchObject({ modifie: true, accroche: 'Bonjour, Adem d’IMMO VISION.', points: ['Toujours à vendre ?'], titre: origine.titre })
+    expect(modifie).toMatchObject({ modifie: true, accroche: 'Bonjour, Adem, de l’agence [agence].', points: ['Toujours à vendre ?'], titre: origine.titre })
     expect(await db.outbox.count()).toBe(1) // envoyé à l'équipe
 
     await repo.enregistrer('affiche', { ...modifie, points: ['Autre point'] })

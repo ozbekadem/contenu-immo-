@@ -75,9 +75,10 @@ export function anniversaires<T>(
 }
 
 /** Message de vœux proposé (modifiable avant l'envoi). */
-export function messageAnniversaire(a: { type: TypeAnniversaire; annees: number | null }, prenom: string, signature: string): string {
+export function messageAnniversaire(a: { type: TypeAnniversaire; annees: number | null }, prenom: string, signature: string, agence?: string | null): string {
   const bonjour = prenom ? `Bonjour ${prenom}` : 'Bonjour'
-  if (a.type === 'naissance') return `${bonjour}, toute l’équipe d’IMMO VISION vous souhaite un très joyeux anniversaire ! ${signature}`.trim()
+  if (a.type === 'naissance')
+    return `${bonjour}, ${agence ? `toute l’équipe de ${agence} vous souhaite` : 'je vous souhaite'} un très joyeux anniversaire ! ${signature}`.trim()
   const duree = a.annees === 1 ? 'un an' : `${a.annees} ans`
   return `${bonjour}, il y a ${duree}, nous signions ensemble. Merci encore pour votre confiance ! Si un proche a un projet immobilier, nous serons ravis de l’aider. ${signature}`.trim()
 }

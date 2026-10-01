@@ -59,7 +59,7 @@ export const ARGUMENTAIRES_DEFAUT: Record<CasArgumentaire, Argumentaire> = {
   affiche: {
     cas: 'affiche',
     titre: 'Affiche de particulier',
-    accroche: 'Bonjour, je suis [prénom] de l’agence IMMO VISION à Charleroi. Je passe régulièrement dans votre rue et j’ai vu votre affiche « à vendre ».',
+    accroche: 'Bonjour, je suis [prénom] de l’agence [agence]. Je passe régulièrement dans votre rue et j’ai vu votre affiche « à vendre ».',
     points: [
       'Le bien est-il toujours disponible ?',
       'Depuis quand est-il en vente ? Combien de visites avez-vous eu ?',
@@ -71,7 +71,7 @@ export const ARGUMENTAIRES_DEFAUT: Record<CasArgumentaire, Argumentaire> = {
   annonce_en_ligne: {
     cas: 'annonce_en_ligne',
     titre: 'Annonce de particulier en ligne',
-    accroche: 'Bonjour, je suis [prénom] de l’agence IMMO VISION. J’ai vu votre annonce en ligne et je travaille avec des acheteurs qui cherchent dans votre secteur.',
+    accroche: 'Bonjour, je suis [prénom] de l’agence [agence]. J’ai vu votre annonce en ligne et je travaille avec des acheteurs qui cherchent dans votre secteur.',
     points: [
       'Le bien est-il toujours disponible ?',
       'Combien de contacts sérieux l’annonce vous a-t-elle apportés ?',
@@ -83,7 +83,7 @@ export const ARGUMENTAIRES_DEFAUT: Record<CasArgumentaire, Argumentaire> = {
   baisse_prix: {
     cas: 'baisse_prix',
     titre: 'Annonce en baisse de prix',
-    accroche: 'Bonjour, je suis [prénom] de l’agence IMMO VISION. J’ai remarqué que vous avez ajusté le prix de votre bien.',
+    accroche: 'Bonjour, je suis [prénom] de l’agence [agence]. J’ai remarqué que vous avez ajusté le prix de votre bien.',
     points: [
       'Comment se passent les visites ? Qu’en disent les acheteurs ?',
       'La baisse a-t-elle apporté plus de contacts ?',
@@ -95,7 +95,7 @@ export const ARGUMENTAIRES_DEFAUT: Record<CasArgumentaire, Argumentaire> = {
   annonce_retiree: {
     cas: 'annonce_retiree',
     titre: 'Annonce retirée ou affiche disparue',
-    accroche: 'Bonjour, je suis [prénom] de l’agence IMMO VISION. Votre annonce n’est plus en ligne : votre bien est-il vendu ?',
+    accroche: 'Bonjour, je suis [prénom] de l’agence [agence]. Votre annonce n’est plus en ligne : votre bien est-il vendu ?',
     points: [
       'Si vendu : féliciter, demander si un autre projet suit (achat, location).',
       'Sinon : pourquoi l’avoir retirée ? Fatigue des visites, pas d’acheteur sérieux ?',
@@ -106,7 +106,7 @@ export const ARGUMENTAIRES_DEFAUT: Record<CasArgumentaire, Argumentaire> = {
   autre_agence: {
     cas: 'autre_agence',
     titre: 'Bien chez une autre agence',
-    accroche: 'Bonjour, je suis [prénom] de l’agence IMMO VISION. Je sais que votre bien est actuellement proposé par une agence ; je ne veux pas interférer.',
+    accroche: 'Bonjour, je suis [prénom] de l’agence [agence]. Je sais que votre bien est actuellement proposé par une agence ; je ne veux pas interférer.',
     points: [
       'Êtes-vous satisfait du suivi (visites, retours) ?',
       'Jusqu’à quand court le mandat ? → noter la date clé « Fin du mandat ».',
@@ -117,7 +117,7 @@ export const ARGUMENTAIRES_DEFAUT: Record<CasArgumentaire, Argumentaire> = {
   maison_vide: {
     cas: 'maison_vide',
     titre: 'Maison vide',
-    accroche: 'Bonjour, je suis [prénom] de l’agence IMMO VISION. Je vous appelle au sujet de votre maison [adresse], qui semble inoccupée.',
+    accroche: 'Bonjour, je suis [prénom] de l’agence [agence]. Je vous appelle au sujet de votre maison [adresse], qui semble inoccupée.',
     points: [
       'Rester délicat : succession, maison de repos, séparation sont fréquents.',
       'Avez-vous un projet pour ce bien : vendre, louer, rénover ?',
@@ -129,7 +129,7 @@ export const ARGUMENTAIRES_DEFAUT: Record<CasArgumentaire, Argumentaire> = {
   recommandation: {
     cas: 'recommandation',
     titre: 'Recommandation',
-    accroche: 'Bonjour, je suis [prénom] de l’agence IMMO VISION. [Nom de la personne] m’a conseillé de vous appeler : il paraît que vous pensez à vendre ?',
+    accroche: 'Bonjour, je suis [prénom] de l’agence [agence]. [Nom de la personne] m’a conseillé de vous appeler : il paraît que vous pensez à vendre ?',
     points: [
       'Rappeler le lien avec la personne qui recommande (confiance).',
       'Où en est le projet ? Quel délai ?',
@@ -140,7 +140,7 @@ export const ARGUMENTAIRES_DEFAUT: Record<CasArgumentaire, Argumentaire> = {
   ancien_client: {
     cas: 'ancien_client',
     titre: 'Ancien client',
-    accroche: 'Bonjour, c’est [prénom] de l’agence IMMO VISION. Je prends simplement de vos nouvelles : tout se passe bien dans la maison ?',
+    accroche: 'Bonjour, c’est [prénom] de l’agence [agence]. Je prends simplement de vos nouvelles : tout se passe bien dans la maison ?',
     points: [
       'Écouter : travaux, famille, projets.',
       'Un nouveau projet (vendre, acheter, investir) dans les prochains mois ?',
@@ -151,7 +151,7 @@ export const ARGUMENTAIRES_DEFAUT: Record<CasArgumentaire, Argumentaire> = {
   general: {
     cas: 'general',
     titre: 'Appel de suivi',
-    accroche: 'Bonjour, c’est [prénom] de l’agence IMMO VISION. Je vous rappelle comme convenu.',
+    accroche: 'Bonjour, c’est [prénom] de l’agence [agence]. Je vous rappelle comme convenu.',
     points: ['Reprendre là où l’échange précédent s’est arrêté (voir l’historique).', 'Où en est votre projet ?', 'Fixer la prochaine étape : rendez-vous, envoi d’informations, date de rappel.'],
     objections: [PAS_PRESSE, PAS_INTERESSE],
   },
@@ -194,7 +194,13 @@ export function casPour(s: SituationAppel, maintenant: Date): CasArgumentaire {
   return 'general'
 }
 
-/** Remplace [prénom] par le prénom de l'agent (le reste des crochets est laissé à compléter à voix haute). */
-export function personnaliserTexte(texte: string, prenomAgent: string | null): string {
-  return prenomAgent ? texte.replace(/\[prénom\]/gi, prenomAgent) : texte
+/**
+ * Remplace [prénom] et [agence] par le prénom de l'agent et le nom de l'agence (Paramètres).
+ * Le reste des crochets ([adresse]…) est laissé à compléter à voix haute.
+ */
+export function personnaliserTexte(texte: string, p: { prenom?: string | null; agence?: string | null }): string {
+  let t = texte
+  if (p.prenom) t = t.replace(/\[prénom\]/gi, p.prenom)
+  if (p.agence) t = t.replace(/\[agence\]/gi, p.agence)
+  return t
 }

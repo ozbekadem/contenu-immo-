@@ -1,5 +1,6 @@
 import { CakeSlice, ChevronRight, Filter, Hourglass, MessageCircle, MessageSquare } from 'lucide-react'
 import { Link } from 'react-router'
+import { useNomAgence } from '@/app/agence'
 import { useAuth } from '@/app/auth'
 import { Avatar } from '@/components/ui/Avatar'
 import { Card } from '@/components/ui/Card'
@@ -88,9 +89,10 @@ export function AMaturite({ lignes }: { lignes: Maturite<Suivable>[] }) {
 /** Anniversaires (naissance, signature) des 7 prochains jours, avec un message prêt à envoyer. */
 export function Anniversaires({ lignes }: { lignes: Anniversaire<Contact>[] }) {
   const { profil } = useAuth()
+  const agence = useNomAgence()
   if (lignes.length === 0) return null
   const prenomAgent = profil?.nom?.split(' ')[0]
-  const signature = prenomAgent ? `${prenomAgent}, IMMO VISION` : 'IMMO VISION'
+  const signature = [prenomAgent, agence].filter(Boolean).join(', ')
   return (
     <Card className="overflow-hidden !p-0">
       <div className="flex items-center gap-2 px-4 pb-1 pt-4">
@@ -101,7 +103,7 @@ export function Anniversaires({ lignes }: { lignes: Anniversaire<Contact>[] }) {
       <ul className="mt-1 pb-1">
         {lignes.map((a) => {
           const c = a.quoi
-          const texte = messageAnniversaire(a, c.prenom, `— ${signature}`)
+          const texte = messageAnniversaire(a, c.prenom, signature ? `— ${signature}` : '', agence)
           const tel = !c.nePasContacter && c._telNorm[0]
           return (
             <li key={`${a.type}-${c.id}-${a.date.toISOString()}`} className="flex items-center gap-3 py-2.5 pl-4 pr-2 [&:not(:last-child)]:border-b [&:not(:last-child)]:border-bord/60">

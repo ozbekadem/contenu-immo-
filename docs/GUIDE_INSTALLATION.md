@@ -14,7 +14,7 @@ indiqués **en gras**.
 
 1. Allez sur **supabase.com** → **Start your project** → **Continue with GitHub**
    (le même compte GitHub que pour le projet) et acceptez.
-2. Si on vous demande une organisation : nom `IMMO VISION`, plan **Free** → **Create organization**.
+2. Si on vous demande une organisation : le nom de votre choix (par ex. `Linkimmo`), plan **Free** → **Create organization**.
 3. **New project** :
    - **Name** : `linkimmo`
    - **Database Password** : cliquez **Generate a password**, puis **copiez-le dans un endroit sûr**
@@ -47,7 +47,7 @@ indiqués **en gras**.
    - **Branch to deploy** : `claude/linkimmo-proposition`
    - le reste est rempli automatiquement → **Deploy**.
 4. Donnez un joli nom : **Project configuration** → **Change project name** → par exemple
-   `linkimmo-immovision`. L'adresse devient `https://linkimmo-immovision.netlify.app`.
+   `linkimmo-charleroi`. L'adresse devient `https://linkimmo-charleroi.netlify.app`.
 5. Envoyez-moi cette adresse.
 6. Retour dans Supabase : **Authentication** → **URL Configuration** :
    - **Site URL** : votre adresse Netlify

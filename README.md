@@ -1,6 +1,6 @@
 # Linkimmo
 
-Application de prospection, de relances et de fidélisation d'IMMO VISION (Charleroi).
+Application de prospection, de relances et de fidélisation pour une agence immobilière (région de Charleroi).
 PWA installable, pensée d'abord pour le smartphone, fonctionnant hors ligne.
 
 > Projet en cours de construction, étape par étape — voir `docs/PROPOSITION.md`.

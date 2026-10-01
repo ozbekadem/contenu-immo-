@@ -32,7 +32,7 @@ export default defineConfig(({ mode }) => {
       manifest: {
         name: 'Linkimmo',
         short_name: 'Linkimmo',
-        description: 'Prospection, relances et fidélisation — IMMO VISION',
+        description: 'Prospection, relances et fidélisation immobilières',
         lang: 'fr-BE',
         start_url: '/',
         scope: '/',

@@ -157,7 +157,7 @@ créée sur le bien, l'étape d'entonnoir passe à « Signé » — sans rien re
 | Poste | Solution | Coût mensuel |
 |---|---|---|
 | Base de données, connexion, photos, temps réel, fonctions serveur | **Supabase Pro** (région Francfort) : 8 Go de base, 100 Go de photos, sauvegardes quotidiennes 7 jours, pas de mise en veille | **≈ 25 $ ≈ 23 €** |
-| Site de l'application (fichiers statiques) | Cloudflare Pages ou Netlify (gratuit), relié à `app.immobiliervision.be` | 0 € |
+| Site de l'application (fichiers statiques) | Cloudflare Pages ou Netlify (gratuit), relié au futur nom de domaine (à définir) | 0 € |
 | Google Agenda (API) | gratuit | 0 € |
 | Notifications push (Web Push) | gratuit | 0 € |
 | Carte | MapLibre + OpenFreeMap | 0 € |
@@ -192,7 +192,7 @@ de ce qui fonctionne et de ce que vous devez tester.
 | 11 | **Communication** : modèles, aperçu, campagnes, blocage RGPD, journalisation | |
 | 12 | **Équipe, statistiques, paramètres** : rôles, attribution, stats, score /100, fusion manuelle guidée des doublons, suppression démo en un clic | |
 | 13 | **Import / export / sauvegarde** : CSV/Excel (en-têtes français), JSON complet, restauration, import CRM Immo, sauvegarde quotidienne serveur | |
-| 14 | **Finitions** : mesures de performance (ouverture < 2 s), README complet, mise en ligne sur immobiliervision.be | tous les critères d'acceptation |
+| 14 | **Finitions** : mesures de performance (ouverture < 2 s), README complet, mise en ligne sur le nom de domaine définitif | tous les critères d'acceptation |
 
 Prévu dans l'architecture pour plus tard : Outlook (même interface que Google Agenda),
 assistant IA sur les fiches (propositions toujours validées par vous).
@@ -215,9 +215,9 @@ Répondez simplement « OK » pour garder ma proposition, ou corrigez.
    définitivement, ni modifier les paramètres ; la secrétaire = collaborateur (tout sauf
    paramètres et gestion des comptes). Correct ?
 5. **Google** : utilisez-vous des comptes Gmail personnels ou Google Workspace (adresse
-   @immobiliervision.be) ? Chaque collaborateur a-t-il son propre agenda « Linkimmo » avec
+   adresse professionnelle) ? Chaque collaborateur a-t-il son propre agenda « Linkimmo » avec
    **ses** relances seulement (ma proposition), ou un agenda commun de l'agence ?
-6. **Hébergement** : adresse `app.immobiliervision.be` ? Chez qui est géré le domaine
+6. **Hébergement** : quel nom de domaine ? Chez qui est géré le domaine
    (OVH, Combell, One.com…) ?
 7. **Données existantes** : pouvez-vous me fournir un exemple de sauvegarde JSON de CRM Immo
    (avec 2-3 fiches, éventuellement anonymisées) ? Et faut-il aussi importer les données de

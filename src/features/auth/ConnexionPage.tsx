@@ -17,7 +17,7 @@ function Cadre({ titre, sousTitre, children }: { titre: string; sousTitre: strin
           <p className="mt-1 text-sm font-medium text-doux">{sousTitre}</p>
         </div>
         <div className="rounded-3xl bg-surface p-5 shadow-carte dark:shadow-none dark:ring-1 dark:ring-bord">{children}</div>
-        <p className="mt-6 text-center text-xs text-doux">IMMO VISION · données hébergées en Europe</p>
+        <p className="mt-6 text-center text-xs text-doux">Données hébergées en Europe</p>
       </div>
     </div>
   )

@@ -59,7 +59,8 @@ describe('Anniversaires', () => {
     )
     expect(liste.map((a) => [a.quoi, a.annees])).toEqual([['il y a 2 ans', 2]])
     expect(messageAnniversaire(liste[0]!, 'Marc', '— Adem')).toContain('il y a 2 ans, nous signions')
-    expect(messageAnniversaire({ type: 'naissance', annees: 55 }, '', '')).toMatch(/^Bonjour, toute l’équipe/)
+    expect(messageAnniversaire({ type: 'naissance', annees: 55 }, '', '')).toBe('Bonjour, je vous souhaite un très joyeux anniversaire !')
+    expect(messageAnniversaire({ type: 'naissance', annees: 55 }, 'Marc', '', 'Agence du Centre')).toMatch(/^Bonjour Marc, toute l’équipe de Agence du Centre/)
   })
 })
 

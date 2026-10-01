@@ -49,7 +49,7 @@ function Editeur({ cas }: { cas: CasArgumentaire }) {
           <h2 className="flex-1 text-lg font-bold">{a.titre}</h2>
           {a.modifie && <span className="rounded-full bg-primaire-doux px-2.5 py-1 text-xs font-bold text-primaire-texte">Version de l’agence</span>}
         </div>
-        <Champ libelle="Accroche (première phrase)" aide="[prénom] est remplacé par votre prénom pendant l’appel.">
+        <Champ libelle="Accroche (première phrase)" aide="[prénom] et [agence] sont remplacés par votre prénom et le nom de l’agence (Paramètres) pendant l’appel.">
           <Zone rows={3} value={accroche} onChange={(e) => setAccroche(e.target.value)} />
         </Champ>
         <Champ libelle="Points à aborder (un par ligne)">
