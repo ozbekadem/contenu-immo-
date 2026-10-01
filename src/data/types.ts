@@ -285,3 +285,44 @@ export interface ArgumentairePerso extends Enregistrement {
   points: string[]
   objections: Objection[]
 }
+
+export type TypeEvenement = 'rdv' | 'visite' | 'estimation' | 'signature' | 'autre'
+
+export const TYPES_EVENEMENT: { code: TypeEvenement; libelle: string }[] = [
+  { code: 'rdv', libelle: 'Rendez-vous' },
+  { code: 'estimation', libelle: 'Estimation' },
+  { code: 'visite', libelle: 'Visite' },
+  { code: 'signature', libelle: 'Signature' },
+  { code: 'autre', libelle: 'Autre' },
+]
+
+/** Rendez-vous, visite, estimation… (les relances, elles, viennent des fiches). */
+export interface Evenement extends Enregistrement {
+  type: TypeEvenement
+  titre: string
+  /** ISO */
+  debut: string
+  /** ISO */
+  fin: string
+  /** Toute la journée (événement créé dans Google sans heure). */
+  journee: boolean
+  lieu: string
+  notes: string
+  contactId: string | null
+  pisteId: string | null
+  bienId: string | null
+  collaborateurId: string | null
+  /** Identifiant de l'événement dans Google Agenda, s'il y a été créé à l'origine. */
+  googleEventId: string | null
+}
+
+/** Lien local entre un élément de l'application et son événement Google Agenda (jamais synchronisé). */
+export interface LienGoogle {
+  /** « relance:contacts:<id> », « relance:pistes:<id> » ou « evenement:<id> » */
+  cle: string
+  eventId: string
+  /** Empreinte du contenu envoyé (pour n'envoyer que ce qui a changé). */
+  signature: string
+  /** Champ « updated » de Google après notre dernier envoi ou import. */
+  majGoogle: string
+}

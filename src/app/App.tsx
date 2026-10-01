@@ -1,5 +1,5 @@
 import { lazy } from 'react'
-import { BarChart3, CalendarDays, Download, LineChart, MessageSquareText, Smartphone } from 'lucide-react'
+import { BarChart3, Download, LineChart, MessageSquareText, Smartphone } from 'lucide-react'
 import { createBrowserRouter, createMemoryRouter, RouterProvider, type RouteObject } from 'react-router'
 import { Bientot } from '@/components/ui/Bientot'
 import AujourdhuiPage from '@/features/aujourdhui/AujourdhuiPage'
@@ -21,6 +21,7 @@ const ContactFormPage = lazy(() => import('@/features/contacts/ContactFormPage')
 const PistePage = lazy(() => import('@/features/prospection/PistePage'))
 const BiensPage = lazy(() => import('@/features/biens/BiensPage'))
 const BienPage = lazy(() => import('@/features/biens/BienPage'))
+const AgendaPage = lazy(() => import('@/features/agenda/AgendaPage'))
 const SessionPage = lazy(() => import('@/features/session/SessionPage'))
 const ArgumentairesPage = lazy(() => import('@/features/argumentaires/ArgumentairesPage'))
 
@@ -38,14 +39,7 @@ export const routes: RouteObject[] = [
       { path: 'contacts/nouveau', element: <ContactFormPage /> },
       { path: 'contacts/:id', element: <ContactPage /> },
       { path: 'contacts/:id/modifier', element: <ContactFormPage key="modifier" /> },
-      {
-        path: 'agenda',
-        element: (
-          <Bientot titre="Agenda" icone={CalendarDays} etape={8}>
-            Vues jour, semaine, mois et année, synchronisées avec Google Agenda.
-          </Bientot>
-        ),
-      },
+      { path: 'agenda', element: <AgendaPage /> },
       { path: 'plus', element: <PlusPage /> },
       { path: 'biens', element: <BiensPage /> },
       { path: 'biens/:id', element: <BienPage /> },

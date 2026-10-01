@@ -1,6 +1,7 @@
 import { ajouterJours } from '@/domain/dates'
 import { db } from './db'
 import { contacts, contactVide, type DonneesContact } from './repositories/contacts'
+import { evenements, evenementVide } from './repositories/evenements'
 import { interactions } from './repositories/interactions'
 import { biens } from './repositories/biens'
 import { photos } from './repositories/photos'
@@ -14,6 +15,7 @@ const CLE_SERIE_2 = 'demo.serie2'
 /** Troisième série : pistes de prospection (affiche, annonce, maisons vides), ajoutée à l'étape 5. */
 const CLE_SERIE_3 = 'demo.serie3'
 const CLE_SERIE_4 = 'demo.serie4'
+const CLE_SERIE_5 = 'demo.serie5'
 
 const iso = (d: Date) => d.toISOString()
 
@@ -205,6 +207,7 @@ export async function initialiserDemo(): Promise<void> {
     [CLE_SERIE_2, creerSerie2],
     [CLE_SERIE_3, creerSerie3],
     [CLE_SERIE_4, creerSerie4],
+    [CLE_SERIE_5, creerSerie5],
   ]
   if (!(await db.meta.get(CLE_INITIALISE))) {
     const maintenant = new Date().toISOString()
@@ -255,6 +258,34 @@ async function creerSerie4(): Promise<void> {
       datesCles: [{ id: crypto.randomUUID(), type: 'projet_vente', date: jour(ajouterJours(maintenant, 40), ajouterJours(maintenant, 40).getFullYear()), note: 'Revendra son appartement de Marcinelle' }],
     })
   }
+}
+
+/** Cinquième série (étape 8) : rendez-vous d'exemple dans l'agenda. */
+async function creerSerie5(): Promise<void> {
+  const demo = await db.contacts.filter((c) => c._demo === true).toArray()
+  const lesPistes = await db.pistes.filter((p) => p._demo === true).toArray()
+  const a = (jours: number, heure: number, minutes = 0) => {
+    const d = ajouterJours(new Date(), jours)
+    d.setHours(heure, minutes, 0, 0)
+    return d
+  }
+  const rossi = demo.find((c) => c.nom === 'Rossi')
+  const pisteRossi = lesPistes.find((p) => p.contactId === rossi?.id)
+  if (rossi)
+    await evenements.creer(
+      { ...evenementVide(a(1, 10), 60), type: 'visite', contactId: rossi.id, pisteId: pisteRossi?.id ?? null, bienId: pisteRossi?.bienId ?? null, notes: 'Visite avec les deux enfants. Prévoir le dossier succession.' },
+      { demo: true },
+    )
+  const dupont = demo.find((c) => c.nom === 'Dupont')
+  if (dupont)
+    await evenements.creer({ ...evenementVide(a(0, 17, 30), 60), type: 'estimation', contactId: dupont.id, lieu: 'Chez M. Dupont', notes: 'Estimation de l’appartement, apporter les ventes récentes du quartier.' }, { demo: true })
+  const hermans = demo.find((c) => c.nom === 'Hermans')
+  const pisteHermans = lesPistes.find((p) => p.contactId === hermans?.id)
+  if (hermans)
+    await evenements.creer(
+      { ...evenementVide(a(3, 14), 90), type: 'rdv', contactId: hermans.id, pisteId: pisteHermans?.id ?? null, bienId: pisteHermans?.bienId ?? null, notes: 'Présenter l’analyse de prix (baisse sans résultat).' },
+      { demo: true },
+    )
 }
 
 /** Photo d'illustration dessinée sur l'appareil (façade stylisée), pour la démonstration. */
@@ -431,6 +462,7 @@ async function creerSerie3(): Promise<void> {
 
 export async function supprimerDemo(): Promise<number> {
   await piecesJointes.supprimerDemo()
+  await evenements.supprimerDemo()
   await interactions.supprimerDemo()
   const idsPhotos = (await db.photos.filter((p) => p._demo === true).primaryKeys()) as string[]
   await db.photosLocales.bulkDelete(idsPhotos)

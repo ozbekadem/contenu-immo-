@@ -20,6 +20,7 @@ import { Link, useLocation, useNavigate, useParams } from 'react-router'
 import { DatesCles } from '@/components/DatesCles'
 import { PiecesJointes } from '@/components/PiecesJointes'
 import { AjoutPhotos, Galerie } from '@/components/Photos'
+import { RendezVousFiche } from '@/features/agenda/composants'
 import { RelanceChoix } from '@/components/RelanceChoix'
 import { Avatar } from '@/components/ui/Avatar'
 import { classesBouton } from '@/components/ui/Bouton'
@@ -402,6 +403,7 @@ export default function PistePage() {
           <p className="whitespace-pre-wrap text-sm">{piste.notes}</p>
         </Card>
       )}
+      <RendezVousFiche pre={{ contactId: piste.contactId, pisteId: piste.id, bienId: piste.bienId, type: piste.categorie === 'maison_vide' ? 'visite' : 'rdv' }} />
       <HistoriquePiste piste={piste} />
       <PiecesJointes entite="pistes" entiteId={piste.id} />
 

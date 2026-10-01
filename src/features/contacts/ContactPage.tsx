@@ -18,6 +18,7 @@ import { useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router'
 import { DatesCles } from '@/components/DatesCles'
 import { PiecesJointes } from '@/components/PiecesJointes'
+import { RendezVousFiche } from '@/features/agenda/composants'
 import { PisteLigne } from '@/features/prospection/PisteLigne'
 import { usePistes } from '@/features/prospection/usePistes'
 import { RelanceChoix } from '@/components/RelanceChoix'
@@ -45,7 +46,7 @@ const ONGLETS: { code: Onglet; libelle: string; etape?: number }[] = [
   { code: 'identite', libelle: 'Identité' },
   { code: 'documents', libelle: 'Documents et liens' },
   { code: 'biens', libelle: 'Biens et photos', etape: 7 },
-  { code: 'prospection', libelle: 'Prospection' },
+  { code: 'prospection', libelle: 'Suivi' },
   { code: 'historique', libelle: 'Historique' },
   { code: 'rappels', libelle: 'Rappels', etape: 8 },
   { code: 'rgpd', libelle: 'RGPD', etape: 11 },
@@ -255,6 +256,7 @@ function ProspectionContact({ contact }: { contact: Contact }) {
           </div>
         )}
       </Card>
+      <RendezVousFiche pre={{ contactId: contact.id }} />
       <DatesCles
         dates={contact.datesCles ?? []}
         prochaineRelanceAt={contact.prochaineRelanceAt}

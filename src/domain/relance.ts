@@ -127,3 +127,9 @@ export function dateRelance(delai: DelaiRelance, depuis: Date = new Date()): Dat
       return ajouterMois(depuis, 6)
   }
 }
+
+/** Heure d'une relance proposée par défaut : celle du moment si elle tombe entre 9 h et 19 h, sinon 9 h. */
+export function heureOuvrable(d: Date): number {
+  const h = d.getHours()
+  return h >= 9 && h < 19 ? h : 9
+}

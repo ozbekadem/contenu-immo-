@@ -1,6 +1,6 @@
 import Dexie, { type EntityTable, type Table } from 'dexie'
 import { deriverContact } from './derives'
-import type { ArgumentairePerso, Bien, Contact, EntreeJournal, FichierLocal, Interaction, OperationSortante, Photo, PhotoLocale, PieceJointe, Piste } from './types'
+import type { ArgumentairePerso, Bien, Evenement, LienGoogle, Contact, EntreeJournal, FichierLocal, Interaction, OperationSortante, Photo, PhotoLocale, PieceJointe, Piste } from './types'
 
 export interface Meta {
   cle: string
@@ -18,6 +18,8 @@ export class LinkimmoDB extends Dexie {
   fichiers!: Table<FichierLocal, string>
   journal!: EntityTable<EntreeJournal, 'id'>
   argumentaires!: Table<ArgumentairePerso, string>
+  evenements!: Table<Evenement, string>
+  liensGoogle!: Table<LienGoogle, string>
   outbox!: EntityTable<OperationSortante, 'seq'>
   meta!: EntityTable<Meta, 'cle'>
 
@@ -71,6 +73,10 @@ export class LinkimmoDB extends Dexie {
     })
     this.version(7).stores({
       argumentaires: 'id, cas',
+    })
+    this.version(8).stores({
+      evenements: 'id, debut, contactId, pisteId, bienId, googleEventId',
+      liensGoogle: 'cle, eventId',
     })
   }
 }

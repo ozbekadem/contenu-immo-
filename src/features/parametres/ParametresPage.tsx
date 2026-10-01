@@ -6,6 +6,7 @@ import { Card, SectionTitle } from '@/components/ui/Card'
 import { PageHeader } from '@/components/ui/PageHeader'
 import { PARAMETRES_DEFAUT, SEUILS_ROUGE_DEFAUT } from '@/domain/relance'
 import { CATEGORIES } from '@/domain/categories'
+import { CarteGoogle } from '@/features/agenda/composants'
 import { Agence } from './Agence'
 import { CompteSync } from './CompteSync'
 import { DonneesDemo } from './DonneesDemo'
@@ -30,6 +31,7 @@ export default function ParametresPage() {
       <div className="flex flex-col gap-4">
         <CompteSync />
         <Agence />
+        <CarteGoogle />
 
         <Card>
           <SectionTitle>Apparence</SectionTitle>

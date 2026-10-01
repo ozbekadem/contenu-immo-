@@ -13,6 +13,7 @@ import { interactions } from '@/data/repositories/interactions'
 import type { Contact } from '@/data/types'
 import { aMaturite, anniversaires, entonnoir } from '@/domain/quotidien'
 import { useContactsColores } from '@/features/contacts/useContacts'
+import { RendezVousDuJour } from '@/features/agenda/composants'
 import { SansAction, TopAppels, Veille } from './Sections'
 import { AMaturite, Anniversaires, Entonnoir } from './Suivi'
 import { fileAppels, filtrerCategorie, FILTRES_CATEGORIE, useSuivables, type FiltreCategorie } from './useSuivables'
@@ -159,6 +160,7 @@ export default function AujourdhuiPage() {
         </Link>
       )}
 
+      <RendezVousDuJour maintenant={maintenant} />
       <TopAppels lignes={top} />
       {aAppeler > top.length && (
         <Link to={`/session?filtre=${filtre}`} className="-mt-2 px-4 text-center text-sm font-bold text-primaire-texte">

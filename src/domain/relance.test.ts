@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import {
   couleurSuivi,
   dateRelance,
+  heureOuvrable,
   libelleDernierContact,
   libelleProchaineRelance,
   parametresPour,
@@ -89,5 +90,13 @@ describe('dateRelance', () => {
 
   it('reste sur la fin du mois (31 janvier + 1 mois = 28 février)', () => {
     expect(dateRelance('1m', new Date(2027, 0, 31))).toEqual(new Date(2027, 1, 28))
+  })
+})
+
+describe('Heure des relances proposées', () => {
+  it('jamais la nuit : 9 h si l’échange a lieu le soir ou tôt le matin', () => {
+    expect(heureOuvrable(new Date(2026, 9, 1, 14, 20))).toBe(14)
+    expect(heureOuvrable(new Date(2026, 9, 1, 22, 30))).toBe(9)
+    expect(heureOuvrable(new Date(2026, 9, 1, 7, 0))).toBe(9)
   })
 })

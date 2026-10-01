@@ -3,16 +3,19 @@ import { CalendarClock, Mail, MessageCircle, MessageSquare, NotebookPen, Phone, 
 import { useEffect, useState } from 'react'
 import { RelanceChoix } from '@/components/RelanceChoix'
 import { classesBouton } from '@/components/ui/Bouton'
-import { Zone } from '@/components/ui/Champ'
+import { Saisie, Zone } from '@/components/ui/Champ'
 import { Feuille } from '@/components/ui/Feuille'
 import { contacts } from '@/data/repositories/contacts'
+import { evenements, evenementVide } from '@/data/repositories/evenements'
 import { interactions } from '@/data/repositories/interactions'
+import { creneauParDefaut } from '@/features/agenda/FormulaireEvenement'
 import { biens } from '@/data/repositories/biens'
 import { pistes } from '@/data/repositories/pistes'
 import type { Contact, Piste } from '@/data/types'
 import { adresseCourte } from '@/features/prospection/affichage'
 import { depuisDateLocale, versDateLocale } from '@/domain/dates'
 import { RESULTATS, resultatsPour, type CodeResultat } from '@/domain/resultats'
+import { heureOuvrable } from '@/domain/relance'
 import { formaterTelephone, ordreCanaux, type Canal } from '@/domain/telephone'
 import { nomAffiche } from '@/features/contacts/affichage'
 import { fermerMenuContact, lancerAction, lienPour, noterEchange, signalerResultat, surRetour, terminerAction, useActionEnCours, useMenuContact } from './actions'
@@ -117,13 +120,19 @@ function SaisieResultat({
   const [relance, setRelance] = useState<string | null>(suivi.prochaineRelanceAt)
   const [relanceManuelle, setRelanceManuelle] = useState(false)
   const [occupe, setOccupe] = useState(false)
+  // « RDV obtenu » / « Visite » : on l'inscrit tout de suite à l'agenda (et dans Google Agenda).
+  const defautRdv = creneauParDefaut()
+  const [rdvAgenda, setRdvAgenda] = useState(true)
+  const [rdvJour, setRdvJour] = useState(versDateLocale(defautRdv.toISOString()))
+  const [rdvHeure, setRdvHeure] = useState('10:00')
+  const avecRdv = resultat === 'rdv' || resultat === 'visite'
 
   const choisir = (code: CodeResultat) => {
     setResultat(code)
     // Relance proposée selon le résultat (demain pour « pas de réponse », +1 mois pour « rappeler »…)
     if (!relanceManuelle) {
       const defaut = RESULTATS[code].relanceParDefaut?.(new Date())
-      setRelance(defaut ? depuisDateLocale(versDateLocale(defaut.toISOString()), defaut.getHours() || 9) : code === 'note' ? suivi.prochaineRelanceAt : null)
+      setRelance(defaut ? depuisDateLocale(versDateLocale(defaut.toISOString()), heureOuvrable(defaut)) : code === 'note' ? suivi.prochaineRelanceAt : null)
     }
   }
 
@@ -139,6 +148,22 @@ function SaisieResultat({
       relance: relance ? new Date(relance) : null,
       numero,
     })
+    if (avecRdv && rdvAgenda && rdvJour) {
+      const [a, m, j] = rdvJour.split('-').map(Number)
+      const [h, mi] = rdvHeure.split(':').map(Number)
+      const debut = new Date(a!, m! - 1, j!, h ?? 10, mi ?? 0)
+      await evenements.creer(
+        {
+          ...evenementVide(debut),
+          type: resultat === 'visite' ? 'visite' : piste ? 'estimation' : 'rdv',
+          notes: commentaire.trim(),
+          contactId: contact?.id ?? null,
+          pisteId: piste?.id ?? null,
+          bienId: piste?.bienId ?? null,
+        },
+        { demo: !!(contact?._demo || piste?._demo) },
+      )
+    }
     setOccupe(false)
     signalerResultat({ contactId: contact?.id ?? null, pisteId: piste?.id ?? null, resultat })
     fermer()
@@ -164,6 +189,20 @@ function SaisieResultat({
           )
         })}
       </div>
+      {avecRdv && (
+        <div className="rounded-2xl bg-primaire-doux p-3">
+          <label className="flex items-center gap-2 text-sm font-bold text-primaire-texte">
+            <input type="checkbox" checked={rdvAgenda} onChange={(e) => setRdvAgenda(e.target.checked)} className="size-5 accent-[var(--color-primaire)]" />
+            Ajouter le rendez-vous à l’agenda
+          </label>
+          {rdvAgenda && (
+            <div className="mt-2 grid grid-cols-[1fr_7rem] gap-2">
+              <Saisie type="date" aria-label="Date du rendez-vous" value={rdvJour} onChange={(e) => setRdvJour(e.target.value)} />
+              <Saisie type="time" step={300} aria-label="Heure du rendez-vous" value={rdvHeure} onChange={(e) => setRdvHeure(e.target.value)} />
+            </div>
+          )}
+        </div>
+      )}
       <Zone rows={2} placeholder="Ce qui a été dit, prochaine étape…" aria-label="Commentaire" value={commentaire} onChange={(e) => setCommentaire(e.target.value)} />
       {resultat !== 'ne_pas_rappeler' && (
         <div>
