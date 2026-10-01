@@ -15,7 +15,7 @@ import { depuisDateLocale, versDateLocale } from '@/domain/dates'
 import { RESULTATS, resultatsPour, type CodeResultat } from '@/domain/resultats'
 import { formaterTelephone, ordreCanaux, type Canal } from '@/domain/telephone'
 import { nomAffiche } from '@/features/contacts/affichage'
-import { fermerMenuContact, lancerAction, lienPour, noterEchange, surRetour, terminerAction, useActionEnCours, useMenuContact } from './actions'
+import { fermerMenuContact, lancerAction, lienPour, noterEchange, signalerResultat, surRetour, terminerAction, useActionEnCours, useMenuContact } from './actions'
 
 export const CANAUX: Record<Canal, { libelle: string; icone: LucideIcon; classe: string }> = {
   appel: { libelle: 'Appeler', icone: Phone, classe: 'degrade text-white shadow-primaire' },
@@ -140,6 +140,7 @@ function SaisieResultat({
       numero,
     })
     setOccupe(false)
+    signalerResultat({ contactId: contact?.id ?? null, pisteId: piste?.id ?? null, resultat })
     fermer()
   }
 

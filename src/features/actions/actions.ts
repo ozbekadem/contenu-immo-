@@ -1,6 +1,7 @@
 import { useSyncExternalStore } from 'react'
 import { contacts } from '@/data/repositories/contacts'
 import type { Contact } from '@/data/types'
+import type { CodeResultat } from '@/domain/resultats'
 import { lienAppel, lienEmail, lienSms, lienWhatsapp, type Canal } from '@/domain/telephone'
 
 /** Action lancée (appel, SMS…) dont on attend le résultat au retour dans l'application. */
@@ -54,20 +55,20 @@ export function useActionEnCours(): ActionEnCours | null {
   )
 }
 
-export function lienPour(canal: Canal, contact: Contact, numero?: string | null): string | null {
+export function lienPour(canal: Canal, contact: Contact, numero?: string | null, texte?: string): string | null {
   const tel = numero ?? contact._telNorm[0]
   const email = contact.emails[0]
-  if (canal === 'email') return email ? lienEmail(email) : null
+  if (canal === 'email') return email ? lienEmail(email, undefined, texte) : null
   if (!tel) return null
-  return canal === 'appel' ? lienAppel(tel) : canal === 'sms' ? lienSms(tel) : lienWhatsapp(tel)
+  return canal === 'appel' ? lienAppel(tel) : canal === 'sms' ? lienSms(tel, texte) : lienWhatsapp(tel, texte)
 }
 
 /**
  * Lance un appel, un SMS, une conversation WhatsApp ou un email, mémorise le canal le plus
  * utilisé pour ce contact, puis proposera de noter le résultat au retour dans l'application.
  */
-export function lancerAction(contact: Contact, canal: Canal, numero?: string | null, pisteId: string | null = null): void {
-  const lien = lienPour(canal, contact, numero)
+export function lancerAction(contact: Contact, canal: Canal, numero?: string | null, pisteId: string | null = null, texte?: string): void {
+  const lien = lienPour(canal, contact, numero, texte)
   if (!lien) return
   const utilisation = { ...contact.utilisationCanaux, [canal]: (contact.utilisationCanaux[canal] ?? 0) + 1 }
   void contacts.modifier(contact.id, { utilisationCanaux: utilisation })
@@ -100,6 +101,23 @@ export function surRetour(): void {
 
 export function terminerAction(): void {
   publier(null)
+}
+
+// ── Résultat enregistré : la session d'appels passe alors au suivant ──
+export interface ResultatEnregistre {
+  contactId: string | null
+  pisteId: string | null
+  resultat: CodeResultat
+}
+const abonnesResultat = new Set<(r: ResultatEnregistre) => void>()
+
+export function surResultatEnregistre(f: (r: ResultatEnregistre) => void): () => void {
+  abonnesResultat.add(f)
+  return () => abonnesResultat.delete(f)
+}
+
+export function signalerResultat(r: ResultatEnregistre): void {
+  for (const f of abonnesResultat) f(r)
 }
 
 // ── Menu de contact partagé (listes) : une seule fenêtre pour toute l'application ──

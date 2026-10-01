@@ -41,6 +41,11 @@ export class InteractionRepository extends RepositoryBase<Interaction> {
   }
 
   /** Historique d'une piste. */
+  /** Signatures (mandat, compromis) : pour les anniversaires de signature. */
+  async signatures(): Promise<Interaction[]> {
+    return this.db.interactions.filter((i) => !i.archivedAt && !!i.contactId && (i.resultat === 'mandat' || i.resultat === 'accord')).toArray()
+  }
+
   async pourPiste(pisteId: string): Promise<Interaction[]> {
     const liste = await this.db.interactions.where('pisteId').equals(pisteId).toArray()
     return liste.filter((i) => !i.archivedAt).sort((a, b) => b.date.localeCompare(a.date))

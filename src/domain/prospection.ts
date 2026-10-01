@@ -45,7 +45,7 @@ export function scoreInoccupation(indices: string[]): number {
 }
 
 // ─── Dates clés (fin de bail, fin de mandat…) ───────────────────────────────
-export type TypeDateCle = 'fin_bail' | 'fin_mandat' | 'succession' | 'pension' | 'travaux' | 'separation' | 'autre'
+export type TypeDateCle = 'projet_vente' | 'fin_bail' | 'fin_mandat' | 'succession' | 'pension' | 'travaux' | 'separation' | 'autre'
 
 export interface DateCle {
   id: string
@@ -57,6 +57,7 @@ export interface DateCle {
 
 /** Libellé et préavis : combien de jours AVANT la date il faut rappeler. */
 export const TYPES_DATE_CLE: Record<TypeDateCle, { libelle: string; preavisJours: number }> = {
+  projet_vente: { libelle: 'Projet de vente prévu', preavisJours: 60 },
   fin_bail: { libelle: 'Fin de bail', preavisJours: 42 },
   fin_mandat: { libelle: 'Fin du mandat d’une autre agence', preavisJours: 7 },
   succession: { libelle: 'Succession réglée', preavisJours: 14 },
@@ -66,7 +67,7 @@ export const TYPES_DATE_CLE: Record<TypeDateCle, { libelle: string; preavisJours
   autre: { libelle: 'Autre date importante', preavisJours: 14 },
 }
 
-function jourLocal(d: string): Date {
+export function jourLocal(d: string): Date {
   const [a, m, j] = d.split('-').map(Number)
   return new Date(a!, m! - 1, j!, 9)
 }

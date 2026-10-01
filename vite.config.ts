@@ -45,6 +45,12 @@ export default defineConfig(({ mode }) => {
           { src: 'pwa-512.png', sizes: '512x512', type: 'image/png' },
           { src: 'pwa-maskable-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
         ],
+        // Appui long sur l'icône (Android) : accès direct aux gestes du quotidien.
+        shortcuts: [
+          { name: 'Repérer un bien', short_name: 'Repérer', url: '/reperer', icons: [{ src: 'pwa-192.png', sizes: '192x192' }] },
+          { name: 'Session d’appels', short_name: 'Appels', url: '/session', icons: [{ src: 'pwa-192.png', sizes: '192x192' }] },
+          { name: 'Nouveau contact', short_name: 'Contact', url: '/contacts/nouveau', icons: [{ src: 'pwa-192.png', sizes: '192x192' }] },
+        ],
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,svg,png,woff2}'],

@@ -13,6 +13,7 @@ const CLE_INITIALISE = 'demo.initialise'
 const CLE_SERIE_2 = 'demo.serie2'
 /** Troisième série : pistes de prospection (affiche, annonce, maisons vides), ajoutée à l'étape 5. */
 const CLE_SERIE_3 = 'demo.serie3'
+const CLE_SERIE_4 = 'demo.serie4'
 
 const iso = (d: Date) => d.toISOString()
 
@@ -199,27 +200,60 @@ async function creerSerie2(): Promise<void> {
  * les données de démonstration ont été supprimées.
  */
 export async function initialiserDemo(): Promise<void> {
+  // Séries d'exemples ajoutées au fil des étapes (un appareil existant reçoit les nouvelles).
+  const series: [string, () => Promise<void>][] = [
+    [CLE_SERIE_2, creerSerie2],
+    [CLE_SERIE_3, creerSerie3],
+    [CLE_SERIE_4, creerSerie4],
+  ]
   if (!(await db.meta.get(CLE_INITIALISE))) {
-    await db.meta.bulkPut([
-      { cle: CLE_INITIALISE, valeur: new Date().toISOString() },
-      { cle: CLE_SERIE_2, valeur: new Date().toISOString() },
-    ])
+    const maintenant = new Date().toISOString()
+    await db.meta.bulkPut([{ cle: CLE_INITIALISE, valeur: maintenant }, ...series.map(([cle]) => ({ cle, valeur: maintenant }))])
     if ((await contacts.compter()) === 0) {
       await contacts.creerPlusieurs(contactsDemo(), { demo: true })
-      await creerSerie2()
-      await db.meta.put({ cle: CLE_SERIE_3, valeur: new Date().toISOString() })
-      await creerSerie3()
+      for (const [, creer] of series) await creer()
     }
     return
   }
-  const demoPresente = async () => (await db.contacts.filter((c) => c._demo === true).count()) > 0
-  if (!(await db.meta.get(CLE_SERIE_2))) {
-    await db.meta.put({ cle: CLE_SERIE_2, valeur: new Date().toISOString() })
-    if (await demoPresente()) await creerSerie2()
+  for (const [cle, creer] of series) {
+    if (await db.meta.get(cle)) continue
+    await db.meta.put({ cle, valeur: new Date().toISOString() })
+    // Rien n'est ajouté si la démonstration a été supprimée.
+    if ((await db.contacts.filter((c) => c._demo === true).count()) > 0) await creer()
   }
-  if (!(await db.meta.get(CLE_SERIE_3))) {
-    await db.meta.put({ cle: CLE_SERIE_3, valeur: new Date().toISOString() })
-    if (await demoPresente()) await creerSerie3()
+}
+
+/** Quatrième série (étape 6) : un anniversaire aujourd'hui, une signature d'il y a 2 ans, un projet de vente qui mûrit. */
+async function creerSerie4(): Promise<void> {
+  const maintenant = new Date()
+  const demo = await db.contacts.filter((c) => c._demo === true).toArray()
+  const parNom = (n: string) => demo.find((c) => c.nom === n)
+  const jour = (d: Date, annee: number) => `${annee}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+  const dupont = parNom('Dupont')
+  if (dupont) await contacts.modifier(dupont.id, { dateNaissance: jour(maintenant, 1971) })
+  const lambert = parNom('Lambert')
+  if (lambert) {
+    const signe = ajouterJours(maintenant, 6)
+    signe.setFullYear(signe.getFullYear() - 2)
+    await interactions.creer(
+      {
+        contactId: lambert.id,
+        pisteId: null,
+        type: 'rdv',
+        resultat: 'mandat',
+        commentaire: 'Mandat de vente signé pour l’appartement de la rue de Montigny.',
+        date: signe.toISOString(),
+        relanceAt: null,
+        numero: null,
+      },
+      { demo: true },
+    )
+  }
+  const claes = parNom('Claes')
+  if (claes) {
+    await contacts.modifier(claes.id, {
+      datesCles: [{ id: crypto.randomUUID(), type: 'projet_vente', date: jour(ajouterJours(maintenant, 40), ajouterJours(maintenant, 40).getFullYear()), note: 'Revendra son appartement de Marcinelle' }],
+    })
   }
 }
 

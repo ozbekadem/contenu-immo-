@@ -18,7 +18,7 @@ import { initiales } from '@/features/contacts/affichage'
 import type { PisteVue } from '@/features/prospection/usePistes'
 import type { Suivable } from './useSuivables'
 
-function Visuel({ s }: { s: Suivable }) {
+export function Visuel({ s }: { s: Suivable }) {
   if (s.piste && s.bienId)
     return (
       <span className="relative isolate size-11 shrink-0">
@@ -34,7 +34,7 @@ function Visuel({ s }: { s: Suivable }) {
   return <Avatar initiales={s.contact ? initiales(s.contact) : ''} cle={s.cle} couleur={s.couleur} />
 }
 
-function BoutonAppel({ s }: { s: Suivable }) {
+export function BoutonAppel({ s }: { s: Suivable }) {
   const c = s.contact
   if (!c || c.nePasContacter || (c._telNorm.length === 0 && c.emails.length === 0)) return <span className="size-11 shrink-0" />
   return (

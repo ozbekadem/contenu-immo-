@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import type { Contact, Piste } from '@/data/types'
-import type { ProspectAClasser } from '@/domain/priorite'
+import { classer, type Priorite, type ProspectAClasser } from '@/domain/priorite'
 import { nomAffiche } from '@/features/contacts/affichage'
 import { useContactsColores } from '@/features/contacts/useContacts'
 import { usePistes } from '@/features/prospection/usePistes'
@@ -71,4 +71,28 @@ export function useSuivables(): { liste: Suivable[] | undefined; maintenant: Dat
     ]
     return { liste, maintenant }
   }, [contacts.liste, pistes.liste, pistes.maintenant])
+}
+
+export type FiltreCategorie = 'tout' | Suivable['categorie']
+
+export const FILTRES_CATEGORIE: { code: FiltreCategorie; libelle: string }[] = [
+  { code: 'tout', libelle: 'Tout' },
+  { code: 'annonce', libelle: 'Annonces' },
+  { code: 'maison_vide', libelle: 'Maisons vides' },
+  { code: 'portefeuille', libelle: 'Portefeuille' },
+]
+
+export function filtrerCategorie(liste: Suivable[], filtre: FiltreCategorie): Suivable[] {
+  return filtre === 'tout' ? liste : liste.filter((s) => s.categorie === filtre)
+}
+
+/** Joignable par téléphone ou email (et sans opposition « ne plus contacter »). */
+export function estJoignable(s: Suivable): boolean {
+  const c = s.contact
+  return !!c && !c.nePasContacter && (c._telNorm.length > 0 || c.emails.length > 0)
+}
+
+/** File de la session d'appels : tous les suivis dus aujourd'hui et joignables, du plus prioritaire au moins prioritaire. */
+export function fileAppels(liste: Suivable[], maintenant: Date): { suivable: Suivable; priorite: Priorite }[] {
+  return classer(liste.filter(estJoignable), maintenant, 500).map(({ element, priorite }) => ({ suivable: element, priorite }))
 }

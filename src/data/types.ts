@@ -1,5 +1,6 @@
 import type { Empreinte } from '@/domain/doublons'
 import type { CategoriePiste, DateCle, EtatVeille, PointPrix, StatutPiste } from '@/domain/prospection'
+import type { CasArgumentaire, Objection } from '@/domain/argumentaires'
 import type { CodeResultat } from '@/domain/resultats'
 import type { Canal } from '@/domain/telephone'
 import type { Temperature } from '@/domain/relance'
@@ -275,4 +276,12 @@ export interface OperationSortante {
   /** Champ → horodatage HLC. */
   ts: Record<string, string>
   creeLe: string
+}
+
+/** Argumentaire d'appel modifié par l'agence (remplace le texte d'origine, partagé avec l'équipe). */
+export interface ArgumentairePerso extends Enregistrement {
+  cas: CasArgumentaire
+  accroche: string
+  points: string[]
+  objections: Objection[]
 }

@@ -1,5 +1,6 @@
-import { PartyPopper } from 'lucide-react'
-import { useMemo } from 'react'
+import { useLiveQuery } from 'dexie-react-hooks'
+import { Headset, PartyPopper } from 'lucide-react'
+import { useMemo, useState } from 'react'
 import { Link } from 'react-router'
 import { Card } from '@/components/ui/Card'
 import { FOND_COULEUR } from '@/components/ui/StatusDot'
@@ -7,8 +8,25 @@ import type { Couleur } from '@/domain/relance'
 import type { FiltreRapide } from '@/features/contacts/filtres'
 import { classer } from '@/domain/priorite'
 import { usePistes } from '@/features/prospection/usePistes'
+import { Puce } from '@/components/ui/Champ'
+import { interactions } from '@/data/repositories/interactions'
+import type { Contact } from '@/data/types'
+import { aMaturite, anniversaires, entonnoir } from '@/domain/quotidien'
+import { useContactsColores } from '@/features/contacts/useContacts'
 import { SansAction, TopAppels, Veille } from './Sections'
-import { useSuivables } from './useSuivables'
+import { AMaturite, Anniversaires, Entonnoir } from './Suivi'
+import { fileAppels, filtrerCategorie, FILTRES_CATEGORIE, useSuivables, type FiltreCategorie } from './useSuivables'
+
+const CLE_FILTRE = 'aujourdhui.filtre'
+
+function filtreMemorise(): FiltreCategorie {
+  try {
+    const f = localStorage.getItem(CLE_FILTRE)
+    return FILTRES_CATEGORIE.some((x) => x.code === f) ? (f as FiltreCategorie) : 'tout'
+  } catch {
+    return 'tout'
+  }
+}
 
 const TUILES: { couleur: Couleur; libelle: string; filtre: FiltreRapide }[] = [
   { couleur: 'rouge', libelle: 'En retard', filtre: 'retard' },
@@ -25,20 +43,62 @@ function salutation(d: Date): string {
 export default function AujourdhuiPage() {
   const { liste, maintenant } = useSuivables()
   const { liste: vuesPistes } = usePistes()
+  const { liste: contactsColores } = useContactsColores()
+  const signatures = useLiveQuery(() => interactions.signatures(), [])
+  const [filtre, setFiltre] = useState<FiltreCategorie>(filtreMemorise)
+  const choisirFiltre = (f: FiltreCategorie) => {
+    setFiltre(f)
+    try {
+      localStorage.setItem(CLE_FILTRE, f)
+    } catch {
+      /* préférence non mémorisée : sans gravité */
+    }
+  }
 
-  const { compte, aTraiter, top, sansAction, aVerifier } = useMemo(() => {
-    const actifs = liste ?? []
-    const compte = (c: Couleur) => actifs.filter((l) => l.couleur === c).length
+  const { compte, aTraiter, top, sansAction, aVerifier, aAppeler, maturite, parCategorie } = useMemo(() => {
+    const tous = liste ?? []
+    const parCategorie = (f: FiltreCategorie) => filtrerCategorie(tous, f).filter((s) => s.couleur === 'rouge' || s.couleur === 'orange').length
+    const actifs = filtrerCategorie(tous, filtre)
+    const compte = (c: Couleur) => tous.filter((l) => l.couleur === c).length
     const top = classer(actifs, maintenant).map(({ element, priorite }) => ({ suivable: element, priorite }))
     const dansTop = new Set(top.map((t) => t.suivable.cle))
     // Toute fiche active doit avoir une prochaine action datée.
     const sansAction = actifs.filter((s) => !s.contact?.nePasContacter && !s.prochaineRelanceAt && !dansTop.has(s.cle))
     const aVerifier = (vuesPistes ?? []).filter(
       ({ piste }) =>
-        !piste.archivedAt && piste.veilleEtat === 'actif' && piste.statut !== 'gagne' && piste.statut !== 'perdu' && piste.veilleProchaine && new Date(piste.veilleProchaine) <= maintenant,
+        (filtre === 'tout' || filtre === piste.categorie) &&
+        !piste.archivedAt &&
+        piste.veilleEtat === 'actif' && piste.statut !== 'gagne' && piste.statut !== 'perdu' && piste.veilleProchaine && new Date(piste.veilleProchaine) <= maintenant,
     )
-    return { compte, aTraiter: compte('rouge') + compte('orange'), top, sansAction, aVerifier }
-  }, [liste, vuesPistes, maintenant])
+    const maturite = aMaturite(
+      actifs.filter((s) => !s.contact?.nePasContacter).map((s) => ({ quoi: s, datesCles: s.datesCles })),
+      maintenant,
+    )
+    return {
+      compte,
+      aTraiter: compte('rouge') + compte('orange'),
+      top,
+      sansAction,
+      aVerifier,
+      aAppeler: fileAppels(actifs, maintenant).length,
+      maturite,
+      parCategorie,
+    }
+  }, [liste, vuesPistes, maintenant, filtre])
+
+  const statsEntonnoir = useMemo(() => entonnoir((vuesPistes ?? []).map((v) => v.piste)), [vuesPistes])
+
+  const fetes = useMemo(() => {
+    if (!contactsColores) return []
+    const actifs = contactsColores.map((c) => c.contact).filter((c) => !c.archivedAt)
+    const parId = new Map(actifs.map((c) => [c.id, c]))
+    const elements: { quoi: Contact; type: 'naissance' | 'signature'; date: string | null }[] = actifs.map((c) => ({ quoi: c, type: 'naissance', date: c.dateNaissance }))
+    for (const i of signatures ?? []) {
+      const c = parId.get(i.contactId!)
+      if (c) elements.push({ quoi: c, type: 'signature', date: i.date })
+    }
+    return anniversaires(elements, maintenant)
+  }, [contactsColores, signatures, maintenant])
 
   const date = new Intl.DateTimeFormat('fr-BE', { weekday: 'long', day: 'numeric', month: 'long' }).format(maintenant)
 
@@ -73,14 +133,43 @@ export default function AujourdhuiPage() {
         </div>
       </section>
 
+      <div className="sans-barre -mx-4 flex gap-2 overflow-x-auto px-4 lg:mx-0 lg:px-0" role="group" aria-label="Afficher">
+        {FILTRES_CATEGORIE.map(({ code, libelle }) => {
+          const n = liste ? parCategorie(code) : 0
+          return (
+            <Puce key={code} actif={filtre === code} onClick={() => choisirFiltre(code)}>
+              {libelle}
+              {n > 0 && <span className="ml-1.5 opacity-70">{n}</span>}
+            </Puce>
+          )
+        })}
+      </div>
+
+      {aAppeler > 0 && (
+        <Link to={`/session?filtre=${filtre}`} className="presse flex items-center gap-3 rounded-3xl bg-surface p-3 pr-4 shadow-carte ring-2 ring-primaire/25 dark:shadow-none">
+          <span className="degrade grid size-12 place-items-center rounded-2xl text-white shadow-primaire">
+            <Headset className="size-6" aria-hidden />
+          </span>
+          <span className="min-w-0 flex-1">
+            <span className="block text-[15px] font-extrabold">Lancer la session d’appels</span>
+            <span className="block text-xs text-doux">
+              {aAppeler} personne{aAppeler > 1 ? 's' : ''} à appeler, une par une, avec l’argumentaire adapté
+            </span>
+          </span>
+        </Link>
+      )}
+
       <TopAppels lignes={top} />
-      {aTraiter > top.length && (
-        <Link to="/contacts?filtre=retard" className="-mt-2 px-4 text-center text-sm font-bold text-primaire-texte">
-          Voir les {aTraiter - top.length} autres relances à traiter
+      {aAppeler > top.length && (
+        <Link to={`/session?filtre=${filtre}`} className="-mt-2 px-4 text-center text-sm font-bold text-primaire-texte">
+          Et {aAppeler - top.length} autre{aAppeler - top.length > 1 ? 's' : ''} dans la session d’appels
         </Link>
       )}
       <Veille lignes={aVerifier} />
+      <AMaturite lignes={maturite} />
       <SansAction lignes={sansAction} />
+      <Anniversaires lignes={fetes} />
+      {(filtre === 'tout' || filtre === 'annonce' || filtre === 'maison_vide') && <Entonnoir e={statsEntonnoir} />}
 
       {liste && aTraiter === 0 && (
         <Card className="flex items-center gap-3">
@@ -90,7 +179,6 @@ export default function AujourdhuiPage() {
           <p className="text-sm font-medium">Tout est à jour. Profitez-en pour repérer de nouveaux biens !</p>
         </Card>
       )}
-      <p className="px-4 text-center text-xs text-doux">Entonnoir, prospects à maturité, anniversaires et agenda arrivent à l’étape 6.</p>
     </div>
   )
 }
