@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 680">
+  <rect width="600" height="680" fill="#1C1C1C"/>
+  <circle cx="300" cy="250" r="110" fill="#2E2E2E"/>
+  <path d="M110 680c0-120 85-200 190-200s190 80 190 200z" fill="#2E2E2E"/>
+  <rect x="0" y="640" width="600" height="40" fill="#FFC20E"/>
+  <text x="300" y="610" fill="#8a8a8a" font-family="Arial, sans-serif" font-size="22" text-anchor="middle">Photo de l'agence / d'Adem</text>
+</svg>

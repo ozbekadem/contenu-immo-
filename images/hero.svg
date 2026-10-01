@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 800" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="ciel" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2a2a2a"/><stop offset="1" stop-color="#121212"/>
+    </linearGradient>
+  </defs>
+  <rect width="1600" height="800" fill="url(#ciel)"/>
+  <circle cx="1280" cy="210" r="90" fill="#FFC20E" opacity=".9"/>
+  <g fill="#1a1a1a">
+    <path d="M820 800V470l120-90 120 90v330z"/>
+    <path d="M1040 800V420l150-120 150 120v380z"/>
+    <path d="M1320 800V500l110-80 110 80v300z"/>
+    <path d="M620 800V540l100-75 100 75v260z"/>
+  </g>
+  <g fill="#FFC20E" opacity=".75">
+    <rect x="1110" y="470" width="34" height="44"/><rect x="1236" y="470" width="34" height="44"/>
+    <rect x="1110" y="570" width="34" height="44"/><rect x="1236" y="570" width="34" height="44"/>
+    <rect x="900" y="530" width="30" height="40"/><rect x="1400" y="560" width="30" height="40"/>
+    <rect x="1170" y="680" width="40" height="120"/>
+  </g>
+  <rect y="790" width="1600" height="10" fill="#FFC20E"/>
+</svg>

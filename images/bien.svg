@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 450">
+  <rect width="600" height="450" fill="#1C1C1C"/>
+  <rect y="360" width="600" height="90" fill="#151515"/>
+  <path d="M150 360V215L300 110l150 105v145z" fill="#2B2B2B"/>
+  <path d="M120 230 300 100l180 130" fill="none" stroke="#FFC20E" stroke-width="14" stroke-linejoin="round" stroke-linecap="round"/>
+  <rect x="270" y="270" width="60" height="90" fill="#FFC20E"/>
+  <rect x="190" y="240" width="50" height="45" fill="#FFC20E" opacity=".55"/>
+  <rect x="360" y="240" width="50" height="45" fill="#FFC20E" opacity=".55"/>
+  <text x="300" y="420" fill="#8a8a8a" font-family="Arial, sans-serif" font-size="20" text-anchor="middle">Photo à venir</text>
+</svg>
