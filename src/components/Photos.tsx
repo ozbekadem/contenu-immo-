@@ -1,8 +1,10 @@
 import { useLiveQuery } from 'dexie-react-hooks'
-import { ChevronLeft, ChevronRight, ImageOff, X } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { Camera, ChevronLeft, ChevronRight, ImageOff, X } from 'lucide-react'
+import { useEffect, useRef, useState } from 'react'
+import { classesBouton } from '@/components/ui/Bouton'
 import { photos as depotPhotos } from '@/data/repositories/photos'
 import type { Photo } from '@/data/types'
+import { compresserPhoto } from '@/services/photos'
 
 /** URL affichable d'une photo (locale, ou téléchargée si absente de l'appareil). */
 function useUrlPhoto(id: string | null, miniature: boolean): string | null | undefined {
@@ -86,6 +88,34 @@ export function Galerie({ liste }: { liste: Photo[] }) {
           </div>
         </div>
       )}
+    </>
+  )
+}
+
+/** Bouton « Photos » : ajoute des photos (compressées sur l'appareil) au bien, et à la piste le cas échéant. */
+export function AjoutPhotos({ bienId, pisteId = null, demo = false }: { bienId: string; pisteId?: string | null; demo?: boolean }) {
+  const input = useRef<HTMLInputElement>(null)
+  const [envoi, setEnvoi] = useState(false)
+  const ajouter = async (fichiers: FileList | null) => {
+    if (!fichiers?.length) return
+    setEnvoi(true)
+    const compressees = []
+    for (const f of Array.from(fichiers)) {
+      try {
+        compressees.push(await compresserPhoto(f))
+      } catch {
+        /* photo illisible : ignorée */
+      }
+    }
+    await depotPhotos.ajouter(bienId, pisteId, compressees, { demo })
+    setEnvoi(false)
+  }
+  return (
+    <>
+      <button type="button" disabled={envoi} onClick={() => input.current?.click()} className={`${classesBouton('secondaire')} h-11 rounded-2xl`}>
+        <Camera className="size-4" aria-hidden /> {envoi ? 'Ajout…' : 'Photos'}
+      </button>
+      <input ref={input} type="file" accept="image/*" multiple className="hidden" onChange={(e) => void ajouter(e.target.files).then(() => (e.target.value = ''))} />
     </>
   )
 }

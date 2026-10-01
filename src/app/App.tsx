@@ -1,5 +1,5 @@
 import { lazy } from 'react'
-import { BarChart3, Building2, CalendarDays, Download, LineChart, MessageSquareText, Smartphone } from 'lucide-react'
+import { BarChart3, CalendarDays, Download, LineChart, MessageSquareText, Smartphone } from 'lucide-react'
 import { createBrowserRouter, createMemoryRouter, RouterProvider, type RouteObject } from 'react-router'
 import { Bientot } from '@/components/ui/Bientot'
 import AujourdhuiPage from '@/features/aujourdhui/AujourdhuiPage'
@@ -19,6 +19,8 @@ const ContactsPage = lazy(() => import('@/features/contacts/ContactsPage'))
 const ContactPage = lazy(() => import('@/features/contacts/ContactPage'))
 const ContactFormPage = lazy(() => import('@/features/contacts/ContactFormPage'))
 const PistePage = lazy(() => import('@/features/prospection/PistePage'))
+const BiensPage = lazy(() => import('@/features/biens/BiensPage'))
+const BienPage = lazy(() => import('@/features/biens/BienPage'))
 const SessionPage = lazy(() => import('@/features/session/SessionPage'))
 const ArgumentairesPage = lazy(() => import('@/features/argumentaires/ArgumentairesPage'))
 
@@ -45,7 +47,8 @@ export const routes: RouteObject[] = [
         ),
       },
       { path: 'plus', element: <PlusPage /> },
-      { path: 'biens', element: <Bientot titre="Biens" icone={Building2} etape={7}>Liste, carte, fiche, galerie photos, cadastre et documents.</Bientot> },
+      { path: 'biens', element: <BiensPage /> },
+      { path: 'biens/:id', element: <BienPage /> },
       { path: 'marche', element: <Bientot titre="Marché local" icone={LineChart} etape={10}>Prix médians Statbel par quartier et par commune.</Bientot> },
       { path: 'communication', element: <Bientot titre="Communication" icone={MessageSquareText} etape={11}>Modèles de messages, campagnes et contrôle RGPD.</Bientot> },
       { path: 'equipe', element: <Bientot titre="Équipe et statistiques" icone={BarChart3} etape={12}>Collaborateurs, rôles, activité et conversion.</Bientot> },

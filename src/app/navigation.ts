@@ -32,7 +32,7 @@ export const ONGLETS: EntreeNav[] = [
 
 /** Modules secondaires (menu « Plus » sur smartphone, barre latérale sur ordinateur). */
 export const MODULES: (EntreeNav & { description: string })[] = [
-  { chemin: '/biens', libelle: 'Biens', icone: Building2, description: 'Liste, carte, photos, cadastre' },
+  { chemin: '/biens', libelle: 'Biens', icone: Building2, description: 'Liste, carte, photos, documents' },
   { chemin: '/argumentaires', libelle: 'Argumentaires d’appel', icone: MessageSquareQuote, description: 'Phrases et réponses aux objections' },
   { chemin: '/marche', libelle: 'Marché local', icone: LineChart, description: 'Prix Statbel par quartier et commune' },
   { chemin: '/communication', libelle: 'Communication', icone: MessageSquareText, description: 'Modèles de messages et campagnes' },

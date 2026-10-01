@@ -5,7 +5,6 @@ import {
   ArchiveRestore,
   ArrowLeft,
   CalendarClock,
-  Camera,
   Check,
   DoorOpen,
   ExternalLink,
@@ -16,11 +15,11 @@ import {
   TrendingDown,
   UserPlus,
 } from 'lucide-react'
-import { useRef, useState } from 'react'
+import { useState } from 'react'
 import { Link, useLocation, useNavigate, useParams } from 'react-router'
 import { DatesCles } from '@/components/DatesCles'
 import { PiecesJointes } from '@/components/PiecesJointes'
-import { Galerie } from '@/components/Photos'
+import { AjoutPhotos, Galerie } from '@/components/Photos'
 import { RelanceChoix } from '@/components/RelanceChoix'
 import { Avatar } from '@/components/ui/Avatar'
 import { classesBouton } from '@/components/ui/Bouton'
@@ -34,7 +33,7 @@ import { contacts, contactVide } from '@/data/repositories/contacts'
 import { interactions } from '@/data/repositories/interactions'
 import { photos as depotPhotos } from '@/data/repositories/photos'
 import { pistes } from '@/data/repositories/pistes'
-import { SOURCES_CONTACT, type Bien, type Contact, type Piste } from '@/data/types'
+import { SOURCES_CONTACT, type Contact, type Piste } from '@/data/types'
 import { ecartJours } from '@/domain/dates'
 import { detecterSource } from '@/domain/liens'
 import { INDICES_INOCCUPATION, LIBELLE_STATUT, prixLisible, scoreInoccupation, type StatutPiste } from '@/domain/prospection'
@@ -43,7 +42,6 @@ import { RESULTATS } from '@/domain/resultats'
 import { formaterTelephone } from '@/domain/telephone'
 import { noterEchange, ouvrirMenuContact } from '@/features/actions/actions'
 import { initiales, nomAffiche } from '@/features/contacts/affichage'
-import { compresserPhoto } from '@/services/photos'
 import { adresseCourte, couleurPiste, liensItineraire } from './affichage'
 
 const ETAPES: StatutPiste[] = ['a_contacter', 'en_cours', 'rdv', 'gagne']
@@ -279,33 +277,6 @@ function HistoriquePiste({ piste }: { piste: Piste }) {
   )
 }
 
-function AjoutPhotos({ bien, piste }: { bien: Bien; piste: Piste }) {
-  const input = useRef<HTMLInputElement>(null)
-  const [envoi, setEnvoi] = useState(false)
-  const ajouter = async (fichiers: FileList | null) => {
-    if (!fichiers?.length) return
-    setEnvoi(true)
-    const compressees = []
-    for (const f of Array.from(fichiers)) {
-      try {
-        compressees.push(await compresserPhoto(f))
-      } catch {
-        /* photo illisible : ignorée */
-      }
-    }
-    await depotPhotos.ajouter(bien.id, piste.id, compressees, { demo: !!piste._demo })
-    setEnvoi(false)
-  }
-  return (
-    <>
-      <button type="button" disabled={envoi} onClick={() => input.current?.click()} className={`${classesBouton('secondaire')} h-11 rounded-2xl`}>
-        <Camera className="size-4" aria-hidden /> {envoi ? 'Ajout…' : 'Photos'}
-      </button>
-      <input ref={input} type="file" accept="image/*" multiple className="hidden" onChange={(e) => void ajouter(e.target.files).then(() => (e.target.value = ''))} />
-    </>
-  )
-}
-
 export default function PistePage() {
   const { id = '' } = useParams()
   const navigate = useNavigate()
@@ -344,7 +315,7 @@ export default function PistePage() {
         <button type="button" onClick={() => navigate(-1)} className="presse grid size-11 place-items-center rounded-full bg-surface shadow-carte dark:shadow-none dark:ring-1 dark:ring-bord" aria-label="Retour">
           <ArrowLeft className="size-5" />
         </button>
-        <AjoutPhotos bien={bien} piste={piste} />
+        <AjoutPhotos bienId={bien.id} pisteId={piste.id} demo={!!piste._demo} />
       </div>
 
       {state?.nouveau && (
@@ -365,6 +336,9 @@ export default function PistePage() {
         </div>
         <h1 className="mt-2 text-2xl font-extrabold leading-tight tracking-tight">{adresseCourte(bien)}</h1>
         {bien.adresse?.cp && <p className="text-sm font-medium text-doux">{bien.adresse.cp}</p>}
+        <Link to={`/biens/${bien.id}`} className="mt-1 inline-block text-xs font-bold text-primaire-texte">
+          Fiche du bien (position, caractéristiques, autres pistes) →
+        </Link>
         {piste.alerte && (
           <p className="mt-3 flex items-center gap-2 rounded-2xl bg-suivi-rouge/10 p-3 text-sm font-bold text-suivi-rouge">
             <AlertTriangle className="size-4" aria-hidden /> {piste.alerte} — à appeler aujourd’hui
