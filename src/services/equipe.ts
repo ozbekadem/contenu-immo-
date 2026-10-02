@@ -26,14 +26,14 @@ export function useEquipe(): Membre[] {
 
 export async function rafraichirEquipe(): Promise<void> {
   if (!serveurConfigure) return
-  const { data, error } = await supabase().from('profils').select('id, email, nom, role, actif').order('nom')
+  const { data, error } = await (await supabase()).from('profils').select('id, email, nom, role, actif').order('nom')
   if (error || !data) return
   await db.meta.put({ cle: CLE, valeur: data as Membre[] })
 }
 
 /** Réservé aux administrateurs (le serveur le vérifie aussi). */
 export async function modifierMembre(id: string, patch: Partial<Pick<Membre, 'nom' | 'role' | 'actif'>>): Promise<void> {
-  const { error } = await supabase().from('profils').update(patch).eq('id', id)
+  const { error } = await (await supabase()).from('profils').update(patch).eq('id', id)
   if (error) throw new Error(error.message)
   await rafraichirEquipe()
 }

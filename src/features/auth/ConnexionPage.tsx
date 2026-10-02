@@ -35,7 +35,7 @@ export function ConnexionPage({ message }: { message?: string }) {
     setErreur(null)
     if (!email.trim() || !motDePasse) return setErreur('Indiquez votre email et votre mot de passe.')
     setOccupe(true)
-    const { error } = await supabase().auth.signInWithPassword({ email: email.trim(), password: motDePasse })
+    const { error } = await (await supabase()).auth.signInWithPassword({ email: email.trim(), password: motDePasse })
     setOccupe(false)
     if (error) setErreur(messageErreur(error.message))
   }
@@ -47,7 +47,7 @@ export function ConnexionPage({ message }: { message?: string }) {
       return
     }
     setOccupe(true)
-    const { error } = await supabase().auth.resetPasswordForEmail(email.trim(), { redirectTo: location.origin })
+    const { error } = await (await supabase()).auth.resetPasswordForEmail(email.trim(), { redirectTo: location.origin })
     setOccupe(false)
     if (error) setErreur(messageErreur(error.message))
     else setInfo('Un email vient de vous être envoyé pour choisir un nouveau mot de passe.')
@@ -94,7 +94,7 @@ export function NouveauMotDePassePage() {
     if (mdp.length < 8) return setErreur('Le mot de passe doit contenir au moins 8 caractères.')
     if (mdp !== confirmation) return setErreur('Les deux mots de passe ne sont pas identiques.')
     setOccupe(true)
-    const { error } = await supabase().auth.updateUser({ password: mdp })
+    const { error } = await (await supabase()).auth.updateUser({ password: mdp })
     setOccupe(false)
     if (error) setErreur(messageErreur(error.message))
     else motDePasseChoisi()

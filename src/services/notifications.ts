@@ -60,7 +60,7 @@ export async function lirePreferences(): Promise<PreferencesNotifications> {
 async function sessionServeur(): Promise<string | null> {
   if (!serveurConfigure) return null
   try {
-    return (await supabase().auth.getSession()).data.session?.user.id ?? null
+    return (await (await supabase()).auth.getSession()).data.session?.user.id ?? null
   } catch {
     return null
   }
@@ -69,7 +69,7 @@ async function sessionServeur(): Promise<string | null> {
 export async function enregistrerPreferences(p: PreferencesNotifications): Promise<void> {
   await db.meta.put({ cle: CLE_PREFS, valeur: p })
   if (await sessionServeur()) {
-    await supabase()
+    await (await supabase())
       .from('preferences_notifications')
       .upsert({ relances: p.relances, rdv_minutes: p.rdvMinutes, resume_matin: p.resumeMatin, heure_matin: p.heureMatin, week_end: p.weekEnd, maj_at: new Date().toISOString() })
   }
@@ -89,7 +89,7 @@ async function abonnerPush(): Promise<boolean> {
   const reg = await navigator.serviceWorker.ready
   const abonnement = (await reg.pushManager.getSubscription()) ?? (await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: versOctets(CLE_VAPID) }))
   const j = abonnement.toJSON() as { endpoint: string; keys: { p256dh: string; auth: string } }
-  const { error } = await supabase()
+  const { error } = await (await supabase())
     .from('abonnements_push')
     .upsert({ endpoint: j.endpoint, p256dh: j.keys.p256dh, auth: j.keys.auth, appareil: nomAppareil(), maj_at: new Date().toISOString() }, { onConflict: 'endpoint' })
   if (error) throw new Error(error.message)
@@ -124,7 +124,7 @@ export async function desactiverNotifications(): Promise<void> {
     const reg = await navigator.serviceWorker.getRegistration()
     const abonnement = await reg?.pushManager?.getSubscription()
     if (abonnement) {
-      if (await sessionServeur()) await supabase().from('abonnements_push').delete().eq('endpoint', abonnement.endpoint)
+      if (await sessionServeur()) await (await supabase()).from('abonnements_push').delete().eq('endpoint', abonnement.endpoint)
       await abonnement.unsubscribe()
     }
   } catch {

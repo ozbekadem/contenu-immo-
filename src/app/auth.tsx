@@ -3,7 +3,7 @@ import { createContext, useContext, useEffect, useRef, useState, type ReactNode 
 import { definirUtilisateur } from '@/data/appareil'
 import { db } from '@/data/db'
 import { arreterSynchronisation, demarrerSynchronisation } from '@/data/sync/service'
-import { serveurConfigure, supabase } from '@/data/sync/supabase'
+import { serveurConfigure, sessionMemorisee, supabase } from '@/data/sync/supabase'
 import { confirmer } from '@/components/ui/Confirmation'
 
 export type Role = 'admin' | 'collaborateur' | 'stagiaire'
@@ -46,14 +46,14 @@ async function effacerDonneesLocales() {
 /** Appareil déconnecté à distance par un administrateur : on efface tout et on revient à la connexion. */
 async function surRevoque() {
   await effacerDonneesLocales()
-  await supabase().auth.signOut({ scope: 'local' })
+  await (await supabase()).auth.signOut({ scope: 'local' })
   sessionStorage.setItem('linkimmo.message', MESSAGE_REVOQUE)
   location.replace('/')
 }
 
 async function chargerProfil(session: Session): Promise<Profil | null> {
   try {
-    const { data } = await supabase().from('profils').select('id, email, nom, role').eq('id', session.user.id).maybeSingle()
+    const { data } = await (await supabase()).from('profils').select('id, email, nom, role').eq('id', session.user.id).maybeSingle()
     if (data) {
       await db.meta.put({ cle: CLE_PROFIL, valeur: data })
       return data as Profil
@@ -64,8 +64,20 @@ async function chargerProfil(session: Session): Promise<Profil | null> {
   return ((await db.meta.get(CLE_PROFIL))?.valeur as Profil | undefined) ?? null
 }
 
+/**
+ * État au démarrage : si une session est gardée sur l'appareil, l'application s'ouvre tout de suite
+ * (le serveur confirme la session juste après, en arrière-plan).
+ */
+function etatInitial(): Etat {
+  if (!serveurConfigure) return { etape: 'local' }
+  const session = typeLien ? null : sessionMemorisee()
+  if (!session) return { etape: 'chargement' }
+  definirUtilisateur(session.user.id)
+  return { etape: 'connecte', session, profil: null }
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [etat, setEtatBrut] = useState<Etat>(serveurConfigure ? { etape: 'chargement' } : { etape: 'local' })
+  const [etat, setEtatBrut] = useState<Etat>(etatInitial)
   const etatRef = useRef(etat)
   const setEtat = (e: Etat) => {
     etatRef.current = e
@@ -74,35 +86,39 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (!serveurConfigure) return
-    const sb = supabase()
-
-    const ouvrir = async (session: Session | null, doitChoisirMotDePasse = false) => {
-      if (!session) {
-        arreterSynchronisation()
-        definirUtilisateur(null)
-        const message = sessionStorage.getItem('linkimmo.message') ?? undefined
-        sessionStorage.removeItem('linkimmo.message')
-        setEtat({ etape: 'deconnecte', message })
-        return
+    if (etatRef.current.etape === 'connecte')
+      void db.meta.get(CLE_PROFIL).then((m) => m && etatRef.current.etape === 'connecte' && setEtat({ ...etatRef.current, profil: m.valeur as Profil }))
+    let desabonner = () => {}
+    void supabase().then((sb) => {
+      const ouvrir = async (session: Session | null, doitChoisirMotDePasse = false) => {
+        if (!session) {
+          arreterSynchronisation()
+          definirUtilisateur(null)
+          const message = sessionStorage.getItem('linkimmo.message') ?? undefined
+          sessionStorage.removeItem('linkimmo.message')
+          setEtat({ etape: 'deconnecte', message })
+          return
+        }
+        definirUtilisateur(session.user.id)
+        if (doitChoisirMotDePasse) {
+          setEtat({ etape: 'mot_de_passe', session })
+          return
+        }
+        setEtat({ etape: 'connecte', session, profil: ((await db.meta.get(CLE_PROFIL))?.valeur as Profil | undefined) ?? null })
+        demarrerSynchronisation(() => void surRevoque())
+        const profil = await chargerProfil(session)
+        if (etatRef.current.etape === 'connecte') setEtat({ ...etatRef.current, profil })
       }
-      definirUtilisateur(session.user.id)
-      if (doitChoisirMotDePasse) {
-        setEtat({ etape: 'mot_de_passe', session })
-        return
-      }
-      setEtat({ etape: 'connecte', session, profil: ((await db.meta.get(CLE_PROFIL))?.valeur as Profil | undefined) ?? null })
-      demarrerSynchronisation(() => void surRevoque())
-      const profil = await chargerProfil(session)
-      if (etatRef.current.etape === 'connecte') setEtat({ ...etatRef.current, profil })
-    }
 
-    void sb.auth.getSession().then(({ data }) => ouvrir(data.session, typeLien === 'invite' || typeLien === 'recovery'))
-    const { data } = sb.auth.onAuthStateChange((evenement, session) => {
-      if (evenement === 'PASSWORD_RECOVERY') void ouvrir(session, true)
-      else if (evenement === 'SIGNED_OUT') void ouvrir(null)
-      else if (evenement === 'SIGNED_IN' && etatRef.current.etape === 'deconnecte') void ouvrir(session, typeLien === 'invite')
+      void sb.auth.getSession().then(({ data }) => ouvrir(data.session, typeLien === 'invite' || typeLien === 'recovery'))
+      const { data } = sb.auth.onAuthStateChange((evenement, session) => {
+        if (evenement === 'PASSWORD_RECOVERY') void ouvrir(session, true)
+        else if (evenement === 'SIGNED_OUT') void ouvrir(null)
+        else if (evenement === 'SIGNED_IN' && etatRef.current.etape === 'deconnecte') void ouvrir(session, typeLien === 'invite')
+      })
+      desabonner = () => data.subscription.unsubscribe()
     })
-    return () => data.subscription.unsubscribe()
+    return () => desabonner()
   }, [])
 
   const deconnecter = async () => {
@@ -118,7 +134,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     )
       return
     await effacerDonneesLocales()
-    await supabase().auth.signOut({ scope: 'local' })
+    await (await supabase()).auth.signOut({ scope: 'local' })
     location.replace('/')
   }
 

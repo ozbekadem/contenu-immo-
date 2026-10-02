@@ -29,11 +29,11 @@ function Appareils({ estAdmin }: { estAdmin: boolean }) {
 
   const charger = useCallback(async () => {
     try {
-      const { data, error } = await supabase().from('appareils').select('*').order('derniere_activite', { ascending: false })
+      const { data, error } = await (await supabase()).from('appareils').select('*').order('derniere_activite', { ascending: false })
       if (error) throw error
       setListe(data as LigneAppareil[])
       if (estAdmin) {
-        const { data: profils } = await supabase().from('profils').select('id, nom, email')
+        const { data: profils } = await (await supabase()).from('profils').select('id, nom, email')
         setNoms(Object.fromEntries((profils ?? []).map((p) => [p.id, p.nom || p.email])))
       }
     } catch {
@@ -53,7 +53,7 @@ function Appareils({ estAdmin }: { estAdmin: boolean }) {
       danger: true,
     })
     if (!ok) return
-    await supabase().from('appareils').update({ revoque: true, revoque_le: new Date().toISOString() }).eq('user_id', a.user_id).eq('id', a.id)
+    await (await supabase()).from('appareils').update({ revoque: true, revoque_le: new Date().toISOString() }).eq('user_id', a.user_id).eq('id', a.id)
     await charger()
   }
 
