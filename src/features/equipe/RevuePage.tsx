@@ -37,8 +37,8 @@ export default function RevuePage() {
   const navigate = useNavigate()
   const { liste, maintenant } = useSuivables()
   const autres = useLiveQuery(async () => {
-    const [interactions, pistes, evenements] = await Promise.all([db.interactions.toArray(), db.pistes.toArray(), db.evenements.toArray()])
-    return { interactions, pistes, evenements }
+    const [interactions, pistes, evenements, sauvegarde] = await Promise.all([db.interactions.toArray(), db.pistes.toArray(), db.evenements.toArray(), db.meta.get('sauvegarde.derniere')])
+    return { interactions, pistes, evenements, sauvegarde: sauvegarde?.valeur as string | undefined }
   }, [])
   const semaine = periode('semaine', maintenant).du.toISOString().slice(0, 10)
   const [faits, setFaits] = useState<string[]>(() => lireFaits(semaine))
@@ -102,6 +102,14 @@ export default function RevuePage() {
         ).length,
         lien: '/',
         action: 'Voir',
+      },
+      {
+        cle: 'sauvegarde',
+        titre: 'Sauvegarde de la semaine',
+        detail: autres.sauvegarde ? `Dernière : ${new Date(autres.sauvegarde).toLocaleDateString('fr-BE')}. Téléchargez-en une et rangez-la dans votre Google Drive.` : 'Aucune sauvegarde téléchargée pour l’instant.',
+        nombre: !autres.sauvegarde || Date.now() - new Date(autres.sauvegarde).getTime() > 6 * 86_400_000 ? 1 : 0,
+        lien: '/import-export',
+        action: 'Sauvegarder',
       },
     ]
     return {

@@ -1,7 +1,5 @@
 import { lazy } from 'react'
-import { Download } from 'lucide-react'
 import { createBrowserRouter, createMemoryRouter, RouterProvider, type RouteObject } from 'react-router'
-import { Bientot } from '@/components/ui/Bientot'
 import AujourdhuiPage from '@/features/aujourdhui/AujourdhuiPage'
 import { ConnexionPage, NouveauMotDePassePage } from '@/features/auth/ConnexionPage'
 import { AuthProvider, useAuth } from './auth'
@@ -22,6 +20,7 @@ const PistePage = lazy(() => import('@/features/prospection/PistePage'))
 const BiensPage = lazy(() => import('@/features/biens/BiensPage'))
 const BienPage = lazy(() => import('@/features/biens/BienPage'))
 const InstallerPage = lazy(() => import('@/features/installer/InstallerPage'))
+const ImportExportPage = lazy(() => import('@/features/importexport/ImportExportPage'))
 const EquipePage = lazy(() => import('@/features/equipe/EquipePage'))
 const RevuePage = lazy(() => import('@/features/equipe/RevuePage'))
 const DoublonsPage = lazy(() => import('@/features/equipe/DoublonsPage'))
@@ -58,7 +57,7 @@ export const routes: RouteObject[] = [
       { path: 'equipe', element: <EquipePage /> },
       { path: 'revue', element: <RevuePage /> },
       { path: 'doublons', element: <DoublonsPage /> },
-      { path: 'import-export', element: <Bientot titre="Import, export, sauvegarde" icone={Download} etape={13}>Import CSV et Excel, export, sauvegardes JSON.</Bientot> },
+      { path: 'import-export', element: <ImportExportPage /> },
       { path: 'installer', element: <InstallerPage /> },
       { path: 'parametres', element: <ParametresPage /> },
       { path: '*', element: <AujourdhuiPage /> },
