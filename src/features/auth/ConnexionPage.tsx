@@ -54,7 +54,7 @@ export function ConnexionPage({ message }: { message?: string }) {
   }
 
   return (
-    <Cadre titre="Linkimmo" sousTitre="Connectez-vous pour retrouver vos données sur tous vos appareils.">
+    <Cadre titre="Prospect’Immo" sousTitre="Connectez-vous pour retrouver vos données sur tous vos appareils.">
       <form noValidate onSubmit={connecter} className="flex flex-col gap-4">
         <Champ libelle="Email">
           <div className="relative">

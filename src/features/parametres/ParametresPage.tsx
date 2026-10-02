@@ -102,7 +102,7 @@ export default function ParametresPage() {
 
         <DonneesDemo />
 
-        <p className="text-center text-xs text-doux">Linkimmo · version {__APP_VERSION__}</p>
+        <p className="text-center text-xs text-doux">Prospect’Immo · version {__APP_VERSION__}</p>
       </div>
     </>
   )

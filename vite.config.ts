@@ -30,8 +30,8 @@ export default defineConfig(({ mode }) => {
       registerType: 'prompt',
       includeAssets: ['icon.svg', 'apple-touch-icon.png', 'sw-push.js'],
       manifest: {
-        name: 'Linkimmo',
-        short_name: 'Linkimmo',
+        name: 'Prospect’Immo',
+        short_name: 'Prospect’Immo',
         description: 'Prospection, relances et fidélisation immobilières',
         lang: 'fr-BE',
         start_url: '/',

@@ -1,7 +1,7 @@
-// Linkimmo — envoi des notifications (relances, rendez-vous, résumé du matin).
+// Prospect’Immo — envoi des notifications (relances, rendez-vous, résumé du matin).
 // Fonction Supabase (« Edge Function »), appelée toutes les 5 minutes par une tâche planifiée.
 // Secrets à définir dans Supabase (Edge Functions → Secrets) :
-//   VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY  (générées dans Linkimmo : Paramètres → Notifications)
+//   VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY  (générées dans Prospect’Immo : Paramètres → Notifications)
 //   VAPID_SUJET                         (ex. « mailto:votre.adresse@gmail.com »)
 //   CLE_PLANIFICATION                   (mot de passe au choix, repris dans la tâche planifiée)
 // SUPABASE_URL et SUPABASE_SERVICE_ROLE_KEY sont fournis automatiquement par Supabase.

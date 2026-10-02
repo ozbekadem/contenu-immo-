@@ -1,4 +1,4 @@
-# Linkimmo
+# Prospect’Immo
 
 Application de **prospection, de relances et de fidélisation** pour une petite agence immobilière
 (région de Charleroi, 4 utilisateurs). Elle s'installe comme une vraie application sur le
@@ -36,7 +36,7 @@ et l'ordinateur du bureau.
 | **Contacts** | Liste rapide même avec 5 000 fiches, recherche instantanée, fiche complète (coordonnées, historique, biens, documents et liens, consentements RGPD). Aucun champ obligatoire. |
 | **Actions en un appui** | Appeler, SMS, WhatsApp, email. Au retour dans l'application : « Comment ça s'est passé ? » et la prochaine relance (+1 semaine, +1 mois, +3 mois…). |
 | **Biens** | Liste et **carte** colorée, fiche du bien avec photos, propriétaires, pistes, documents et **prix du marché**. |
-| **Agenda** | Rendez-vous et relances jour par jour, synchronisés avec **Google Agenda** (agenda « Linkimmo »). Les rendez-vous « Estimation… » notés par la secrétaire dans Google Agenda arrivent dans Linkimmo pour être encodés. |
+| **Agenda** | Rendez-vous et relances jour par jour, synchronisés avec **Google Agenda** (agenda « Prospect’Immo »). Les rendez-vous « Estimation… » notés par la secrétaire dans Google Agenda arrivent dans Prospect’Immo pour être encodés. |
 | **Marché local** | Prix médians **Statbel** (ventes réelles) par commune et type de bien, sur plusieurs années, avec correction de l'inflation. Affichés aussi sur chaque bien et chaque piste. |
 | **Communication** | Modèles de messages, campagnes SMS / WhatsApp / email avec **blocage RGPD** (uniquement les contacts qui ont donné leur accord), lien de désinscription, suivi envoi par envoi. |
 | **Équipe** | Statistiques (appels, personnes jointes, RDV, mandats), attribution des fiches à un collaborateur, rôles, appareils connectés. |
@@ -122,7 +122,7 @@ va uniquement dans les secrets Supabase (voir le guide des notifications).
   exporter, ni supprimer, ni modifier les paramètres. Ces règles sont vérifiées **par le serveur**, pas
   seulement à l'écran.
 - **Téléphone perdu** : Paramètres → Compte et synchronisation → à côté de l'appareil, « Déconnecter ».
-  Dès qu'il retrouve Internet, le téléphone efface toutes les données Linkimmo qu'il contient.
+  Dès qu'il retrouve Internet, le téléphone efface toutes les données Prospect’Immo qu'il contient.
 - **Verrouillage** (facultatif, par appareil) : Paramètres → Verrouillage. Un code de 4 à 6 chiffres,
   et Face ID / l'empreinte si le téléphone le permet. Il se réactive quand on quitte l'application
   (immédiatement, après 1, 5 ou 15 minutes). Après 5 erreurs, une attente de plus en plus longue est

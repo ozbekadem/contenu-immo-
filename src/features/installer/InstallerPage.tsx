@@ -34,7 +34,7 @@ const ETAPES: Record<Appareil, { titre: string; etapes: ReactNode[] }> = {
   iphone: {
     titre: 'iPhone et iPad (Safari)',
     etapes: [
-      <>Ouvrez Linkimmo dans <strong>Safari</strong> (pas dans Chrome ni depuis une autre application).</>,
+      <>Ouvrez Prospect’Immo dans <strong>Safari</strong> (pas dans Chrome ni depuis une autre application).</>,
       <>
         Touchez le bouton <strong>Partager</strong>
         <Icone>
@@ -49,21 +49,21 @@ const ETAPES: Record<Appareil, { titre: string; etapes: ReactNode[] }> = {
         </Icone>
         , puis <strong>Ajouter</strong>.
       </>,
-      <>Ouvrez Linkimmo depuis sa nouvelle icône, puis activez les notifications (ci-dessous).</>,
+      <>Ouvrez Prospect’Immo depuis sa nouvelle icône, puis activez les notifications (ci-dessous).</>,
     ],
   },
   android: {
     titre: 'Android (Chrome)',
     etapes: [
-      <>Ouvrez Linkimmo dans <strong>Chrome</strong>.</>,
+      <>Ouvrez Prospect’Immo dans <strong>Chrome</strong>.</>,
       <>
-        Touchez <strong>Installer Linkimmo</strong> en haut de cette page (s’il apparaît), ou le menu
+        Touchez <strong>Installer Prospect’Immo</strong> en haut de cette page (s’il apparaît), ou le menu
         <Icone>
           <EllipsisVertical className="size-4" aria-hidden />
         </Icone>
         → <strong>« Installer l’application »</strong> (ou « Ajouter à l’écran d’accueil »).
       </>,
-      <>Confirmez : l’icône Linkimmo apparaît avec vos autres applications.</>,
+      <>Confirmez : l’icône Prospect’Immo apparaît avec vos autres applications.</>,
       <>Appui long sur l’icône : raccourcis Repérer, Session d’appels, Nouveau contact.</>,
     ],
   },
@@ -77,7 +77,7 @@ const ETAPES: Record<Appareil, { titre: string; etapes: ReactNode[] }> = {
         </Icone>
         à droite de la barre d’adresse.
       </>,
-      <>Linkimmo s’ouvre dans sa propre fenêtre et apparaît dans le menu Démarrer / le Dock.</>,
+      <>Prospect’Immo s’ouvre dans sa propre fenêtre et apparaît dans le menu Démarrer / le Dock.</>,
     ],
   },
 }
@@ -98,12 +98,12 @@ export default function InstallerPage() {
             <span className="grid size-11 place-items-center rounded-2xl bg-suivi-vert/12 text-suivi-vert">
               <Check className="size-6" aria-hidden />
             </span>
-            <p className="text-sm font-semibold">Linkimmo est installée sur cet appareil.</p>
+            <p className="text-sm font-semibold">Prospect’Immo est installée sur cet appareil.</p>
           </Card>
         ) : (
           possible && (
             <button type="button" onClick={() => void installer()} className={`${classesBouton('primaire', 'lg')} w-full`}>
-              <Download className="size-5" aria-hidden /> Installer Linkimmo
+              <Download className="size-5" aria-hidden /> Installer Prospect’Immo
             </button>
           )
         )}

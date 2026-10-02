@@ -77,7 +77,7 @@ export function Verrouillage() {
       <Card>
         <SectionTitle>Verrouillage</SectionTitle>
         <p className="-mt-1 mb-3 text-xs text-doux">
-          Facultatif. Demande un code{bio ? ' (ou Face ID / l’empreinte)' : ''} pour ouvrir Linkimmo, comme une application bancaire. Le code reste sur cet appareil : chaque téléphone a le sien.
+          Facultatif. Demande un code{bio ? ' (ou Face ID / l’empreinte)' : ''} pour ouvrir Prospect’Immo, comme une application bancaire. Le code reste sur cet appareil : chaque téléphone a le sien.
         </p>
         {!config ? (
           <button type="button" onClick={() => setEtape({ quoi: 'choisir' })} className={`${classesBouton('secondaire')} w-full`}>
@@ -111,7 +111,7 @@ export function Verrouillage() {
               <button
                 type="button"
                 onClick={async () => {
-                  if (await confirmer({ titre: 'Retirer le verrouillage ?', message: 'Linkimmo s’ouvrira sans code sur cet appareil.', confirmer: 'Continuer' })) setEtape({ quoi: 'actuel', ensuite: 'retirer' })
+                  if (await confirmer({ titre: 'Retirer le verrouillage ?', message: 'Prospect’Immo s’ouvrira sans code sur cet appareil.', confirmer: 'Continuer' })) setEtape({ quoi: 'actuel', ensuite: 'retirer' })
                 }}
                 className={`${classesBouton('fantome')} flex-1`}
               >

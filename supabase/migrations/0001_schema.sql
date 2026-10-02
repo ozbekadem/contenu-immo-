@@ -1,5 +1,5 @@
 -- ════════════════════════════════════════════════════════════════════════════
--- Linkimmo — schéma serveur (Supabase / PostgreSQL)
+-- Prospect’Immo — schéma serveur (Supabase / PostgreSQL)
 -- À coller dans Supabase : SQL Editor → New query → Run.
 -- Ré-exécutable sans risque (idempotent).
 -- ════════════════════════════════════════════════════════════════════════════

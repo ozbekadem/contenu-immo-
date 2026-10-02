@@ -1,4 +1,4 @@
-/** Événement tel que Google Agenda le représente (champs utilisés par Linkimmo). */
+/** Événement tel que Google Agenda le représente (champs utilisés par Prospect’Immo). */
 export interface EvenementGoogle {
   id: string
   status?: 'confirmed' | 'tentative' | 'cancelled'
@@ -37,7 +37,7 @@ export class ErreurGoogle extends Error {
 
 /** Accès à Google Agenda (vrai service ou simulation pour les tests). */
 export interface TransportGoogle {
-  /** Identifiant du calendrier « Linkimmo » de l'utilisateur (créé s'il n'existe pas). */
+  /** Identifiant du calendrier « Prospect’Immo » de l'utilisateur (créé s'il n'existe pas). */
   calendrier(nom: string): Promise<string>
   /** Tous les événements (syncToken null) ou seulement les changements depuis le jeton. 410 si le jeton a expiré. */
   changements(calendrierId: string, syncToken: string | null): Promise<PageChangements>
@@ -85,7 +85,7 @@ export function transportGoogle(jeton: () => string | null): TransportGoogle {
         if (trouve) return trouve.id
         page = r.nextPageToken
       } while (page)
-      const cree = await appel<{ id: string }>('/calendars', { method: 'POST', body: JSON.stringify({ summary: nom, timeZone: 'Europe/Brussels', description: 'Relances et rendez-vous Linkimmo' }) })
+      const cree = await appel<{ id: string }>('/calendars', { method: 'POST', body: JSON.stringify({ summary: nom, timeZone: 'Europe/Brussels', description: 'Relances et rendez-vous Prospect’Immo' }) })
       return cree.id
     },
     async changements(calendrierId, syncToken) {

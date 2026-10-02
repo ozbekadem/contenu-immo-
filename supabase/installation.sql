@@ -1,8 +1,8 @@
--- Linkimmo — installation complète du serveur (généré à partir de supabase/migrations/).
+-- Prospect’Immo — installation complète du serveur (généré à partir de supabase/migrations/).
 -- À coller en une fois dans Supabase : SQL Editor → New query → Run.
 
 -- ════════════════════════════════════════════════════════════════════════════
--- Linkimmo — schéma serveur (Supabase / PostgreSQL)
+-- Prospect’Immo — schéma serveur (Supabase / PostgreSQL)
 -- À coller dans Supabase : SQL Editor → New query → Run.
 -- Ré-exécutable sans risque (idempotent).
 -- ════════════════════════════════════════════════════════════════════════════
@@ -209,7 +209,7 @@ grant usage on sequence public.seq_sync to authenticated;
 grant execute on function public.sync_push(jsonb, text), public.est_membre(), public.est_admin() to authenticated;
 
 -- ════════════════════════════════════════════════════════════════════════════
--- Linkimmo — stockage des fichiers et temps réel (spécifique à Supabase)
+-- Prospect’Immo — stockage des fichiers et temps réel (spécifique à Supabase)
 -- À exécuter après 0001_schema.sql.
 -- ════════════════════════════════════════════════════════════════════════════
 
@@ -376,7 +376,7 @@ language sql stable security definer set search_path = public as $$
            'Bonjour ! ' || concat_ws(', ',
              nullif(count(distinct r.cle) filter (where r.cle is not null), 0) || ' relance' || case when count(distinct r.cle) > 1 then 's' else '' end,
              nullif(count(distinct v.cle) filter (where v.cle is not null), 0) || ' rendez-vous') || ' aujourd’hui',
-           'Ouvrez Linkimmo pour voir qui appeler en premier.',
+           'Ouvrez Prospect’Immo pour voir qui appeler en premier.',
            '/'
     from prefs p
     left join relances r on r.pour = p.user_id

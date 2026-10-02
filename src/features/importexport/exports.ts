@@ -151,5 +151,5 @@ export async function exporterExcel(tout: boolean): Promise<void> {
 export async function exporterCsv(): Promise<void> {
   const f = await feuilleContacts()
   const texte = versCsv(f.lignes.map((l) => l.map((v) => (v instanceof Date ? v.toLocaleString('fr-BE') : v))))
-  telecharger(new Blob([texte], { type: 'text/csv;charset=utf-8' }), `linkimmo-contacts-${aujourdhui()}.csv`)
+  telecharger(new Blob([texte], { type: 'text/csv;charset=utf-8' }), `prospectimmo-contacts-${aujourdhui()}.csv`)
 }

@@ -134,7 +134,7 @@ language sql stable security definer set search_path = public as $$
            'Bonjour ! ' || concat_ws(', ',
              nullif(count(distinct r.cle) filter (where r.cle is not null), 0) || ' relance' || case when count(distinct r.cle) > 1 then 's' else '' end,
              nullif(count(distinct v.cle) filter (where v.cle is not null), 0) || ' rendez-vous') || ' aujourd’hui',
-           'Ouvrez Linkimmo pour voir qui appeler en premier.',
+           'Ouvrez Prospect’Immo pour voir qui appeler en premier.',
            '/'
     from prefs p
     left join relances r on r.pour = p.user_id

@@ -38,7 +38,7 @@ beforeEach(() => {
 })
 
 describe('Estimations notées par le secrétariat dans Google Agenda', () => {
-  it('seuls les rendez-vous « Estimation… » entrent dans Linkimmo, « à encoder »', async () => {
+  it('seuls les rendez-vous « Estimation… » entrent dans Prospect’Immo, « à encoder »', async () => {
     const a = appareil()
     google.ecrireDans(SECRETARIAT, rdv('s1', 'Estimation – M. Lambert 0475 12 34 56', '2026-10-05T08:00:00Z', { location: 'Rue de Gosselies 12, Jumet', description: 'Maison 3 façades<br>Veut vendre avant l’été' }))
     google.ecrireDans(SECRETARIAT, rdv('s2', 'Dentiste', '2026-10-05T12:00:00Z'))
@@ -53,7 +53,7 @@ describe('Estimations notées par le secrétariat dans Google Agenda', () => {
     expect(await a.db.outbox.count()).toBeGreaterThan(0) // partagé avec l'équipe
   })
 
-  it('la secrétaire déplace puis supprime le rendez-vous : Linkimmo suit', async () => {
+  it('la secrétaire déplace puis supprime le rendez-vous : Prospect’Immo suit', async () => {
     const a = appareil()
     google.ecrireDans(SECRETARIAT, rdv('s1', 'Estimation Rossi', '2026-10-05T08:00:00Z'))
     await a.estimations.importer()
@@ -78,7 +78,7 @@ describe('Estimations notées par le secrétariat dans Google Agenda', () => {
     expect(await a.db.evenements.get(e!.id)).toMatchObject({ titre: 'Estimation appartement Claes', notes: 'Bien en indivision', contactId: 'contact-claes', debut: '2026-10-05T09:00:00.000Z' })
   })
 
-  it('pas de doublon : ni entre deux appareils, ni recopiée dans le calendrier « Linkimmo »', async () => {
+  it('pas de doublon : ni entre deux appareils, ni recopiée dans le calendrier « Prospect’Immo »', async () => {
     const tel = appareil()
     const pc = appareil()
     google.ecrireDans(SECRETARIAT, rdv('s1', 'Estimation Hermans', '2026-10-05T08:00:00Z'))

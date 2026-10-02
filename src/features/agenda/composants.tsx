@@ -120,7 +120,7 @@ export function CarteGoogle({ compacte = false }: { compacte?: boolean }) {
         <div className="min-w-0 flex-1">
           <p className="text-[15px] font-bold">Google Agenda</p>
           <p className="text-xs text-doux">
-            {g.statut === 'deconnecte' && 'Relances et rendez-vous dans votre Google Agenda (calendrier « Linkimmo »).'}
+            {g.statut === 'deconnecte' && 'Relances et rendez-vous dans votre Google Agenda (calendrier « Prospect’Immo »).'}
             {g.statut === 'a_reconnecter' && 'Connexion expirée : touchez « Reconnecter » pour reprendre la synchronisation.'}
             {g.statut === 'synchro' && 'Synchronisation…'}
             {g.statut === 'ok' && `Synchronisé ${ilYa(g.derniereSync) ?? ''}`}
@@ -170,7 +170,7 @@ function EstimationsSecretariat() {
   return (
     <div className="rounded-2xl bg-surface-2 p-3">
       <p className="text-sm font-bold">Estimations du secrétariat</p>
-      <p className="mt-0.5 text-xs text-doux">Les rendez-vous dont le titre commence par « Estimation » sont repris dans Linkimmo, dans « À encoder ».</p>
+      <p className="mt-0.5 text-xs text-doux">Les rendez-vous dont le titre commence par « Estimation » sont repris dans Prospect’Immo, dans « À encoder ».</p>
       {!g.lecture ? (
         <button type="button" onClick={() => void connecterGoogle().catch(() => {})} className={`${classesBouton('secondaire')} mt-2 h-10 text-xs`}>
           Autoriser la lecture de mes agendas

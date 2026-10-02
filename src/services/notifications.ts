@@ -103,7 +103,7 @@ export async function activerNotifications(): Promise<void> {
   const permission = await Notification.requestPermission()
   publier({ permission })
   if (permission !== 'granted') {
-    publier({ message: permission === 'denied' ? 'Notifications bloquées : autorisez-les dans les réglages du téléphone (Linkimmo → Notifications).' : null })
+    publier({ message: permission === 'denied' ? 'Notifications bloquées : autorisez-les dans les réglages du téléphone (Prospect’Immo → Notifications).' : null })
     return
   }
   await db.meta.put({ cle: CLE_ACTIVE, valeur: true })
@@ -115,7 +115,7 @@ export async function activerNotifications(): Promise<void> {
   }
   publier({ active: true, push })
   const reg = await navigator.serviceWorker.getRegistration()
-  await reg?.showNotification('Linkimmo', { body: 'Les notifications sont activées ✔', icon: '/pwa-192.png', tag: 'essai' })
+  await reg?.showNotification('Prospect’Immo', { body: 'Les notifications sont activées ✔', icon: '/pwa-192.png', tag: 'essai' })
 }
 
 export async function desactiverNotifications(): Promise<void> {

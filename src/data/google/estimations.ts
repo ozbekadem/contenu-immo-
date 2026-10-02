@@ -3,6 +3,7 @@ import type { LinkimmoDB } from '../db'
 import { EvenementRepository } from '../repositories/evenements'
 import type { Evenement } from '../types'
 import { debutDe, finDe } from './moteur'
+import { NOM_CALENDRIER } from './souhaites'
 import type { AgendaGoogle, EvenementGoogle, TransportGoogle } from './transport'
 
 export const CLE_AGENDAS_ESTIMATIONS = 'google.agendasEstimations'
@@ -14,7 +15,7 @@ const APRES_MS = 183 * 86_400_000
 /** Agendas techniques de Google (jours fériés, anniversaires, numéros de semaine) : jamais lus. */
 const estTechnique = (id: string) => /#(holiday|contacts|weeknum)@|@group\.v\.calendar\.google\.com$|addressbook#/.test(id)
 
-/** Identifiant Linkimmo fixe pour un événement Google : deux appareils qui l'importent créent la même fiche. */
+/** Identifiant Prospect’Immo fixe pour un événement Google : deux appareils qui l'importent créent la même fiche. */
 export async function idDepuisGoogle(agenda: string, eventId: string): Promise<string> {
   const h = [...new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(`${agenda}|${eventId}`)))].map((b) => b.toString(16).padStart(2, '0')).join('')
   return `${h.slice(0, 8)}-${h.slice(8, 12)}-5${h.slice(13, 16)}-a${h.slice(17, 20)}-${h.slice(20, 32)}`
@@ -42,7 +43,7 @@ export interface BilanEstimations {
 
 /**
  * Demandes d'estimation notées par le secrétariat dans Google Agenda (titre commençant par « Estimation ») :
- * elles entrent dans Linkimmo « à encoder ». Google reste la référence pour la date et l'heure ;
+ * elles entrent dans Prospect’Immo « à encoder ». Google reste la référence pour la date et l'heure ;
  * un rendez-vous supprimé ou renommé dans Google est retiré (archivé, jamais effacé).
  */
 export class ImportEstimations {
@@ -56,10 +57,10 @@ export class ImportEstimations {
     this.evenements = new EvenementRepository(db)
   }
 
-  /** Agendas qu'on peut surveiller (sauf « Linkimmo » et les agendas techniques). */
+  /** Agendas qu'on peut surveiller (sauf « Prospect’Immo » et les agendas techniques). */
   async agendasDisponibles(): Promise<AgendaGoogle[]> {
     const linkimmo = (await this.db.meta.get(CLE_CALENDRIER_LINKIMMO))?.valeur
-    return (await this.transport.agendas()).filter((a) => a.id !== linkimmo && a.nom !== 'Linkimmo' && !estTechnique(a.id))
+    return (await this.transport.agendas()).filter((a) => a.id !== linkimmo && a.nom !== NOM_CALENDRIER && !estTechnique(a.id))
   }
 
   /** Agendas surveillés : le choix de l'utilisateur, sinon tous les agendas disponibles. */
@@ -120,7 +121,7 @@ export class ImportEstimations {
       )
       return 'ajoutee'
     }
-    if (existant.archivedAt) return null // retiré volontairement dans Linkimmo : on ne le recrée pas
+    if (existant.archivedAt) return null // retiré volontairement dans Prospect’Immo : on ne le recrée pas
     // Date et heure : Google fait foi. Textes : repris tant que l'estimation n'est pas encodée.
     const voulu: Partial<Evenement> = { ...depuisGoogle, ...(existant.aEncoder ? textes : {}) }
     const patch = Object.fromEntries(Object.entries(voulu).filter(([k, v]) => existant[k as keyof Evenement] !== v))

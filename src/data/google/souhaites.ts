@@ -3,10 +3,10 @@ import { TYPES_EVENEMENT } from '../types'
 import type { EvenementGoogle } from './transport'
 
 /** Nom du calendrier créé dans le Google Agenda de chaque utilisateur. */
-export const NOM_CALENDRIER = 'Linkimmo'
+export const NOM_CALENDRIER = 'Prospect’Immo'
 const FUSEAU = 'Europe/Brussels'
 /** Séparateur entre les notes et le lien vers la fiche (permet de relire les notes modifiées dans Google). */
-export const SEPARATEUR = '\n\n— Ouvrir dans Linkimmo : '
+export const SEPARATEUR = '\n\n— Ouvrir dans Prospect’Immo : '
 /** Les relances plus anciennes ne sont pas (ou plus) envoyées. */
 const RELANCES_DEPUIS_JOURS = 30
 const DUREE_RELANCE_MIN = 15
@@ -26,7 +26,7 @@ export interface DonneesAgenda {
 }
 
 /**
- * Identifiant Google fixe, déduit de l'identifiant Linkimmo (caractères 0-9 et a-v autorisés par Google) :
+ * Identifiant Google fixe, déduit de l'identifiant Prospect’Immo (caractères 0-9 et a-v autorisés par Google) :
  * deux appareils du même utilisateur créent donc le même événement, jamais un doublon.
  */
 export function idGoogle(prefixe: 'rc' | 'rp' | 'ev', uuid: string): string {
@@ -78,7 +78,7 @@ function avecSignature(cle: string, evenement: EvenementGoogle): Souhaite {
 }
 
 /**
- * Événements que le calendrier « Linkimmo » de l'utilisateur doit contenir :
+ * Événements que le calendrier « Prospect’Immo » de l'utilisateur doit contenir :
  * ses relances (contacts et pistes) et ses rendez-vous. Les données de démonstration n'y vont jamais.
  */
 export function evenementsSouhaites(d: DonneesAgenda, options: { utilisateur: string | null; origine: string; maintenant: Date }): Souhaite[] {
@@ -129,7 +129,7 @@ export function evenementsSouhaites(d: DonneesAgenda, options: { utilisateur: st
   }
 
   for (const e of d.evenements) {
-    // Estimation venue d'un autre agenda : elle y est déjà, on ne la recopie pas dans « Linkimmo ».
+    // Estimation venue d'un autre agenda : elle y est déjà, on ne la recopie pas dans « Prospect’Immo ».
     if (e._demo || e.archivedAt || e.googleCalendrierId || !aMoi(e.collaborateurId)) continue
     const contact = e.contactId ? (contacts.get(e.contactId) ?? null) : null
     const bien = e.bienId ? (biens.get(e.bienId) ?? null) : null

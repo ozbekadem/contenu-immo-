@@ -1,5 +1,5 @@
 -- ════════════════════════════════════════════════════════════════════════════
--- Linkimmo — stockage des fichiers et temps réel (spécifique à Supabase)
+-- Prospect’Immo — stockage des fichiers et temps réel (spécifique à Supabase)
 -- À exécuter après 0001_schema.sql.
 -- ════════════════════════════════════════════════════════════════════════════
 

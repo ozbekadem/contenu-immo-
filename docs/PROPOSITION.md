@@ -1,4 +1,4 @@
-# Linkimmo — Proposition d'architecture (à valider)
+# Prospect’Immo — Proposition d'architecture (à valider)
 
 > Document de travail pour validation avant tout développement.
 > Rien n'est codé tant que vous n'avez pas validé (ou corrigé) ce document.
@@ -186,7 +186,7 @@ de ce qui fonctionne et de ce que vous devez tester.
 | 5 | **Prospection** : pistes 3 catégories, capture terrain (multi-photos, GPS, adresse, doublons), file d'envoi photos, résultats par catégorie, conversion automatique en client | critère « maison vide + 5 photos < 30 s hors ligne », doublon, mandat → client |
 | 6 | **Aujourd'hui** : à appeler / en retard, filtres rapides, entonnoir, prospects à maturité, anniversaires ; **session d'appels** plein écran | critère « rouge sur l'accueil » |
 | 7 | **Biens** : liste, carte colorée, fiche, galerie, cadastre, PDF, contacts liés, historique | |
-| 8 | **Agenda** + **Google Agenda** (deux sens, agenda « Linkimmo »). *Vous créez le projet Google Cloud (guide fourni).* | la relance apparaît dans Google Agenda |
+| 8 | **Agenda** + **Google Agenda** (deux sens, agenda « Prospect’Immo »). *Vous créez le projet Google Cloud (guide fourni).* | la relance apparaît dans Google Agenda |
 | 9 | **Notifications** : résumé du matin, rappels à l'heure, passage au rouge, badge, heures de silence, guide d'installation iPhone/Android | notification le jour de la relance |
 | 10 | **Statbel** : a) vérification des jeux de données → **rapport + votre validation** ; b) import serveur, secteur automatique, encart « Marché du quartier », vue « Marché local », mise à jour semestrielle | critère « Charleroi < 2 s » |
 | 11 | **Communication** : modèles, aperçu, campagnes, blocage RGPD, journalisation | |
@@ -215,7 +215,7 @@ Répondez simplement « OK » pour garder ma proposition, ou corrigez.
    définitivement, ni modifier les paramètres ; la secrétaire = collaborateur (tout sauf
    paramètres et gestion des comptes). Correct ?
 5. **Google** : utilisez-vous des comptes Gmail personnels ou Google Workspace (adresse
-   adresse professionnelle) ? Chaque collaborateur a-t-il son propre agenda « Linkimmo » avec
+   adresse professionnelle) ? Chaque collaborateur a-t-il son propre agenda « Prospect’Immo » avec
    **ses** relances seulement (ma proposition), ou un agenda commun de l'agence ?
 6. **Hébergement** : quel nom de domaine ? Chez qui est géré le domaine
    (OVH, Combell, One.com…) ?
@@ -230,11 +230,11 @@ Répondez simplement « OK » pour garder ma proposition, ou corrigez.
 
 ## 7. Décisions validées
 
-- **Q5 – Google Agenda** : oui. Chaque collaborateur a son agenda « Linkimmo » dans son Google
+- **Q5 – Google Agenda** : oui. Chaque collaborateur a son agenda « Prospect’Immo » dans son Google
   Agenda, où apparaissent ses relances et tâches pour qu'il y pense.
   L'**email** reste une action disponible dans l'application : rare, mais indispensable.
 - **Q6 – Hébergement** : tout reste fictif pour l'instant. On met l'application en ligne sur une
-  adresse gratuite provisoire (ex. `linkimmo-demo.pages.dev`). Le vrai nom de domaine viendra
+  adresse gratuite provisoire (ex. `prospectimmo-demo.pages.dev`). Le vrai nom de domaine viendra
   quand l'application sera officielle : il suffira de le brancher, sans changer de code.
 - **Comptes Google** : Gmail (@gmail.com) pour tous → pas de Google Workspace.
 - **Aucun champ obligatoire** (demande du 30/09) : dans tous les formulaires (contacts, biens,

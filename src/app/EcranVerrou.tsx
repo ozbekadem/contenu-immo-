@@ -70,7 +70,7 @@ export function EcranVerrou() {
         <span className="degrade grid size-14 place-items-center rounded-2xl text-white shadow-primaire">
           <Lock className="size-7" aria-hidden />
         </span>
-        <h1 className="mt-2 text-xl font-extrabold">Linkimmo est verrouillé</h1>
+        <h1 className="mt-2 text-xl font-extrabold">Prospect’Immo est verrouillé</h1>
         <p className="min-h-5 text-sm text-doux" aria-live="polite">
           {attente
             ? `Trop d’essais. Réessayez dans ${attente >= 60 ? `${Math.ceil(attente / 60)} min` : `${attente} s`}.`

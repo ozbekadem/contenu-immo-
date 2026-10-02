@@ -35,7 +35,7 @@ export function finDe(e: EvenementGoogle, debut: string): string {
 }
 
 /**
- * Synchronisation dans les deux sens avec le calendrier « Linkimmo » de l'utilisateur :
+ * Synchronisation dans les deux sens avec le calendrier « Prospect’Immo » de l'utilisateur :
  * 1. on lit ce qui a changé dans Google (heure déplacée, événement supprimé ou ajouté à la main) ;
  * 2. on envoie ce qui a changé dans l'application (relances, rendez-vous).
  * Si les deux côtés ont changé le même élément, la version de l'application est gardée.
@@ -187,7 +187,7 @@ export class SyncGoogle {
     return true
   }
 
-  /** Rendez-vous ajouté directement dans le calendrier « Linkimmo » de Google : il entre dans l'agenda. */
+  /** Rendez-vous ajouté directement dans le calendrier « Prospect’Immo » de Google : il entre dans l'agenda. */
   private async importer(ev: EvenementGoogle): Promise<boolean> {
     const debut = debutDe(ev)
     if (!debut) return false

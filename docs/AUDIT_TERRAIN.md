@@ -1,4 +1,4 @@
-# Linkimmo — Audit « terrain » (agent immobilier / investisseur)
+# Prospect’Immo — Audit « terrain » (agent immobilier / investisseur)
 
 > Mise en situation : je prospecte à Charleroi, je repère des panneaux et des maisons vides,
 > je suis des annonces d'autres agences et de particuliers, je rappelle pendant des mois,
@@ -133,7 +133,7 @@ arriver par 4 chemins : panneau dans la rue, Immoweb, une autre agence, une reco
 - **Récemment consultés** en haut de la recherche.
 - **Codes postaux belges** : localité remplie automatiquement, liste des sections de
   Charleroi (Marcinelle, Jumet, Gosselies…). (A10)
-- **Envoyer une annonce vers Linkimmo depuis « Partager »** (Android ; iPhone : copier-coller).
+- **Envoyer une annonce vers Prospect’Immo depuis « Partager »** (Android ; iPhone : copier-coller).
 
 ---
 
@@ -159,6 +159,6 @@ arriver par 4 chemins : panneau dans la rue, Immoweb, une autre agence, une reco
 **Options, à décider plus tard**
 - Lecture automatique du numéro sur la photo de l'affiche.
 - Note vocale.
-- Partage Android vers Linkimmo.
+- Partage Android vers Prospect’Immo.
 - Case DNCM (à valider juridiquement).
 - Objectif d'appels du jour, offres et contre-offres.

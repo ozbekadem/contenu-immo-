@@ -21,7 +21,7 @@ beforeEach(() => {
 })
 
 describe('Google Agenda (dans les deux sens)', () => {
-  it('une relance devient un événement « Linkimmo », mis à jour quand elle change', async () => {
+  it('une relance devient un événement « Prospect’Immo », mis à jour quand elle change', async () => {
     const a = appareil()
     const c = await a.contacts.creer({ ...contactVide(), prenom: 'Marc', nom: 'Dupont', telephones: [{ numero: '0472 18 90 33' }], prochaineRelanceAt: '2026-10-02T08:00:00.000Z' })
     expect(await a.sync.synchroniser()).toMatchObject({ envoyes: 1 })
@@ -82,7 +82,7 @@ describe('Google Agenda (dans les deux sens)', () => {
     const tel = appareil()
     const pc = appareil()
     const r = await tel.evenements.creer({ ...evenementVide(new Date('2026-10-07T08:00:00Z')), titre: 'Estimation Hermans' })
-    // Le même rendez-vous arrive sur l'ordinateur (via le serveur Linkimmo) avant sa synchro Google.
+    // Le même rendez-vous arrive sur l'ordinateur (via le serveur Prospect’Immo) avant sa synchro Google.
     await pc.db.evenements.put(structuredClone((await tel.db.evenements.get(r.id))!))
     await tel.sync.synchroniser()
     await pc.sync.synchroniser()

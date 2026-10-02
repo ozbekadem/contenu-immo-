@@ -44,7 +44,7 @@ function Sauvegarde() {
 
   const sauvegarder = async () => {
     const s = await creerSauvegarde(db)
-    telecharger(new Blob([JSON.stringify(s)], { type: 'application/json' }), `linkimmo-sauvegarde-${aujourdhui()}.json`)
+    telecharger(new Blob([JSON.stringify(s)], { type: 'application/json' }), `prospectimmo-sauvegarde-${aujourdhui()}.json`)
     setMessage({ ok: true, texte: `Sauvegarde téléchargée : ${compterSauvegarde(s).filter((t) => t.nombre).map((t) => nombreDe(t.table, t.nombre)).join(', ')}.` })
   }
   const choisir = async (f: File | undefined) => {
@@ -227,7 +227,7 @@ function Importer() {
               {(avecBase > 0 || dansFichier > 0) && (
                 <>
                   <p className="mt-1 flex items-center gap-1.5 font-semibold text-suivi-orange">
-                    <AlertTriangle className="size-4" aria-hidden /> {avecBase} déjà dans Linkimmo, {dansFichier} en double dans le fichier
+                    <AlertTriangle className="size-4" aria-hidden /> {avecBase} déjà dans Prospect’Immo, {dansFichier} en double dans le fichier
                   </p>
                   <ul className="mt-1 max-h-28 overflow-y-auto text-xs text-doux">
                     {apercu.lignes

@@ -38,15 +38,15 @@ export function compterSauvegarde(s: Sauvegarde): { table: string; nombre: numbe
   return Object.entries(s.tables).map(([table, l]) => ({ table, nombre: l.length }))
 }
 
-/** Vérifie qu'un fichier est bien une sauvegarde Linkimmo lisible. */
+/** Vérifie qu'un fichier est bien une sauvegarde Prospect’Immo lisible. */
 export function lireSauvegarde(texte: string): Sauvegarde {
   let d: Partial<Sauvegarde>
   try {
     d = JSON.parse(texte) as Partial<Sauvegarde>
   } catch {
-    throw new Error('Ce fichier n’est pas une sauvegarde Linkimmo (format illisible).')
+    throw new Error('Ce fichier n’est pas une sauvegarde Prospect’Immo (format illisible).')
   }
-  if (d.format !== FORMAT_SAUVEGARDE || d.version !== 1 || typeof d.tables !== 'object' || !d.tables) throw new Error('Ce fichier n’est pas une sauvegarde Linkimmo.')
+  if (d.format !== FORMAT_SAUVEGARDE || d.version !== 1 || typeof d.tables !== 'object' || !d.tables) throw new Error('Ce fichier n’est pas une sauvegarde Prospect’Immo.')
   return { ...d, journal: Array.isArray(d.journal) ? d.journal : [] } as Sauvegarde
 }
 

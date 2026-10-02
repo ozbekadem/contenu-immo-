@@ -10,7 +10,7 @@ import { ErreurGoogle, transportGoogle, type AgendaGoogle } from '@/data/google/
 export const CLIENT_ID_GOOGLE = (import.meta.env.VITE_GOOGLE_CLIENT_ID as string | undefined) ?? ''
 
 /**
- * Créer et gérer le calendrier « Linkimmo », le retrouver depuis un autre appareil,
+ * Créer et gérer le calendrier « Prospect’Immo », le retrouver depuis un autre appareil,
  * et lire les autres agendas pour y repérer les « Estimation… » notées par le secrétariat.
  */
 const PERMISSIONS = [
@@ -128,7 +128,7 @@ export async function connecterGoogle(): Promise<void> {
         void db.meta.put({ cle: CLE_LECTURE, valeur: !!r.scope?.includes('calendar.events.readonly') })
         ok()
       },
-      error_callback: (e) => ko(new Error(e.type === 'popup_closed' ? 'Fenêtre Google fermée' : 'Fenêtre Google bloquée : autorisez les fenêtres pour Linkimmo')),
+      error_callback: (e) => ko(new Error(e.type === 'popup_closed' ? 'Fenêtre Google fermée' : 'Fenêtre Google bloquée : autorisez les fenêtres pour Prospect’Immo')),
     })
     client.requestAccessToken({ prompt: dejaLie ? '' : 'consent' })
   }).catch((e: Error) => {
@@ -139,7 +139,7 @@ export async function connecterGoogle(): Promise<void> {
   await synchroniserGoogle()
 }
 
-/** Déconnecte Google sur cet appareil (rien n'est effacé, ni dans Google ni dans Linkimmo). */
+/** Déconnecte Google sur cet appareil (rien n'est effacé, ni dans Google ni dans Prospect’Immo). */
 export async function deconnecterGoogle(): Promise<void> {
   const j = jetonValide()
   if (j) void chargerGis().then((g) => g.accounts.oauth2.revoke(j))
@@ -185,7 +185,7 @@ export function synchroniserGoogle(): Promise<void> {
     publier({ statut: 'synchro', message: null })
     try {
       const lecture = (await db.meta.get(CLE_LECTURE))?.valeur === true
-      // D'abord les estimations du secrétariat (elles ne sont pas recopiées dans « Linkimmo »).
+      // D'abord les estimations du secrétariat (elles ne sont pas recopiées dans « Prospect’Immo »).
       let estimations: BilanEstimations | null = null
       let avertissement: string | null = null
       if (lecture) {
@@ -193,7 +193,7 @@ export function synchroniserGoogle(): Promise<void> {
           estimations = await importEstimations().importer()
         } catch (e) {
           if (e instanceof ErreurGoogle && e.statut === 401) throw e
-          // Un agenda partagé retiré, une autorisation manquante… : la synchronisation « Linkimmo » continue.
+          // Un agenda partagé retiré, une autorisation manquante… : la synchronisation « Prospect’Immo » continue.
           avertissement = `Estimations du secrétariat : ${(e as Error).message}`
         }
       }

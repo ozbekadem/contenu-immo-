@@ -1,13 +1,13 @@
-// Linkimmo — notifications (chargé par le service worker de l'application).
+// Prospect’Immo — notifications (chargé par le service worker de l'application).
 self.addEventListener('push', (event) => {
   let d = {}
   try {
     d = event.data ? event.data.json() : {}
   } catch {
-    d = { titre: 'Linkimmo', corps: event.data ? event.data.text() : '' }
+    d = { titre: 'Prospect’Immo', corps: event.data ? event.data.text() : '' }
   }
   event.waitUntil(
-    self.registration.showNotification(d.titre || 'Linkimmo', {
+    self.registration.showNotification(d.titre || 'Prospect’Immo', {
       body: d.corps || '',
       tag: d.tag,
       icon: '/pwa-192.png',

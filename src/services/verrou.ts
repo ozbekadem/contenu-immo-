@@ -103,8 +103,8 @@ export async function activerBiometrie(): Promise<void> {
   const cred = (await navigator.credentials.create({
     publicKey: {
       challenge: crypto.getRandomValues(new Uint8Array(32)),
-      rp: { name: 'Linkimmo' },
-      user: { id: crypto.getRandomValues(new Uint8Array(16)), name: 'linkimmo', displayName: 'Linkimmo' },
+      rp: { name: 'Prospect’Immo' },
+      user: { id: crypto.getRandomValues(new Uint8Array(16)), name: 'prospectimmo', displayName: 'Prospect’Immo' },
       pubKeyCredParams: [
         { type: 'public-key', alg: -7 },
         { type: 'public-key', alg: -257 },

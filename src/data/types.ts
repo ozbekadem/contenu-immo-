@@ -321,7 +321,7 @@ export interface Evenement extends Enregistrement {
   collaborateurId: string | null
   /** Identifiant de l'événement dans Google Agenda, s'il y a été créé à l'origine. */
   googleEventId: string | null
-  /** Agenda Google d'origine quand le rendez-vous vient d'un autre agenda que « Linkimmo » (estimation du secrétariat). */
+  /** Agenda Google d'origine quand le rendez-vous vient d'un autre agenda que « Prospect’Immo » (estimation du secrétariat). */
   googleCalendrierId?: string | null
   /** Reçu de Google Agenda, pas encore encodé (fiche à créer ou à relier). */
   aEncoder?: boolean

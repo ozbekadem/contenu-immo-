@@ -14,7 +14,7 @@ indiqués **en gras**.
 
 1. Allez sur **supabase.com** → **Start your project** → **Continue with GitHub**
    (le même compte GitHub que pour le projet) et acceptez.
-2. Si on vous demande une organisation : le nom de votre choix (par ex. `Linkimmo`), plan **Free** → **Create organization**.
+2. Si on vous demande une organisation : le nom de votre choix (par ex. `ProspectImmo`), plan **Free** → **Create organization**.
 3. **New project** :
    - **Name** : `linkimmo`
    - **Database Password** : cliquez **Generate a password**, puis **copiez-le dans un endroit sûr**
@@ -47,7 +47,7 @@ indiqués **en gras**.
    - **Branch to deploy** : `claude/linkimmo-proposition`
    - le reste est rempli automatiquement → **Deploy**.
 4. Donnez un joli nom : **Project configuration** → **Change project name** → par exemple
-   `linkimmo-charleroi`. L'adresse devient `https://linkimmo-charleroi.netlify.app`.
+   `prospectimmo-charleroi`. L'adresse devient `https://prospectimmo-charleroi.netlify.app`.
 5. Envoyez-moi cette adresse.
 6. Retour dans Supabase : **Authentication** → **URL Configuration** :
    - **Site URL** : votre adresse Netlify
@@ -82,7 +82,7 @@ Le même guide, illustré, se trouve dans l'application : **Plus** → **Install
 
 Dans l'application : **Plus** → **Paramètres** → **Compte et synchronisation** → à côté de
 l'appareil, **Déconnecter**. Ses données sont effacées dès qu'il se reconnecte à Internet.
-Un **code de verrouillage** sur chaque téléphone reste indispensable ; Linkimmo peut en plus
+Un **code de verrouillage** sur chaque téléphone reste indispensable ; Prospect’Immo peut en plus
 demander son propre code ou Face ID : **Paramètres** → **Verrouillage**.
 
 ## Coûts

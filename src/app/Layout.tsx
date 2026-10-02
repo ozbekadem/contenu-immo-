@@ -13,7 +13,7 @@ function Logo() {
     <Link to="/" className="flex items-center gap-2.5">
       <img src={logo} alt="" className="size-9 rounded-xl shadow-primaire" />
       <span className="text-lg font-extrabold tracking-tight">
-        Link<span className="text-primaire">immo</span>
+        Prospect<span className="text-primaire">’Immo</span>
       </span>
     </Link>
   )

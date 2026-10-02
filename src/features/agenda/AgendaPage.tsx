@@ -28,7 +28,7 @@ function vueMemorisee(): VueAgenda {
   }
 }
 
-/** Agenda : rendez-vous et relances par jour, semaine, mois ou trimestre, relié au calendrier « Linkimmo » de Google Agenda. */
+/** Agenda : rendez-vous et relances par jour, semaine, mois ou trimestre, relié au calendrier « Prospect’Immo » de Google Agenda. */
 export default function AgendaPage() {
   const { liste: suivables, maintenant } = useSuivables()
   const aujourdhui = useMemo(() => debutJour(maintenant), [maintenant])
