@@ -17,16 +17,16 @@ export function SectionTitle({ children, action }: { children: ReactNode; action
 
 export type TeinteSection = 'primaire' | 'rouge' | 'orange' | 'annonce' | 'rose'
 
-const TEINTES: Record<TeinteSection, { icone: string; nombre: string }> = {
-  primaire: { icone: 'text-primaire-texte', nombre: 'bg-primaire-doux text-primaire-texte' },
-  rouge: { icone: 'text-suivi-rouge', nombre: 'bg-suivi-rouge/12 text-suivi-rouge' },
-  orange: { icone: 'text-suivi-orange', nombre: 'bg-suivi-orange/12 text-suivi-orange' },
-  annonce: { icone: 'text-annonce', nombre: 'bg-annonce/15 text-annonce' },
-  rose: { icone: 'text-[#db2777]', nombre: 'bg-[#db2777]/10 text-[#db2777]' },
+const TEINTES: Record<TeinteSection, { bandeau: string; icone: string; nombre: string }> = {
+  primaire: { bandeau: 'bg-primaire-doux', icone: 'text-primaire-texte', nombre: 'bg-primaire text-white' },
+  rouge: { bandeau: 'bg-suivi-rouge/10', icone: 'text-suivi-rouge', nombre: 'bg-suivi-rouge text-white' },
+  orange: { bandeau: 'bg-suivi-orange/12', icone: 'text-suivi-orange', nombre: 'bg-suivi-orange text-white' },
+  annonce: { bandeau: 'bg-annonce/12', icone: 'text-annonce', nombre: 'bg-annonce text-white' },
+  rose: { bandeau: 'bg-[#db2777]/10', icone: 'text-[#db2777]', nombre: 'bg-[#db2777] text-white' },
 }
 
 /**
- * En-tête d'une carte de l'accueil, style sobre : titre en gras et plus grand, icône en couleur,
+ * En-tête d'une carte de l'accueil : bandeau coloré, titre en gras et plus grand, icône dans une pastille,
  * séparé du contenu par un trait — pour qu'on ne le confonde pas avec le texte des fiches.
  */
 export function EnteteSection({
@@ -47,14 +47,16 @@ export function EnteteSection({
   const t = TEINTES[teinte]
   const ligne = (
     <div className="flex items-center gap-2.5">
-      <Icone className={`size-[22px] shrink-0 ${t.icone}`} aria-hidden />
-      <h2 className="min-w-0 flex-1 text-lg font-extrabold leading-tight tracking-tight">{titre}</h2>
+      <span className={`grid size-9 shrink-0 place-items-center rounded-xl bg-surface shadow-sm ${t.icone}`}>
+        <Icone className="size-5" aria-hidden />
+      </span>
+      <h2 className="min-w-0 flex-1 text-[17px] font-extrabold leading-tight tracking-tight">{titre}</h2>
       {nombre !== undefined && <span className={`grid h-7 min-w-7 shrink-0 place-items-center rounded-full px-2 text-sm font-extrabold tabular-nums ${t.nombre}`}>{nombre}</span>}
       {lien && <ChevronRight className="size-5 shrink-0 text-doux" aria-hidden />}
     </div>
   )
   return (
-    <div className="mx-4 border-b border-bord pb-3 pt-4">
+    <div className={`border-b border-bord/70 px-4 pb-3 pt-3.5 ${t.bandeau}`}>
       {lien ? (
         <Link to={lien} className="block active:opacity-70">
           {ligne}
