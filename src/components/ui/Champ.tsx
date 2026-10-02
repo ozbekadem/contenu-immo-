@@ -1,13 +1,4 @@
-import {
-  cloneElement,
-  isValidElement,
-  useId,
-  type InputHTMLAttributes,
-  type ReactElement,
-  type ReactNode,
-  type SelectHTMLAttributes,
-  type TextareaHTMLAttributes,
-} from 'react'
+import { cloneElement, isValidElement, useId, type InputHTMLAttributes, type ReactElement, type ReactNode, type SelectHTMLAttributes, type ComponentProps } from 'react'
 
 export const classeSaisie =
   'h-12 w-full rounded-2xl border border-transparent bg-surface-2 px-4 text-base outline-none transition placeholder:text-doux/70 focus:border-primaire focus:bg-surface focus:ring-4 focus:ring-primaire/15'
@@ -48,7 +39,7 @@ export function Saisie(props: InputHTMLAttributes<HTMLInputElement>) {
   return <input {...props} className={`${classeSaisie} ${props.className ?? ''}`} />
 }
 
-export function Zone(props: TextareaHTMLAttributes<HTMLTextAreaElement>) {
+export function Zone(props: ComponentProps<'textarea'>) {
   return <textarea rows={4} {...props} className={`${classeSaisie} h-auto py-3 ${props.className ?? ''}`} />
 }
 

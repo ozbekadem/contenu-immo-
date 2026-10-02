@@ -28,6 +28,18 @@ export const ENTITES_SYNC: Record<string, ConfigEntite> = {
     table: (db) => db.evenements as never,
     deriver: (f: Enregistrement) => f,
   },
+  modeles: {
+    table: (db) => db.modeles as never,
+    deriver: (f: Enregistrement) => f,
+  },
+  campagnes: {
+    table: (db) => db.campagnes as never,
+    deriver: (f: Enregistrement) => f,
+  },
+  envois: {
+    table: (db) => db.envois as never,
+    deriver: (f: Enregistrement) => f,
+  },
   argumentaires: {
     table: (db) => db.argumentaires as never,
     deriver: (f: Enregistrement) => f,

@@ -1,6 +1,7 @@
 import type { Empreinte } from '@/domain/doublons'
 import type { CategoriePiste, DateCle, EtatVeille, PointPrix, StatutPiste } from '@/domain/prospection'
 import type { CasArgumentaire, Objection } from '@/domain/argumentaires'
+import type { CanalMessage, Consentements, RaisonBlocage } from '@/domain/communication'
 import type { CodeResultat } from '@/domain/resultats'
 import type { Canal } from '@/domain/telephone'
 import type { Temperature } from '@/domain/relance'
@@ -117,6 +118,8 @@ export interface Contact extends Enregistrement {
   tentatives?: number
   /** Dates importantes (fin de bail, pension…) qui déclenchent une relance au bon moment. */
   datesCles?: DateCle[]
+  /** Accords RGPD par canal (SMS, WhatsApp, email), avec leur preuve. */
+  consentements?: Consentements
   // Champs locaux calculés
   _telNorm: string[]
   _recherche: string
@@ -142,6 +145,8 @@ export interface Interaction extends Enregistrement {
   numero: string | null
   /** Piste de prospection concernée (annonce, maison vide), le cas échéant. */
   pisteId?: string | null
+  /** Campagne d'où vient ce message, le cas échéant. */
+  campagneId?: string | null
 }
 
 export type TypeBien = 'maison' | 'appartement' | 'immeuble' | 'terrain' | 'commerce' | 'autre'
@@ -331,4 +336,42 @@ export interface LienGoogle {
   signature: string
   /** Champ « updated » de Google après notre dernier envoi ou import. */
   majGoogle: string
+}
+
+/** Modèle de message créé par l'agence (les modèles fournis, eux, sont dans le code). */
+export interface Modele extends Enregistrement {
+  nom: string
+  canal: CanalMessage
+  sujet: string
+  texte: string
+}
+
+/** Filtres qui choisissent les destinataires d'une campagne. */
+export interface FiltresCampagne {
+  statuts: StatutContact[]
+  sources: SourceContact[]
+  /** Communes / localités (texte libre, une par élément). */
+  localites: string[]
+  /** Sans échange depuis au moins N mois (null = peu importe). */
+  sansContactDepuisMois: number | null
+}
+
+export interface Campagne extends Enregistrement {
+  nom: string
+  canal: CanalMessage
+  sujet: string
+  /** Texte avec variables, mention de désinscription comprise. */
+  texte: string
+  filtres: FiltresCampagne
+}
+
+export type EtatEnvoi = 'a_envoyer' | 'envoye' | 'bloque' | 'ignore'
+
+/** Un destinataire d'une campagne et son état (bloqué RGPD avec la raison, envoyé…). */
+export interface Envoi extends Enregistrement {
+  campagneId: string
+  contactId: string
+  etat: EtatEnvoi
+  raison: RaisonBlocage | null
+  envoyeAt: string | null
 }

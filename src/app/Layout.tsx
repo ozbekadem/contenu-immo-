@@ -50,7 +50,7 @@ function Pastille() {
 export function Layout() {
   const { pathname } = useLocation()
   // Capture terrain et formulaires : pas d'onglets ni de bouton flottant (place pour le bouton « Enregistrer »).
-  const pleinEcran = pathname.startsWith('/reperer') || pathname.startsWith('/session') || /\/(nouveau|modifier)$/.test(pathname)
+  const pleinEcran = pathname.startsWith('/reperer') || pathname.startsWith('/session') || pathname === '/communication/nouvelle' || /\/(nouveau|modifier)$/.test(pathname)
 
   return (
     <div className="flex min-h-dvh">

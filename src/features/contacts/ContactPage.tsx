@@ -19,6 +19,7 @@ import { Link, useNavigate, useParams } from 'react-router'
 import { DatesCles } from '@/components/DatesCles'
 import { PiecesJointes } from '@/components/PiecesJointes'
 import { RendezVousFiche } from '@/features/agenda/composants'
+import { ConsentementsContact } from '@/features/communication/Consentements'
 import { PisteLigne } from '@/features/prospection/PisteLigne'
 import { usePistes } from '@/features/prospection/usePistes'
 import { RelanceChoix } from '@/components/RelanceChoix'
@@ -166,6 +167,7 @@ function Identite({ contact }: { contact: Contact }) {
           {contact.notes && <p className="whitespace-pre-wrap text-sm">{contact.notes}</p>}
         </Card>
       )}
+      <ConsentementsContact contact={contact} />
       <MenuContact contact={contact} numero={menuNumero} ouvert={!!menuNumero} fermer={() => setMenuNumero(null)} />
     </div>
   )

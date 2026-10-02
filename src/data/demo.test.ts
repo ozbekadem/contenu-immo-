@@ -68,6 +68,7 @@ describe('données de démonstration', () => {
     await db.meta.delete('demo.serie4')
     await db.meta.delete('demo.serie5')
     await db.meta.delete('demo.serie6')
+    await db.meta.delete('demo.serie7')
     await initialiserDemo()
     expect(await demo()).toHaveLength(0)
     expect(await db.pistes.count()).toBe(0)

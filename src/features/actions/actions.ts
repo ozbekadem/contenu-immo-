@@ -55,10 +55,10 @@ export function useActionEnCours(): ActionEnCours | null {
   )
 }
 
-export function lienPour(canal: Canal, contact: Contact, numero?: string | null, texte?: string): string | null {
+export function lienPour(canal: Canal, contact: Contact, numero?: string | null, texte?: string, sujet?: string): string | null {
   const tel = numero ?? contact._telNorm[0]
   const email = contact.emails[0]
-  if (canal === 'email') return email ? lienEmail(email, undefined, texte) : null
+  if (canal === 'email') return email ? lienEmail(email, sujet || undefined, texte) : null
   if (!tel) return null
   return canal === 'appel' ? lienAppel(tel) : canal === 'sms' ? lienSms(tel, texte) : lienWhatsapp(tel, texte)
 }
@@ -67,8 +67,8 @@ export function lienPour(canal: Canal, contact: Contact, numero?: string | null,
  * Lance un appel, un SMS, une conversation WhatsApp ou un email, mémorise le canal le plus
  * utilisé pour ce contact, puis proposera de noter le résultat au retour dans l'application.
  */
-export function lancerAction(contact: Contact, canal: Canal, numero?: string | null, pisteId: string | null = null, texte?: string): void {
-  const lien = lienPour(canal, contact, numero, texte)
+export function lancerAction(contact: Contact, canal: Canal, numero?: string | null, pisteId: string | null = null, texte?: string, sujet?: string): void {
+  const lien = lienPour(canal, contact, numero, texte, sujet)
   if (!lien) return
   const utilisation = { ...contact.utilisationCanaux, [canal]: (contact.utilisationCanaux[canal] ?? 0) + 1 }
   void contacts.modifier(contact.id, { utilisationCanaux: utilisation })
@@ -142,4 +142,15 @@ export function useMenuContact() {
     },
     () => menu,
   )
+}
+
+/** Ouvre SMS / WhatsApp / email sans demander de résultat au retour (envoi d'une campagne, noté autrement). */
+export function ouvrirLien(lien: string): void {
+  const a = document.createElement('a')
+  a.href = lien
+  if (lien.startsWith('https://wa.me')) {
+    a.target = '_blank'
+    a.rel = 'noopener noreferrer'
+  }
+  a.click()
 }

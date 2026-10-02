@@ -1,6 +1,7 @@
 import { ajouterJours } from '@/domain/dates'
 import { db } from './db'
 import { contacts, contactVide, type DonneesContact } from './repositories/contacts'
+import { campagnes } from './repositories/communication'
 import { evenements, evenementVide } from './repositories/evenements'
 import { interactions } from './repositories/interactions'
 import { biens } from './repositories/biens'
@@ -17,6 +18,7 @@ const CLE_SERIE_3 = 'demo.serie3'
 const CLE_SERIE_4 = 'demo.serie4'
 const CLE_SERIE_5 = 'demo.serie5'
 const CLE_SERIE_6 = 'demo.serie6'
+const CLE_SERIE_7 = 'demo.serie7'
 
 const iso = (d: Date) => d.toISOString()
 
@@ -210,6 +212,7 @@ export async function initialiserDemo(): Promise<void> {
     [CLE_SERIE_4, creerSerie4],
     [CLE_SERIE_5, creerSerie5],
     [CLE_SERIE_6, creerSerie6],
+    [CLE_SERIE_7, creerSerie7],
   ]
   if (!(await db.meta.get(CLE_INITIALISE))) {
     const maintenant = new Date().toISOString()
@@ -306,6 +309,20 @@ async function creerSerie6(): Promise<void> {
     },
     { demo: true },
   )
+}
+
+/** Septième série (étape 11) : consentements RGPD d'exemple, pour essayer une campagne. */
+async function creerSerie7(): Promise<void> {
+  const demo = await db.contacts.filter((c) => c._demo === true).toArray()
+  const jour = ajouterJours(new Date(), -20).toISOString().slice(0, 10)
+  const accord = (preuve: string) => ({ etat: 'accorde' as const, date: jour, preuve })
+  const parNom = (n: string) => demo.find((c) => c.nom === n)
+  const lambert = parNom('Lambert')
+  if (lambert) await contacts.modifier(lambert.id, { consentements: { sms: accord('Accord oral lors de la signature'), email: accord('Formulaire de mandat') } })
+  const dupont = parNom('Dupont')
+  if (dupont) await contacts.modifier(dupont.id, { consentements: { sms: accord('Accord oral au téléphone'), whatsapp: accord('Accord oral au téléphone') } })
+  const claes = parNom('Claes')
+  if (claes) await contacts.modifier(claes.id, { consentements: { email: accord('Inscrite via le formulaire'), sms: { etat: 'retire', date: jour, preuve: 'A répondu STOP' } } })
 }
 
 /** Photo d'illustration dessinée sur l'appareil (façade stylisée), pour la démonstration. */
@@ -483,6 +500,8 @@ async function creerSerie3(): Promise<void> {
 export async function supprimerDemo(): Promise<number> {
   await piecesJointes.supprimerDemo()
   await evenements.supprimerDemo()
+  await campagnes.envois.supprimerDemo()
+  await campagnes.supprimerDemo()
   await interactions.supprimerDemo()
   const idsPhotos = (await db.photos.filter((p) => p._demo === true).primaryKeys()) as string[]
   await db.photosLocales.bulkDelete(idsPhotos)

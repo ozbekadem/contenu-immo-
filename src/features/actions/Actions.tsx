@@ -1,5 +1,5 @@
 import { useLiveQuery } from 'dexie-react-hooks'
-import { CalendarClock, Mail, MessageCircle, MessageSquare, NotebookPen, Phone, type LucideIcon } from 'lucide-react'
+import { CalendarClock, FileText, Mail, MessageCircle, MessageSquare, NotebookPen, Phone, type LucideIcon } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { RelanceChoix } from '@/components/RelanceChoix'
 import { classesBouton } from '@/components/ui/Bouton'
@@ -13,6 +13,7 @@ import { biens } from '@/data/repositories/biens'
 import { pistes } from '@/data/repositories/pistes'
 import type { Contact, Piste } from '@/data/types'
 import { adresseCourte } from '@/features/prospection/affichage'
+import { ListeMessagesTypes } from '@/features/communication/MessageType'
 import { depuisDateLocale, versDateLocale } from '@/domain/dates'
 import { RESULTATS, resultatsPour, type CodeResultat } from '@/domain/resultats'
 import { heureOuvrable } from '@/domain/relance'
@@ -44,15 +45,21 @@ export function MenuContact({
   ouvert: boolean
   fermer: () => void
 }) {
+  const [voirModeles, setModeles] = useState(false)
+  const fermerTout = () => {
+    setModeles(false)
+    fermer()
+  }
   const tel = numero ?? contact._telNorm[0]
   const canaux = ordreCanaux(contact.utilisationCanaux, !!contact.emails[0]).filter((c) => lienPour(c, contact, numero))
   return (
-    <Feuille titre={nomAffiche(contact)} ouverte={ouvert} fermer={fermer}>
-      {tel && <p className="-mt-3 mb-4 text-sm font-semibold text-doux">{formaterTelephone(tel)}</p>}
-      {contact.nePasContacter && (
+    <Feuille titre={voirModeles ? 'Message type' : nomAffiche(contact)} ouverte={ouvert} fermer={fermerTout}>
+      {voirModeles && <ListeMessagesTypes contact={contact} numero={numero} pisteId={pisteId} fermer={fermerTout} />}
+      {!voirModeles && tel && <p className="-mt-3 mb-4 text-sm font-semibold text-doux">{formaterTelephone(tel)}</p>}
+      {!voirModeles && contact.nePasContacter && (
         <p className="mb-3 rounded-2xl bg-suivi-rouge/10 p-3 text-sm font-semibold text-suivi-rouge">Ce contact a demandé à ne plus être contacté.</p>
       )}
-      <div className="flex flex-col gap-2">
+      <div className={`flex flex-col gap-2 ${voirModeles ? 'hidden' : ''}`}>
         {canaux.map((c, i) => {
           const { libelle, icone: Icone, classe } = CANAUX[c]
           return (
@@ -71,6 +78,11 @@ export function MenuContact({
             </button>
           )
         })}
+        {!contact.nePasContacter && (contact._telNorm.length > 0 || contact.emails.length > 0) && (
+          <button type="button" onClick={() => setModeles(true)} className="presse flex h-14 items-center gap-3 rounded-2xl bg-surface-2 px-4 text-left font-bold">
+            <FileText className="size-5" aria-hidden /> Message type (modèle)
+          </button>
+        )}
         <button
           type="button"
           onClick={() => {
