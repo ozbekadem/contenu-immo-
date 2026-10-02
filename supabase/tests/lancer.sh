@@ -7,4 +7,7 @@ dropdb --if-exists linkimmo_test && createdb linkimmo_test
 $PSQL -d linkimmo_test -f tests/00_simulation_supabase.sql
 $PSQL -d linkimmo_test -f migrations/0001_schema.sql
 $PSQL -d linkimmo_test -f migrations/0001_schema.sql   # ré-exécutable sans erreur
+$PSQL -d linkimmo_test -f migrations/0003_notifications.sql
+$PSQL -d linkimmo_test -f migrations/0003_notifications.sql
 $PSQL -d linkimmo_test -f tests/10_tests_sync.sql
+$PSQL -d linkimmo_test -f tests/20_tests_notifications.sql

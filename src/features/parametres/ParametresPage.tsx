@@ -8,6 +8,7 @@ import { PARAMETRES_DEFAUT, SEUILS_ROUGE_DEFAUT } from '@/domain/relance'
 import { CATEGORIES } from '@/domain/categories'
 import { CarteGoogle } from '@/features/agenda/composants'
 import { Agence } from './Agence'
+import { Notifications } from './Notifications'
 import { CompteSync } from './CompteSync'
 import { DonneesDemo } from './DonneesDemo'
 
@@ -32,6 +33,7 @@ export default function ParametresPage() {
         <CompteSync />
         <Agence />
         <CarteGoogle />
+        <Notifications />
 
         <Card>
           <SectionTitle>Apparence</SectionTitle>

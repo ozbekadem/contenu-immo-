@@ -4,6 +4,8 @@ import { App } from './app/App'
 import { initialiserDemo } from './data/demo'
 import { chercherAdressesEnAttente } from './services/geocodage'
 import { demarrerGoogle } from './services/google'
+import { ecouterInstallation } from './services/installation'
+import { demarrerNotifications } from './services/notifications'
 import './index.css'
 
 // Demande au navigateur de ne jamais effacer la base locale (important sur iPhone).
@@ -17,6 +19,10 @@ window.addEventListener('online', adresses)
 
 // Google Agenda (si l'accès Google est configuré et que l'utilisateur l'a relié)
 demarrerGoogle()
+
+// Notifications (rappels affichés par l'application ; serveur si configuré) et invitation à installer
+demarrerNotifications()
+ecouterInstallation()
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

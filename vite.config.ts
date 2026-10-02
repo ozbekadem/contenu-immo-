@@ -28,7 +28,7 @@ export default defineConfig(({ mode }) => {
     VitePWA({
       disable: apercu,
       registerType: 'prompt',
-      includeAssets: ['icon.svg', 'apple-touch-icon.png'],
+      includeAssets: ['icon.svg', 'apple-touch-icon.png', 'sw-push.js'],
       manifest: {
         name: 'Linkimmo',
         short_name: 'Linkimmo',
@@ -55,6 +55,8 @@ export default defineConfig(({ mode }) => {
       workbox: {
         globPatterns: ['**/*.{js,css,html,svg,png,woff2}'],
         navigateFallback: '/index.html',
+        // Réception des notifications et ouverture de la bonne fiche
+        importScripts: ['sw-push.js'],
         // Fonds de carte déjà vus : gardés sur l'appareil (consultables sans réseau).
         runtimeCaching: [
           {

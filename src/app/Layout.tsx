@@ -1,8 +1,10 @@
 import { Camera } from 'lucide-react'
-import { Suspense } from 'react'
+import { Suspense, useEffect } from 'react'
 import { Link, NavLink, Outlet, useLocation } from 'react-router'
 import { IndicateurSync } from '@/components/IndicateurSync'
 import { MenuContactGlobal, RetourAction } from '@/features/actions/Actions'
+import { useSuivables } from '@/features/aujourdhui/useSuivables'
+import { mettreAJourPastille } from '@/services/notifications'
 import { MODULES, ONGLETS } from './navigation'
 import logo from '@/assets/logo.svg'
 
@@ -33,6 +35,16 @@ function BandeauApercu() {
       Aperçu de démonstration · contacts fictifs · rien n’est envoyé, tout reste dans votre navigateur
     </div>
   )
+}
+
+/** Pastille sur l'icône de l'application installée : relances en retard + du jour. */
+function Pastille() {
+  const { liste } = useSuivables()
+  const n = liste?.filter((s) => s.couleur === 'rouge' || s.couleur === 'orange').length
+  useEffect(() => {
+    if (n !== undefined) mettreAJourPastille(n)
+  }, [n])
+  return null
 }
 
 export function Layout() {
@@ -69,6 +81,7 @@ export function Layout() {
       </aside>
 
       <div className="flex min-w-0 flex-1 flex-col">
+        <Pastille />
         {import.meta.env.MODE === 'apercu' && <BandeauApercu />}
         {/* En-tête compact : smartphone et tablette portrait */}
         {!pleinEcran && (
