@@ -13,6 +13,12 @@ export interface EvenementGoogle {
   extendedProperties?: { private?: Record<string, string> }
 }
 
+export interface AgendaGoogle {
+  id: string
+  nom: string
+  principal: boolean
+}
+
 export interface PageChangements {
   evenements: EvenementGoogle[]
   /** Jeton à réutiliser pour ne recevoir ensuite que les changements. */
@@ -35,6 +41,10 @@ export interface TransportGoogle {
   calendrier(nom: string): Promise<string>
   /** Tous les événements (syncToken null) ou seulement les changements depuis le jeton. 410 si le jeton a expiré. */
   changements(calendrierId: string, syncToken: string | null): Promise<PageChangements>
+  /** Agendas visibles par l'utilisateur (le sien, ceux partagés avec lui). */
+  agendas(): Promise<AgendaGoogle[]>
+  /** Événements (non supprimés) d'un agenda entre deux dates, récurrences développées. */
+  lister(calendrierId: string, du: Date, au: Date): Promise<EvenementGoogle[]>
   inserer(calendrierId: string, e: EvenementGoogle): Promise<EvenementGoogle>
   remplacer(calendrierId: string, e: EvenementGoogle): Promise<EvenementGoogle>
   supprimer(calendrierId: string, id: string): Promise<void>
@@ -90,6 +100,30 @@ export function transportGoogle(jeton: () => string | null): TransportGoogle {
         if (r.nextPageToken) page = r.nextPageToken
         else return { evenements, syncToken: r.nextSyncToken ?? '' }
       }
+    },
+    async agendas() {
+      const liste: AgendaGoogle[] = []
+      let page: string | undefined
+      do {
+        const r = await appel<{ items?: { id: string; summary: string; summaryOverride?: string; primary?: boolean }[]; nextPageToken?: string }>(
+          `/users/me/calendarList?minAccessRole=reader${page ? `&pageToken=${page}` : ''}`,
+        )
+        for (const c of r.items ?? []) liste.push({ id: c.id, nom: c.summaryOverride || c.summary, principal: !!c.primary })
+        page = r.nextPageToken
+      } while (page)
+      return liste
+    },
+    async lister(calendrierId, du, au) {
+      const evenements: EvenementGoogle[] = []
+      let page: string | undefined
+      do {
+        const p = new URLSearchParams({ singleEvents: 'true', maxResults: '250', timeMin: du.toISOString(), timeMax: au.toISOString() })
+        if (page) p.set('pageToken', page)
+        const r = await appel<{ items?: EvenementGoogle[]; nextPageToken?: string }>(`/calendars/${cal(calendrierId)}/events?${p}`)
+        evenements.push(...(r.items ?? []))
+        page = r.nextPageToken
+      } while (page)
+      return evenements
     },
     inserer: (calendrierId, e) => appel(`/calendars/${cal(calendrierId)}/events`, { method: 'POST', body: JSON.stringify(e) }),
     remplacer: (calendrierId, e) => appel(`/calendars/${cal(calendrierId)}/events/${encodeURIComponent(e.id)}`, { method: 'PUT', body: JSON.stringify({ ...e, status: 'confirmed' }) }),

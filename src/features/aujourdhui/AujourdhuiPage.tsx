@@ -13,6 +13,7 @@ import { interactions } from '@/data/repositories/interactions'
 import type { Contact } from '@/data/types'
 import { aMaturite, anniversaires, entonnoir } from '@/domain/quotidien'
 import { useContactsColores } from '@/features/contacts/useContacts'
+import { AEncoder } from '@/features/agenda/AEncoder'
 import { RendezVousDuJour } from '@/features/agenda/composants'
 import { SansAction, TopAppels, Veille } from './Sections'
 import { AMaturite, Anniversaires, Entonnoir } from './Suivi'
@@ -160,6 +161,7 @@ export default function AujourdhuiPage() {
         </Link>
       )}
 
+      <AEncoder />
       <RendezVousDuJour maintenant={maintenant} />
       <TopAppels lignes={top} />
       {aAppeler > top.length && (

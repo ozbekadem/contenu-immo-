@@ -44,7 +44,7 @@ export function creneauParDefaut(maintenant = new Date()): Date {
   return d
 }
 
-function ChoixContact({ contactId, choisir }: { contactId: string | null; choisir: (id: string | null) => void }) {
+export function ChoixContact({ contactId, choisir }: { contactId: string | null; choisir: (id: string | null) => void }) {
   const [requete, setRequete] = useState('')
   const choisi = useLiveQuery(async () => (contactId ? ((await contacts.get(contactId)) ?? null) : null), [contactId])
   const actif = requete.trim().length >= 2

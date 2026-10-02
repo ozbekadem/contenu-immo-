@@ -50,6 +50,7 @@ export type SourceContact =
   | '2ememain'
   | 'autre_site'
   | 'autre_agence'
+  | 'appel_entrant'
   | 'recommandation'
   | 'ancien_client'
   | 'autre'
@@ -61,6 +62,7 @@ export const SOURCES_CONTACT: { code: SourceContact; libelle: string }[] = [
   { code: '2ememain', libelle: 'Annonce 2ememain' },
   { code: 'autre_site', libelle: 'Autre site d’annonces' },
   { code: 'autre_agence', libelle: 'Bien chez une autre agence' },
+  { code: 'appel_entrant', libelle: 'Appel entrant (secrétariat)' },
   { code: 'recommandation', libelle: 'Recommandation' },
   { code: 'ancien_client', libelle: 'Ancien client' },
   { code: 'autre', libelle: 'Autre' },
@@ -314,6 +316,10 @@ export interface Evenement extends Enregistrement {
   collaborateurId: string | null
   /** Identifiant de l'événement dans Google Agenda, s'il y a été créé à l'origine. */
   googleEventId: string | null
+  /** Agenda Google d'origine quand le rendez-vous vient d'un autre agenda que « Linkimmo » (estimation du secrétariat). */
+  googleCalendrierId?: string | null
+  /** Reçu de Google Agenda, pas encore encodé (fiche à créer ou à relier). */
+  aEncoder?: boolean
 }
 
 /** Lien local entre un élément de l'application et son événement Google Agenda (jamais synchronisé). */

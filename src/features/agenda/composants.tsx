@@ -1,13 +1,14 @@
 import { useLiveQuery } from 'dexie-react-hooks'
 import { CalendarCheck2, CalendarPlus, CalendarSync, ChevronRight, Loader2, TriangleAlert } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { classesBouton } from '@/components/ui/Bouton'
 import { Card, SectionTitle } from '@/components/ui/Card'
 import { db } from '@/data/db'
 import { titreEvenement } from '@/data/google/souhaites'
 import { evenements } from '@/data/repositories/evenements'
+import type { AgendaGoogle } from '@/data/google/transport'
 import { TYPES_EVENEMENT, type Evenement } from '@/data/types'
-import { connecterGoogle, deconnecterGoogle, synchroniserGoogle, useEtatGoogle } from '@/services/google'
+import { agendasEstimations, choisirAgendasEstimations, connecterGoogle, deconnecterGoogle, synchroniserGoogle, useEtatGoogle } from '@/services/google'
 import { FenetreEvenement, type PreRemplissage } from './FormulaireEvenement'
 
 export const HEURE = new Intl.DateTimeFormat('fr-BE', { hour: '2-digit', minute: '2-digit' })
@@ -37,7 +38,10 @@ export function LigneEvenement({ e, ouvrir, avecJour = false }: { e: Evenement; 
       <span className={`h-10 w-1 shrink-0 rounded-full ${TEINTE_TYPE[e.type]}`} aria-hidden />
       <span className="min-w-0 flex-1">
         <span className="block truncate text-[15px] font-bold">{titreEvenement(e, contexte?.contact ?? null, contexte?.bien ?? null)}</span>
-        <span className="block truncate text-xs text-doux">{[type, e.lieu].filter(Boolean).join(' · ')}</span>
+        <span className="block truncate text-xs text-doux">
+          {e.aEncoder && <span className="mr-1.5 rounded-full bg-primaire-doux px-1.5 py-0.5 text-[10px] font-bold text-primaire-texte">À encoder</span>}
+          {[type, e.lieu].filter(Boolean).join(' · ')}
+        </span>
       </span>
       <ChevronRight className="size-4 shrink-0 text-doux" aria-hidden />
     </button>
@@ -145,7 +149,55 @@ export function CarteGoogle({ compacte = false }: { compacte?: boolean }) {
           </button>
         </div>
       )}
+      {!compacte && lie && <EstimationsSecretariat />}
     </Card>
+  )
+}
+
+/** Choix des agendas où repérer les « Estimation… » notées par le secrétariat. */
+function EstimationsSecretariat() {
+  const g = useEtatGoogle()
+  const [agendas, setAgendas] = useState<{ disponibles: AgendaGoogle[]; surveilles: string[] } | null>(null)
+  useEffect(() => {
+    if (g.lecture && g.statut === 'ok') void agendasEstimations().then(setAgendas).catch(() => setAgendas(null))
+  }, [g.lecture, g.statut])
+  const basculer = (id: string) => {
+    if (!agendas) return
+    const surveilles = agendas.surveilles.includes(id) ? agendas.surveilles.filter((x) => x !== id) : [...agendas.surveilles, id]
+    setAgendas({ ...agendas, surveilles })
+    void choisirAgendasEstimations(surveilles)
+  }
+  return (
+    <div className="rounded-2xl bg-surface-2 p-3">
+      <p className="text-sm font-bold">Estimations du secrétariat</p>
+      <p className="mt-0.5 text-xs text-doux">Les rendez-vous dont le titre commence par « Estimation » sont repris dans Linkimmo, dans « À encoder ».</p>
+      {!g.lecture ? (
+        <button type="button" onClick={() => void connecterGoogle().catch(() => {})} className={`${classesBouton('secondaire')} mt-2 h-10 text-xs`}>
+          Autoriser la lecture de mes agendas
+        </button>
+      ) : agendas ? (
+        <ul className="mt-2 flex flex-col gap-1">
+          {agendas.disponibles.map((a) => (
+            <li key={a.id}>
+              <label className="flex items-center gap-2 text-sm">
+                <input type="checkbox" checked={agendas.surveilles.includes(a.id)} onChange={() => basculer(a.id)} className="size-5 accent-[var(--color-primaire)]" />
+                <span className="truncate">
+                  {a.nom}
+                  {a.principal ? ' (mon agenda)' : ''}
+                </span>
+              </label>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p className="mt-2 text-xs text-doux">Chargement des agendas…</p>
+      )}
+      {g.estimations && (g.estimations.ajoutees > 0 || g.estimations.retirees > 0) && (
+        <p className="mt-2 text-xs font-semibold text-primaire-texte">
+          Dernier passage : {g.estimations.ajoutees} nouvelle(s), {g.estimations.retirees} retirée(s).
+        </p>
+      )}
+    </div>
   )
 }
 

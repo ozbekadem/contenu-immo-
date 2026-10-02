@@ -128,7 +128,8 @@ export function evenementsSouhaites(d: DonneesAgenda, options: { utilisateur: st
   }
 
   for (const e of d.evenements) {
-    if (e._demo || e.archivedAt || !aMoi(e.collaborateurId)) continue
+    // Estimation venue d'un autre agenda : elle y est déjà, on ne la recopie pas dans « Linkimmo ».
+    if (e._demo || e.archivedAt || e.googleCalendrierId || !aMoi(e.collaborateurId)) continue
     const contact = e.contactId ? (contacts.get(e.contactId) ?? null) : null
     const bien = e.bienId ? (biens.get(e.bienId) ?? null) : null
     const lien = e.pisteId ? `${origine}/pistes/${e.pisteId}` : e.contactId ? `${origine}/contacts/${e.contactId}` : `${origine}/agenda`

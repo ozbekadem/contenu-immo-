@@ -16,7 +16,7 @@ export interface BilanGoogle {
   recus: number
 }
 
-function debutDe(e: EvenementGoogle): { iso: string; journee: boolean } | null {
+export function debutDe(e: EvenementGoogle): { iso: string; journee: boolean } | null {
   if (e.start?.dateTime) return { iso: new Date(e.start.dateTime).toISOString(), journee: false }
   if (e.start?.date) {
     const [a, m, j] = e.start.date.split('-').map(Number)
@@ -25,7 +25,7 @@ function debutDe(e: EvenementGoogle): { iso: string; journee: boolean } | null {
   return null
 }
 
-function finDe(e: EvenementGoogle, debut: string): string {
+export function finDe(e: EvenementGoogle, debut: string): string {
   if (e.end?.dateTime) return new Date(e.end.dateTime).toISOString()
   if (e.end?.date) {
     const [a, m, j] = e.end.date.split('-').map(Number)

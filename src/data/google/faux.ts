@@ -8,6 +8,19 @@ export class FauxGoogle {
   private journal: { seq: number; id: string }[] = []
   private seq = 0
   appels = 0
+  /** Autres agendas (le principal, celui de la secrétaire…) : id → événements. */
+  autres = new Map<string, { nom: string; principal: boolean; evenements: Map<string, EvenementGoogle> }>()
+
+  ajouterAgenda(id: string, nom: string, principal = false): void {
+    this.autres.set(id, { nom, principal, evenements: new Map() })
+  }
+  /** Événement créé (ou modifié) par quelqu'un dans un autre agenda. */
+  ecrireDans(agenda: string, e: EvenementGoogle): void {
+    this.autres.get(agenda)!.evenements.set(e.id, { status: 'confirmed', ...structuredClone(e) })
+  }
+  supprimerDans(agenda: string, id: string): void {
+    this.autres.get(agenda)!.evenements.delete(id)
+  }
 
   private maj(e: EvenementGoogle): EvenementGoogle {
     this.horloge += 1000
@@ -31,6 +44,24 @@ export class FauxGoogle {
 
   transport(): TransportGoogle {
     return {
+      agendas: async () => {
+        this.appels++
+        return [
+          ...[...this.autres].map(([id, a]) => ({ id, nom: a.nom, principal: a.principal })),
+          ...[...this.calendriers].map(([nom, id]) => ({ id, nom, principal: false })),
+        ]
+      },
+      lister: async (cal, du, au) => {
+        this.appels++
+        const a = this.autres.get(cal)
+        if (!a) throw new ErreurGoogle(404, 'Not Found')
+        return [...a.evenements.values()]
+          .filter((e) => {
+            const debut = new Date(e.start?.dateTime ?? `${e.start?.date}T00:00:00`).getTime()
+            return e.status !== 'cancelled' && debut < au.getTime() && debut >= du.getTime() - 86_400_000
+          })
+          .map((e) => structuredClone(e))
+      },
       calendrier: async (nom) => {
         this.appels++
         if (!this.calendriers.has(nom)) this.calendriers.set(nom, `cal-${nom}@group.calendar.google.com`)

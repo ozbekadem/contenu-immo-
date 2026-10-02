@@ -1,12 +1,14 @@
 import { useLiveQuery } from 'dexie-react-hooks'
 import { AlertTriangle, ArrowLeft, Plus, Trash2 } from 'lucide-react'
 import { useEffect, useRef, useState, type FormEvent } from 'react'
-import { useBlocker, useNavigate, useParams } from 'react-router'
+import { useBlocker, useLocation, useNavigate, useParams } from 'react-router'
 import { RelanceChoix } from '@/components/RelanceChoix'
 import { classesBouton } from '@/components/ui/Bouton'
 import { Card, SectionTitle } from '@/components/ui/Card'
 import { Champ, Liste, Puce, Saisie, Zone } from '@/components/ui/Champ'
 import { adresseVide, contacts, contactVide, type DonneesContact } from '@/data/repositories/contacts'
+import { evenements } from '@/data/repositories/evenements'
+import type { PreRemplissageContact } from '@/features/agenda/AEncoder'
 import { SOURCES_CONTACT, STATUTS_CONTACT, type Adresse, type Civilite, type Contact, type SourceContact, type StatutContact } from '@/data/types'
 import { CODES_POSTAUX, cpPourLocalite, localitesPourCp } from '@/domain/adresse'
 import { depuisDateLocale, versDateLocale } from '@/domain/dates'
@@ -55,8 +57,10 @@ function nettoyer(d: DonneesContact): DonneesContact {
 export default function ContactFormPage() {
   const { id } = useParams()
   const navigate = useNavigate()
+  // Estimation reçue par Google Agenda : formulaire pré-rempli, rendez-vous rattaché à l'enregistrement.
+  const estimation = (useLocation().state as { estimation?: PreRemplissageContact } | null)?.estimation
   const existant = useLiveQuery(() => (id ? contacts.get(id) : undefined), [id], null)
-  const [d, setD] = useState<DonneesContact | null>(id ? null : { ...contactVide(), telephones: [{ numero: '' }] })
+  const [d, setD] = useState<DonneesContact | null>(id ? null : { ...contactVide(), telephones: [{ numero: '' }], ...estimation?.contact })
   const initial = useRef<string | null>(id ? null : JSON.stringify(d))
   const enregistre = useRef(false)
   const [enregistrement, setEnregistrement] = useState(false)
@@ -134,6 +138,7 @@ export default function ContactFormPage() {
       const fiche = id
         ? await contacts.modifier(id, champsModifies(nettoyer(JSON.parse(initial.current!) as DonneesContact), propre))
         : await contacts.creer(propre)
+      if (!id && estimation) await evenements.modifier(estimation.evenementId, { contactId: fiche.id, aEncoder: false })
       enregistre.current = true
       navigate(`/contacts/${fiche.id}`, { replace: true })
     } finally {

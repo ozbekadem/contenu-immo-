@@ -3,13 +3,22 @@ import { useSyncExternalStore } from 'react'
 import { utilisateurCourant } from '@/data/appareil'
 import { db } from '@/data/db'
 import { CLE_DERNIERE_SYNC, oublierGoogle, SyncGoogle, type BilanGoogle } from '@/data/google/moteur'
-import { ErreurGoogle, transportGoogle } from '@/data/google/transport'
+import { ImportEstimations, type BilanEstimations } from '@/data/google/estimations'
+import { ErreurGoogle, transportGoogle, type AgendaGoogle } from '@/data/google/transport'
 
 /** Identifiant public de l'application dans Google Cloud (pas un secret). */
 export const CLIENT_ID_GOOGLE = (import.meta.env.VITE_GOOGLE_CLIENT_ID as string | undefined) ?? ''
 
-/** Créer et gérer le calendrier « Linkimmo » + le retrouver depuis un autre appareil. */
-const PERMISSIONS = 'https://www.googleapis.com/auth/calendar.app.created https://www.googleapis.com/auth/calendar.calendarlist.readonly'
+/**
+ * Créer et gérer le calendrier « Linkimmo », le retrouver depuis un autre appareil,
+ * et lire les autres agendas pour y repérer les « Estimation… » notées par le secrétariat.
+ */
+const PERMISSIONS = [
+  'https://www.googleapis.com/auth/calendar.app.created',
+  'https://www.googleapis.com/auth/calendar.calendarlist.readonly',
+  'https://www.googleapis.com/auth/calendar.events.readonly',
+].join(' ')
+const CLE_LECTURE = 'google.lectureAgendas'
 const CLE_JETON = 'linkimmo.google'
 const CLE_LIE = 'google.lie'
 
@@ -20,9 +29,12 @@ export interface EtatGoogle {
   derniereSync: string | null
   message: string | null
   bilan: BilanGoogle | null
+  /** Lecture des autres agendas autorisée (estimations du secrétariat). */
+  lecture: boolean
+  estimations: BilanEstimations | null
 }
 
-let etat: EtatGoogle = { statut: CLIENT_ID_GOOGLE ? 'deconnecte' : 'non_configure', derniereSync: null, message: null, bilan: null }
+let etat: EtatGoogle = { statut: CLIENT_ID_GOOGLE ? 'deconnecte' : 'non_configure', derniereSync: null, message: null, bilan: null, lecture: false, estimations: null }
 const abonnes = new Set<() => void>()
 function publier(patch: Partial<EtatGoogle>) {
   etat = { ...etat, ...patch }
@@ -112,6 +124,8 @@ export async function connecterGoogle(): Promise<void> {
         if (!r.access_token) return ko(new Error(r.error === 'access_denied' ? 'Autorisation refusée' : 'Connexion Google impossible'))
         if (!r.scope?.includes('calendar.app.created')) return ko(new Error('Cochez l’accès à l’agenda dans la fenêtre de Google, puis réessayez.'))
         retenirJeton(r.access_token, r.expires_in ?? 3600)
+        // La lecture des autres agendas peut être décochée dans la fenêtre Google : le reste fonctionne quand même.
+        void db.meta.put({ cle: CLE_LECTURE, valeur: !!r.scope?.includes('calendar.events.readonly') })
         ok()
       },
       error_callback: (e) => ko(new Error(e.type === 'popup_closed' ? 'Fenêtre Google fermée' : 'Fenêtre Google bloquée : autorisez les fenêtres pour Linkimmo')),
@@ -135,13 +149,31 @@ export async function deconnecterGoogle(): Promise<void> {
   } catch {
     /* rien */
   }
-  await db.meta.delete(CLE_LIE)
+  await db.meta.bulkDelete([CLE_LIE, CLE_LECTURE])
   await oublierGoogle(db)
   publier({ statut: CLIENT_ID_GOOGLE ? 'deconnecte' : 'non_configure', derniereSync: null, bilan: null, message: null })
 }
 
 let enCours: Promise<void> | null = null
 let moteur: SyncGoogle | null = null
+let importeur: ImportEstimations | null = null
+
+function importEstimations(): ImportEstimations {
+  importeur ??= new ImportEstimations(db, transportGoogle(jetonValide), { utilisateur: () => utilisateurCourant })
+  return importeur
+}
+
+/** Agendas où chercher les « Estimation… », et ceux actuellement surveillés. */
+export async function agendasEstimations(): Promise<{ disponibles: AgendaGoogle[]; surveilles: string[] } | null> {
+  if (!jetonValide() || !etat.lecture) return null
+  const i = importEstimations()
+  return { disponibles: await i.agendasDisponibles(), surveilles: await i.agendasSurveilles() }
+}
+
+export async function choisirAgendasEstimations(ids: string[]): Promise<void> {
+  await db.meta.put({ cle: 'google.agendasEstimations', valeur: ids })
+  void synchroniserGoogle()
+}
 
 export function synchroniserGoogle(): Promise<void> {
   if (enCours) return enCours
@@ -152,8 +184,21 @@ export function synchroniserGoogle(): Promise<void> {
     moteur ??= new SyncGoogle(db, transportGoogle(jetonValide), { origine: window.location.origin, utilisateur: () => utilisateurCourant })
     publier({ statut: 'synchro', message: null })
     try {
+      const lecture = (await db.meta.get(CLE_LECTURE))?.valeur === true
+      // D'abord les estimations du secrétariat (elles ne sont pas recopiées dans « Linkimmo »).
+      let estimations: BilanEstimations | null = null
+      let avertissement: string | null = null
+      if (lecture) {
+        try {
+          estimations = await importEstimations().importer()
+        } catch (e) {
+          if (e instanceof ErreurGoogle && e.statut === 401) throw e
+          // Un agenda partagé retiré, une autorisation manquante… : la synchronisation « Linkimmo » continue.
+          avertissement = `Estimations du secrétariat : ${(e as Error).message}`
+        }
+      }
       const bilan = await moteur.synchroniser()
-      publier({ statut: 'ok', bilan, derniereSync: ((await db.meta.get(CLE_DERNIERE_SYNC))?.valeur as string) ?? null })
+      publier({ statut: 'ok', bilan, lecture, estimations, message: avertissement, derniereSync: ((await db.meta.get(CLE_DERNIERE_SYNC))?.valeur as string) ?? null })
     } catch (e) {
       if (e instanceof ErreurGoogle && e.statut === 401) {
         jeton = null
@@ -174,7 +219,11 @@ export function demarrerGoogle(): void {
   void (async () => {
     const lie = await db.meta.get(CLE_LIE)
     const derniere = (await db.meta.get(CLE_DERNIERE_SYNC))?.valeur as string | undefined
-    publier({ statut: lie ? (jetonValide() ? 'ok' : 'a_reconnecter') : 'deconnecte', derniereSync: derniere ?? null })
+    publier({
+      statut: lie ? (jetonValide() ? 'ok' : 'a_reconnecter') : 'deconnecte',
+      derniereSync: derniere ?? null,
+      lecture: (await db.meta.get(CLE_LECTURE))?.valeur === true,
+    })
     void synchroniserGoogle()
   })()
   let attente: ReturnType<typeof setTimeout> | undefined

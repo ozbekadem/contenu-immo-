@@ -32,7 +32,7 @@ describe('données de démonstration', () => {
     // Étape 6 : anniversaire, signature d'il y a 2 ans, projet de vente
     expect(liste.find((c) => c.nom === 'Dupont')!.dateNaissance).toMatch(/^1971-/)
     expect(await db.interactions.filter((i) => i.resultat === 'mandat').count()).toBe(1)
-    expect(await db.evenements.count()).toBe(3) // rendez-vous d'exemple
+    expect(await db.evenements.count()).toBe(4) // rendez-vous d'exemple, dont une estimation « à encoder »
   })
 
   it('« supprimer la démo » efface aussi pistes, biens et photos', async () => {
@@ -67,6 +67,7 @@ describe('données de démonstration', () => {
     await db.meta.delete('demo.serie3')
     await db.meta.delete('demo.serie4')
     await db.meta.delete('demo.serie5')
+    await db.meta.delete('demo.serie6')
     await initialiserDemo()
     expect(await demo()).toHaveLength(0)
     expect(await db.pistes.count()).toBe(0)

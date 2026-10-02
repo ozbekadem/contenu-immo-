@@ -16,6 +16,7 @@ const CLE_SERIE_2 = 'demo.serie2'
 const CLE_SERIE_3 = 'demo.serie3'
 const CLE_SERIE_4 = 'demo.serie4'
 const CLE_SERIE_5 = 'demo.serie5'
+const CLE_SERIE_6 = 'demo.serie6'
 
 const iso = (d: Date) => d.toISOString()
 
@@ -208,6 +209,7 @@ export async function initialiserDemo(): Promise<void> {
     [CLE_SERIE_3, creerSerie3],
     [CLE_SERIE_4, creerSerie4],
     [CLE_SERIE_5, creerSerie5],
+    [CLE_SERIE_6, creerSerie6],
   ]
   if (!(await db.meta.get(CLE_INITIALISE))) {
     const maintenant = new Date().toISOString()
@@ -286,6 +288,24 @@ async function creerSerie5(): Promise<void> {
       { ...evenementVide(a(3, 14), 90), type: 'rdv', contactId: hermans.id, pisteId: pisteHermans?.id ?? null, bienId: pisteHermans?.bienId ?? null, notes: 'Présenter l’analyse de prix (baisse sans résultat).' },
       { demo: true },
     )
+}
+
+/** Sixième série : une estimation notée par le secrétariat dans Google Agenda, « à encoder ». */
+async function creerSerie6(): Promise<void> {
+  const debut = ajouterJours(new Date(), 2)
+  debut.setHours(11, 0, 0, 0)
+  await evenements.creer(
+    {
+      ...evenementVide(debut, 60),
+      type: 'estimation',
+      titre: 'Estimation – Mme Peeters 0478 55 44 33 – Rue de la Station 5, Gosselies',
+      notes: 'Appartement 2 chambres, veut vendre pour la fin de l’année. Rappeler après 17 h.',
+      googleEventId: 'demo-secretariat-1',
+      googleCalendrierId: 'demo-secretariat',
+      aEncoder: true,
+    },
+    { demo: true },
+  )
 }
 
 /** Photo d'illustration dessinée sur l'appareil (façade stylisée), pour la démonstration. */

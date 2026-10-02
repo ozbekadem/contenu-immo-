@@ -18,6 +18,8 @@ export function evenementVide(debut: Date, dureeMinutes = 60): DonneesEvenement 
     bienId: null,
     collaborateurId: null,
     googleEventId: null,
+    googleCalendrierId: null,
+    aEncoder: false,
   }
 }
 

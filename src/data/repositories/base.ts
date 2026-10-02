@@ -37,12 +37,12 @@ export abstract class RepositoryBase<T extends Enregistrement> {
     return this.table.filter(f).toArray()
   }
 
-  async creer(donnees: Donnees<T>, options: { demo?: boolean; journaliser?: boolean } = {}): Promise<T> {
+  async creer(donnees: Donnees<T>, options: { demo?: boolean; journaliser?: boolean; id?: string } = {}): Promise<T> {
     const [fiche] = await this.creerPlusieurs([donnees], options)
     return fiche!
   }
 
-  async creerPlusieurs(liste: Donnees<T>[], { demo = false, journaliser = true } = {}): Promise<T[]> {
+  async creerPlusieurs(liste: Donnees<T>[], { demo = false, journaliser = true, id }: { demo?: boolean; journaliser?: boolean; id?: string } = {}): Promise<T[]> {
     const maintenant = new Date().toISOString()
     const fiches = liste.map((donnees) => {
       const ts: Record<string, string> = {}
@@ -51,7 +51,8 @@ export abstract class RepositoryBase<T extends Enregistrement> {
       const brut = {
         archivedAt: null,
         ...donnees,
-        id: crypto.randomUUID(),
+        // Identifiant imposé : le même élément importé sur deux appareils donne une seule fiche.
+        id: id && liste.length === 1 ? id : crypto.randomUUID(),
         createdAt: maintenant,
         updatedAt: maintenant,
         createdBy: utilisateurCourant,

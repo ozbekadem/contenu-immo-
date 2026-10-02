@@ -12,6 +12,9 @@ Durée : environ 15 minutes, une seule fois pour toute l'équipe. Gratuit.
   Linkimmo ; si vous la **supprimez**, la fiche passe dans « Sans prochaine action » (rien n'est perdu) ;
   un rendez-vous **ajouté à la main** dans le calendrier « Linkimmo » entre dans l'agenda de l'application.
 - Si la même chose est modifiée des deux côtés en même temps, c'est la version de Linkimmo qui est gardée.
+- **Estimations du secrétariat** : tout rendez-vous dont le titre commence par **« Estimation »**,
+  dans votre agenda ou dans celui de la secrétaire (partagé avec vous), arrive dans Linkimmo,
+  dans la liste **« À encoder »** de la page Aujourd'hui (voir plus bas).
 
 ## Ce dont j'ai besoin à la fin
 
@@ -64,11 +67,37 @@ Il est public : ce n'est pas un mot de passe.
 2. Choisissez votre compte Gmail.
 3. Google affiche « Google n'a pas validé cette application » : c'est normal (mode Test).
    Cliquez sur **Continuer**.
-4. Cochez les deux autorisations (créer le calendrier Linkimmo, voir la liste de vos agendas)
-   → **Continuer**.
+4. Cochez les trois autorisations (créer le calendrier Linkimmo, voir la liste de vos agendas,
+   voir les événements de vos agendas) → **Continuer**.
+   La troisième sert uniquement à repérer les « Estimation… » ; Linkimmo ne modifie jamais
+   vos autres agendas.
 5. Le calendrier « Linkimmo » apparaît dans votre Google Agenda en quelques secondes.
 
 Sur le téléphone, ouvrez l'application Google Agenda → menu → vérifiez que **Linkimmo** est coché.
+
+## Les estimations notées par la secrétaire
+
+1. **La secrétaire partage son agenda avec vous** (une seule fois, sur ordinateur) :
+   Google Agenda → à gauche, survolez son agenda → **⋮ → Paramètres et partage** →
+   **Partager avec des personnes spécifiques** → **Ajouter** → votre adresse Gmail →
+   autorisation **« Afficher tous les détails des événements »** → **Envoyer**.
+   Vous acceptez l'invitation reçue par e-mail.
+   *(Autre possibilité : vous partagez votre agenda avec elle, avec « Modifier les événements »,
+   et elle note les estimations directement dans votre agenda.)*
+2. Elle note le rendez-vous en commençant le titre par **« Estimation »**, par exemple :
+   `Estimation – M. Lambert 0475 12 34 56 – Rue de Gosselies 12, Jumet`
+   (les coordonnées peuvent aussi être dans le lieu ou la description).
+3. Dans Linkimmo : **Paramètres → Google Agenda → Estimations du secrétariat** : vérifiez que
+   son agenda est coché (tous les agendas le sont au départ ; décochez ceux à ignorer).
+4. Le rendez-vous apparaît dans **Aujourd'hui → À encoder**, avec le nom, le téléphone et
+   l'adresse repérés. **Créer la fiche** ouvre le formulaire déjà rempli (vous corrigez et
+   enregistrez) ; si le numéro est déjà connu, **Relier** suffit. **Ignorer** le retire de la liste.
+5. Ensuite, si elle déplace le rendez-vous dans Google, il se déplace dans Linkimmo ; si elle le
+   supprime (ou retire « Estimation » du titre), il est retiré de Linkimmo (archivé, jamais effacé).
+   Vos propres corrections (titre, notes, fiche reliée) ne sont pas écrasées.
+
+Les estimations sont lues de la veille jusqu'à 6 mois à l'avance, à chaque synchronisation
+(à l'ouverture de l'application, puis toutes les 5 minutes tant qu'elle est ouverte).
 
 ## Bon à savoir
 
