@@ -6,6 +6,7 @@ import { chercherAdressesEnAttente } from './services/geocodage'
 import { demarrerGoogle } from './services/google'
 import { ecouterInstallation } from './services/installation'
 import { demarrerNotifications } from './services/notifications'
+import { surveillerVerrou } from './services/verrou'
 import './index.css'
 
 // Demande au navigateur de ne jamais effacer la base locale (important sur iPhone).
@@ -22,6 +23,7 @@ demarrerGoogle()
 
 // Notifications (rappels affichés par l'application ; serveur si configuré) et invitation à installer
 demarrerNotifications()
+surveillerVerrou()
 ecouterInstallation()
 
 createRoot(document.getElementById('root')!).render(

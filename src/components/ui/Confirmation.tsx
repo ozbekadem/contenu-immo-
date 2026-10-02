@@ -50,7 +50,7 @@ export function ZoneConfirmation() {
   }
 
   return (
-    <div className="fixed inset-0 z-[60] flex items-end justify-center p-4 sm:items-center" role="alertdialog" aria-modal="true" aria-labelledby="confirmation-titre">
+    <div className="fixed inset-0 z-[95] flex items-end justify-center p-4 sm:items-center" role="alertdialog" aria-modal="true" aria-labelledby="confirmation-titre">
       <button type="button" aria-label="Annuler" onClick={() => repondre(false)} className="absolute inset-0 bg-black/40 backdrop-blur-[2px]" />
       <div className="relative w-full max-w-sm animate-apparition rounded-[28px] bg-surface p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] shadow-flottant">
         <h2 id="confirmation-titre" className="text-lg font-extrabold leading-snug">

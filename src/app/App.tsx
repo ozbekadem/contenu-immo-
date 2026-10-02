@@ -3,6 +3,7 @@ import { createBrowserRouter, createMemoryRouter, RouterProvider, type RouteObje
 import AujourdhuiPage from '@/features/aujourdhui/AujourdhuiPage'
 import { ConnexionPage, NouveauMotDePassePage } from '@/features/auth/ConnexionPage'
 import { AuthProvider, useAuth } from './auth'
+import { EcranVerrou } from './EcranVerrou'
 import { Layout } from './Layout'
 import { ThemeProvider } from './theme'
 import { UpdatePrompt } from './UpdatePrompt'
@@ -88,6 +89,7 @@ export function App() {
     <ThemeProvider>
       <AuthProvider>
         <Portail />
+        <EcranVerrou />
       </AuthProvider>
       {import.meta.env.MODE !== 'apercu' && <UpdatePrompt />}
       <ZoneConfirmation />

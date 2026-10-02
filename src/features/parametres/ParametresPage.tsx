@@ -9,6 +9,7 @@ import { CATEGORIES } from '@/domain/categories'
 import { CarteGoogle } from '@/features/agenda/composants'
 import { Agence } from './Agence'
 import { Notifications } from './Notifications'
+import { Verrouillage } from './Verrouillage'
 import { CompteSync } from './CompteSync'
 import { DonneesDemo } from './DonneesDemo'
 
@@ -34,6 +35,7 @@ export default function ParametresPage() {
         <Agence />
         <CarteGoogle />
         <Notifications />
+        <Verrouillage />
 
         <Card>
           <SectionTitle>Apparence</SectionTitle>

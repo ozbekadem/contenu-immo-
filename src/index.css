@@ -54,6 +54,18 @@
       transform: none;
     }
   }
+
+  --animate-tremble: tremble 400ms ease-in-out;
+  @keyframes tremble {
+    20%,
+    60% {
+      transform: translateX(-8px);
+    }
+    40%,
+    80% {
+      transform: translateX(8px);
+    }
+  }
 }
 
 /* ——— Palettes ——— */

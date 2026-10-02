@@ -5,6 +5,7 @@ import { db } from '@/data/db'
 import { arreterSynchronisation, demarrerSynchronisation } from '@/data/sync/service'
 import { serveurConfigure, sessionMemorisee, supabase } from '@/data/sync/supabase'
 import { confirmer } from '@/components/ui/Confirmation'
+import { desactiverVerrou } from '@/services/verrou'
 
 export type Role = 'admin' | 'collaborateur' | 'stagiaire'
 
@@ -39,6 +40,7 @@ const MESSAGE_REVOQUE = 'Cet appareil a été déconnecté à distance. Ses donn
 /** Efface toutes les données de l'appareil (déconnexion ou appareil déconnecté à distance). */
 async function effacerDonneesLocales() {
   arreterSynchronisation()
+  desactiverVerrou()
   db.close()
   await db.delete()
 }
