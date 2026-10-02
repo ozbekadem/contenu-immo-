@@ -1,5 +1,5 @@
 import { lazy } from 'react'
-import { BarChart3, Download, LineChart, MessageSquareText } from 'lucide-react'
+import { BarChart3, Download, MessageSquareText } from 'lucide-react'
 import { createBrowserRouter, createMemoryRouter, RouterProvider, type RouteObject } from 'react-router'
 import { Bientot } from '@/components/ui/Bientot'
 import AujourdhuiPage from '@/features/aujourdhui/AujourdhuiPage'
@@ -22,6 +22,7 @@ const PistePage = lazy(() => import('@/features/prospection/PistePage'))
 const BiensPage = lazy(() => import('@/features/biens/BiensPage'))
 const BienPage = lazy(() => import('@/features/biens/BienPage'))
 const InstallerPage = lazy(() => import('@/features/installer/InstallerPage'))
+const MarchePage = lazy(() => import('@/features/marche/MarchePage'))
 const AgendaPage = lazy(() => import('@/features/agenda/AgendaPage'))
 const SessionPage = lazy(() => import('@/features/session/SessionPage'))
 const ArgumentairesPage = lazy(() => import('@/features/argumentaires/ArgumentairesPage'))
@@ -44,7 +45,7 @@ export const routes: RouteObject[] = [
       { path: 'plus', element: <PlusPage /> },
       { path: 'biens', element: <BiensPage /> },
       { path: 'biens/:id', element: <BienPage /> },
-      { path: 'marche', element: <Bientot titre="Marché local" icone={LineChart} etape={10}>Prix médians Statbel par quartier et par commune.</Bientot> },
+      { path: 'marche', element: <MarchePage /> },
       { path: 'communication', element: <Bientot titre="Communication" icone={MessageSquareText} etape={11}>Modèles de messages, campagnes et contrôle RGPD.</Bientot> },
       { path: 'equipe', element: <Bientot titre="Équipe et statistiques" icone={BarChart3} etape={12}>Collaborateurs, rôles, activité et conversion.</Bientot> },
       { path: 'import-export', element: <Bientot titre="Import, export, sauvegarde" icone={Download} etape={13}>Import CSV et Excel, export, sauvegardes JSON.</Bientot> },

@@ -34,7 +34,7 @@ export const ONGLETS: EntreeNav[] = [
 export const MODULES: (EntreeNav & { description: string })[] = [
   { chemin: '/biens', libelle: 'Biens', icone: Building2, description: 'Liste, carte, photos, documents' },
   { chemin: '/argumentaires', libelle: 'Argumentaires d’appel', icone: MessageSquareQuote, description: 'Phrases et réponses aux objections' },
-  { chemin: '/marche', libelle: 'Marché local', icone: LineChart, description: 'Prix Statbel par quartier et commune' },
+  { chemin: '/marche', libelle: 'Marché local', icone: LineChart, description: 'Prix de vente réels par commune (Statbel)' },
   { chemin: '/communication', libelle: 'Communication', icone: MessageSquareText, description: 'Modèles de messages et campagnes' },
   { chemin: '/equipe', libelle: 'Équipe et statistiques', icone: BarChart3, description: 'Collaborateurs, activité, conversion' },
   { chemin: '/import-export', libelle: 'Import, export, sauvegarde', icone: Download, description: 'CSV, Excel, sauvegardes JSON' },
