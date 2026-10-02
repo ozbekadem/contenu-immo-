@@ -1,5 +1,5 @@
 import { useLiveQuery } from 'dexie-react-hooks'
-import { Headset, PartyPopper } from 'lucide-react'
+import { ClipboardCheck, Headset, PartyPopper } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { Link } from 'react-router'
 import { Card } from '@/components/ui/Card'
@@ -13,7 +13,9 @@ import { interactions } from '@/data/repositories/interactions'
 import type { Contact } from '@/data/types'
 import { aMaturite, anniversaires, entonnoir } from '@/domain/quotidien'
 import { useContactsColores } from '@/features/contacts/useContacts'
+import { useAuth } from '@/app/auth'
 import { AEncoder } from '@/features/agenda/AEncoder'
+import { useEquipe } from '@/services/equipe'
 import { RendezVousDuJour } from '@/features/agenda/composants'
 import { SansAction, TopAppels, Veille } from './Sections'
 import { AMaturite, Anniversaires, Entonnoir } from './Suivi'
@@ -48,6 +50,12 @@ export default function AujourdhuiPage() {
   const { liste: contactsColores } = useContactsColores()
   const signatures = useLiveQuery(() => interactions.signatures(), [])
   const [filtre, setFiltre] = useState<FiltreCategorie>(filtreMemorise)
+  const { profil } = useAuth()
+  const moi = profil?.id ?? null
+  const plusieurs = useEquipe().filter((m) => m.actif).length > 1
+  const [toutesFiches, setToutesFiches] = useState(false)
+  const equipeSeulement = plusieurs && !toutesFiches
+  const vendredi = maintenant.getDay() === 5
   const choisirFiltre = (f: FiltreCategorie) => {
     setFiltre(f)
     try {
@@ -58,7 +66,12 @@ export default function AujourdhuiPage() {
   }
 
   const { compte, aTraiter, top, sansAction, aVerifier, aAppeler, maturite, parCategorie } = useMemo(() => {
-    const tous = liste ?? []
+    // « Mes fiches » : celles qui me sont attribuées (ou que j'ai créées), plus celles de personne.
+    const tous = (liste ?? []).filter((s) => {
+      if (!equipeSeulement || !moi) return true
+      const pour = s.piste ? (s.piste.collaborateurId ?? s.contact?.collaborateurId ?? s.piste.createdBy) : (s.contact?.collaborateurId ?? s.contact?.createdBy)
+      return !pour || pour === moi
+    })
     const parCategorie = (f: FiltreCategorie) => filtrerCategorie(tous, f).filter((s) => s.couleur === 'rouge' || s.couleur === 'orange').length
     const actifs = filtrerCategorie(tous, filtre)
     const compte = (c: Couleur) => tous.filter((l) => l.couleur === c).length
@@ -86,7 +99,7 @@ export default function AujourdhuiPage() {
       maturite,
       parCategorie,
     }
-  }, [liste, vuesPistes, maintenant, filtre])
+  }, [liste, vuesPistes, maintenant, filtre, equipeSeulement, moi])
 
   const statsEntonnoir = useMemo(() => entonnoir((vuesPistes ?? []).map((v) => v.piste)), [vuesPistes])
 
@@ -135,6 +148,29 @@ export default function AujourdhuiPage() {
         </div>
       </section>
 
+      {plusieurs && (
+        <div className="-mb-2 flex gap-1 self-start rounded-full bg-surface-2 p-1 text-xs font-bold" role="group" aria-label="Fiches affichées">
+          {[
+            [false, 'Mes fiches'],
+            [true, 'Toute l’équipe'],
+          ].map(([v, l]) => (
+            <button key={String(v)} type="button" aria-pressed={toutesFiches === v} onClick={() => setToutesFiches(v as boolean)} className={`rounded-full px-3 py-1.5 ${toutesFiches === v ? 'bg-surface text-primaire-texte shadow-carte' : 'text-doux'}`}>
+              {l as string}
+            </button>
+          ))}
+        </div>
+      )}
+      {vendredi && (
+        <Link to="/revue" className="presse flex items-center gap-3 rounded-3xl bg-surface p-3 pr-4 shadow-carte ring-2 ring-suivi-vert/30 dark:shadow-none">
+          <span className="grid size-11 place-items-center rounded-2xl bg-suivi-vert/12 text-suivi-vert">
+            <ClipboardCheck className="size-5" aria-hidden />
+          </span>
+          <span className="min-w-0 flex-1">
+            <span className="block text-[15px] font-extrabold">C’est vendredi : la revue de la semaine</span>
+            <span className="block text-xs text-doux">5 minutes pour que rien ne soit oublié</span>
+          </span>
+        </Link>
+      )}
       <div className="sans-barre -mx-4 flex gap-2 overflow-x-auto px-4 lg:mx-0 lg:px-0" role="group" aria-label="Afficher">
         {FILTRES_CATEGORIE.map(({ code, libelle }) => {
           const n = liste ? parCategorie(code) : 0

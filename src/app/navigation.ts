@@ -36,7 +36,7 @@ export const MODULES: (EntreeNav & { description: string })[] = [
   { chemin: '/argumentaires', libelle: 'Argumentaires d’appel', icone: MessageSquareQuote, description: 'Phrases et réponses aux objections' },
   { chemin: '/marche', libelle: 'Marché local', icone: LineChart, description: 'Prix de vente réels par commune (Statbel)' },
   { chemin: '/communication', libelle: 'Communication', icone: MessageSquareText, description: 'Modèles de messages et campagnes' },
-  { chemin: '/equipe', libelle: 'Équipe et statistiques', icone: BarChart3, description: 'Collaborateurs, activité, conversion' },
+  { chemin: '/equipe', libelle: 'Équipe et statistiques', icone: BarChart3, description: 'Activité, résultats par origine, revue du vendredi, doublons' },
   { chemin: '/import-export', libelle: 'Import, export, sauvegarde', icone: Download, description: 'CSV, Excel, sauvegardes JSON' },
   { chemin: '/installer', libelle: "Installer l'application", icone: Smartphone, description: 'Guide iPhone et Android' },
   { chemin: '/parametres', libelle: 'Paramètres', icone: Settings, description: 'Apparence, seuils, notifications' },

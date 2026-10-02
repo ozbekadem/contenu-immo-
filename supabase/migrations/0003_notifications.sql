@@ -76,12 +76,12 @@ language sql stable security definer set search_path = public as $$
     where p.actif and exists (select 1 from abonnements_push a where a.user_id = p.id)
   ),
   fiches as (
-    select e.entite, e.id, e.donnees as d, coalesce((e.donnees->>'collaborateurId')::uuid, e.created_by) as pour
+    select e.entite, e.id, e.donnees as d, coalesce((e.donnees->>'collaborateurId')::uuid, e.created_by) as pour, e.created_by as cree_par
     from enregistrements e
     where e.entite in ('contacts', 'pistes', 'evenements') and e.donnees->>'archivedAt' is null
   ),
   pistes_en_cours as (
-    select f.id, f.d, f.pour from fiches f
+    select f.id, f.d, f.pour, f.cree_par from fiches f
     where f.entite = 'pistes' and coalesce(f.d->>'statut', '') not in ('gagne', 'perdu')
   ),
   relances as (
@@ -96,7 +96,8 @@ language sql stable security definer set search_path = public as $$
       and c.d->>'prochaineRelanceAt' is not null
       and not exists (select 1 from pistes_en_cours p where p.d->>'contactId' = c.id::text)
     union all
-    select coalesce((pr.d->>'collaborateurId')::uuid, p.pour),
+    -- Suivi par : celui de la piste, à défaut celui du propriétaire, à défaut l'auteur de la piste
+    select coalesce((p.d->>'collaborateurId')::uuid, (pr.d->>'collaborateurId')::uuid, p.cree_par),
            'relance:pistes:' || p.id || ':' || (p.d->>'prochaineRelanceAt'),
            '📞 ' || case p.d->>'categorie' when 'maison_vide' then 'Maison vide' else 'Annonce' end || ' – ' || coalesce(adresse_bien(b.donnees), 'bien'),
            case when pr.id is null then 'Propriétaire encore inconnu' else 'Appeler ' || nom_contact(pr.d) end

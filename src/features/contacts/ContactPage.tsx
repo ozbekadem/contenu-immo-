@@ -20,6 +20,7 @@ import { DatesCles } from '@/components/DatesCles'
 import { PiecesJointes } from '@/components/PiecesJointes'
 import { RendezVousFiche } from '@/features/agenda/composants'
 import { ConsentementsContact } from '@/features/communication/Consentements'
+import { ChoixCollaborateur } from '@/features/equipe/ChoixCollaborateur'
 import { PisteLigne } from '@/features/prospection/PisteLigne'
 import { usePistes } from '@/features/prospection/usePistes'
 import { RelanceChoix } from '@/components/RelanceChoix'
@@ -96,6 +97,7 @@ function Identite({ contact }: { contact: Contact }) {
   const [menuNumero, setMenuNumero] = useState<string | null>(null)
   return (
     <div className="flex flex-col gap-4">
+      <ChoixCollaborateur valeur={contact.collaborateurId} changer={(id) => void contacts.modifier(contact.id, { collaborateurId: id })} parDefaut={contact.createdBy} />
       <Card>
         <SectionTitle>Coordonnées</SectionTitle>
         <ul className="divide-y divide-bord">

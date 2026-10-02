@@ -43,6 +43,14 @@ begin
   assert n = 0, 'sans abonnement : rien';
 end $$;
 
+-- Piste attribuée à Dimitri : c'est lui qui est prévenu (même si Carla a créé la fiche du propriétaire)
+insert into enregistrements (entite, id, donnees, created_by) values
+  ('pistes', 'a0000000-0000-0000-0000-000000000002', '{"categorie":"annonce","statut":"en_cours","bienId":"b0000000-0000-0000-0000-000000000001","contactId":"c0000000-0000-0000-0000-000000000005","collaborateurId":"00000000-0000-0000-0000-00000000000d","prochaineRelanceAt":"2026-10-05T07:57:00.000Z"}', '00000000-0000-0000-0000-00000000000c');
+do $$ begin
+  assert (select user_id from rappels_a_envoyer('2026-10-05 08:00:00+00') where cle like 'relance:pistes:a0000000-0000-0000-0000-000000000002%') = '00000000-0000-0000-0000-00000000000d', 'piste attribuée : prévenir Dimitri';
+end $$;
+delete from enregistrements where id = 'a0000000-0000-0000-0000-000000000002';
+
 -- Une fois envoyées, plus jamais renvoyées
 insert into notifications_envoyees (user_id, cle) select user_id, cle from rappels_a_envoyer('2026-10-05 08:00:00+00');
 do $$ begin

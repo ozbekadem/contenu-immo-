@@ -110,7 +110,8 @@ export function evenementsSouhaites(d: DonneesAgenda, options: { utilisateur: st
   for (const p of d.pistes) {
     if (!enCours(p) || !relanceValide(p.prochaineRelanceAt)) continue
     const proprio = p.contactId ? (contacts.get(p.contactId) ?? null) : null
-    if (proprio && (!aMoi(proprio.collaborateurId) || proprio.nePasContacter)) continue
+    // Suivi par : celui de la piste, à défaut celui du propriétaire
+    if (!aMoi(p.collaborateurId ?? proprio?.collaborateurId) || proprio?.nePasContacter) continue
     const bien = biens.get(p.bienId)
     const quoi = p.categorie === 'annonce' ? 'Annonce' : 'Maison vide'
     const debut = p.prochaineRelanceAt!

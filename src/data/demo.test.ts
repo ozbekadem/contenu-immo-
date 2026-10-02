@@ -15,7 +15,7 @@ describe('données de démonstration', () => {
   it('premier lancement : 8 contacts, dont l’affiche, l’annonce Internet et le contact à suivre', async () => {
     await initialiserDemo()
     const liste = await demo()
-    expect(liste).toHaveLength(8)
+    expect(liste).toHaveLength(9) // dont un doublon à fusionner
     const affiche = liste.find((c) => c.source === 'affiche' && !c.nom)!
     expect(affiche._telNorm).toEqual(['+32477315286'])
     const hermans = liste.find((c) => c.nom === 'Hermans')!
@@ -49,14 +49,14 @@ describe('données de démonstration', () => {
   it('aucun doublon au redémarrage', async () => {
     await initialiserDemo()
     await initialiserDemo()
-    expect(await demo()).toHaveLength(8)
+    expect(await demo()).toHaveLength(9)
   })
 
   it('un appareil qui a déjà la première série reçoit les nouveaux exemples', async () => {
     await db.meta.put({ cle: 'demo.initialise', valeur: 'ancien' })
     await contacts.creer({ ...contactVide(), nom: 'Ancien' }, { demo: true })
     await initialiserDemo()
-    expect(await demo()).toHaveLength(4)
+    expect(await demo()).toHaveLength(5)
     expect(await db.pistes.count()).toBeGreaterThan(0)
   })
 
@@ -69,6 +69,7 @@ describe('données de démonstration', () => {
     await db.meta.delete('demo.serie5')
     await db.meta.delete('demo.serie6')
     await db.meta.delete('demo.serie7')
+    await db.meta.delete('demo.serie8')
     await initialiserDemo()
     expect(await demo()).toHaveLength(0)
     expect(await db.pistes.count()).toBe(0)

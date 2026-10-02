@@ -65,7 +65,7 @@ export function rappelsDus(
     for (const p of enCours) {
       if (!p.prochaineRelanceAt || !dansFenetre(new Date(p.prochaineRelanceAt).getTime())) continue
       const proprio = p.contactId ? contacts.get(p.contactId) : undefined
-      if (!aMoi({ collaborateurId: proprio?.collaborateurId ?? null, createdBy: p.createdBy })) continue
+      if (!aMoi({ collaborateurId: p.collaborateurId ?? proprio?.collaborateurId ?? null, createdBy: p.createdBy })) continue
       liste.push({
         cle: `relance:pistes:${p.id}:${p.prochaineRelanceAt}`,
         titre: `📞 ${p.categorie === 'maison_vide' ? 'Maison vide' : 'Annonce'} – ${adresse(biens.get(p.bienId))}`,

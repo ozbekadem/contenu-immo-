@@ -19,6 +19,7 @@ const CLE_SERIE_4 = 'demo.serie4'
 const CLE_SERIE_5 = 'demo.serie5'
 const CLE_SERIE_6 = 'demo.serie6'
 const CLE_SERIE_7 = 'demo.serie7'
+const CLE_SERIE_8 = 'demo.serie8'
 
 const iso = (d: Date) => d.toISOString()
 
@@ -213,6 +214,7 @@ export async function initialiserDemo(): Promise<void> {
     [CLE_SERIE_5, creerSerie5],
     [CLE_SERIE_6, creerSerie6],
     [CLE_SERIE_7, creerSerie7],
+    [CLE_SERIE_8, creerSerie8],
   ]
   if (!(await db.meta.get(CLE_INITIALISE))) {
     const maintenant = new Date().toISOString()
@@ -323,6 +325,22 @@ async function creerSerie7(): Promise<void> {
   if (dupont) await contacts.modifier(dupont.id, { consentements: { sms: accord('Accord oral au téléphone'), whatsapp: accord('Accord oral au téléphone') } })
   const claes = parNom('Claes')
   if (claes) await contacts.modifier(claes.id, { consentements: { email: accord('Inscrite via le formulaire'), sms: { etat: 'retire', date: jour, preuve: 'A répondu STOP' } } })
+}
+
+/** Huitième série (étape 12) : un doublon (même numéro que Marc Dupont, encodé autrement) à fusionner. */
+async function creerSerie8(): Promise<void> {
+  await contacts.creer(
+    {
+      ...contactVide(),
+      civilite: 'M.',
+      nom: 'Dupond',
+      telephones: [{ numero: '+32 472 18 90 33', libelle: 'GSM' }],
+      emails: ['marc.dupont.gosselies@gmail.com'],
+      notes: 'Encodé par la secrétaire après un appel entrant.',
+      source: 'appel_entrant',
+    },
+    { demo: true },
+  )
 }
 
 /** Photo d'illustration dessinée sur l'appareil (façade stylisée), pour la démonstration. */

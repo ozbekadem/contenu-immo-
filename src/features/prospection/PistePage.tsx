@@ -22,6 +22,7 @@ import { PiecesJointes } from '@/components/PiecesJointes'
 import { AjoutPhotos, Galerie } from '@/components/Photos'
 import { RendezVousFiche } from '@/features/agenda/composants'
 import { PrixMarche } from '@/features/marche/PrixMarche'
+import { ChoixCollaborateur } from '@/features/equipe/ChoixCollaborateur'
 import { RelanceChoix } from '@/components/RelanceChoix'
 import { Avatar } from '@/components/ui/Avatar'
 import { classesBouton } from '@/components/ui/Bouton'
@@ -394,6 +395,7 @@ export default function PistePage() {
         </div>
       </Card>
 
+      <ChoixCollaborateur valeur={piste.collaborateurId} changer={(id) => void pistes.modifier(piste.id, { collaborateurId: id })} parDefaut={piste.createdBy} />
       <Proprietaire piste={piste} contact={contact} />
       {piste.categorie === 'annonce' && <Annonce piste={piste} maintenant={maintenant} />}
       <PrixMarche bien={bien} prix={piste.categorie === 'annonce' ? piste.prix : null} />
