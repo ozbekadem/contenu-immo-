@@ -3,7 +3,7 @@ import { Inbox, Link2, MapPin, Phone, UserPlus } from 'lucide-react'
 import { useState } from 'react'
 import { useNavigate } from 'react-router'
 import { classesBouton } from '@/components/ui/Bouton'
-import { Card } from '@/components/ui/Card'
+import { Card, EnteteSection } from '@/components/ui/Card'
 import { Feuille } from '@/components/ui/Feuille'
 import { db } from '@/data/db'
 import type { DonneesContact } from '@/data/repositories/contacts'
@@ -110,12 +110,7 @@ export function AEncoder() {
   if (!liste?.length) return null
   return (
     <Card className="overflow-hidden !p-0 ring-2 ring-primaire/25">
-      <div className="flex items-center gap-2 px-4 pb-1 pt-4">
-        <Inbox className="size-5 text-primaire-texte" aria-hidden />
-        <h2 className="text-base font-bold">À encoder</h2>
-        <span className="rounded-full bg-primaire-doux px-2 py-0.5 text-xs font-bold text-primaire-texte">{liste.length}</span>
-      </div>
-      <p className="px-4 text-xs text-doux">Estimations notées dans Google Agenda. Créez la fiche (déjà pré-remplie) ou reliez-la à un contact existant.</p>
+      <EnteteSection icone={Inbox} titre="À encoder" nombre={liste.length} description="Estimations notées dans Google Agenda. Créez la fiche (déjà pré-remplie) ou reliez-la à un contact existant." />
       <ul className="mt-1">
         {liste.map((e) => (
           <Ligne key={e.id} e={e} />

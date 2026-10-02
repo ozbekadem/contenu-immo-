@@ -2,7 +2,7 @@ import { useLiveQuery } from 'dexie-react-hooks'
 import { CalendarCheck2, CalendarPlus, CalendarSync, ChevronRight, Loader2, TriangleAlert } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { classesBouton } from '@/components/ui/Bouton'
-import { Card, SectionTitle } from '@/components/ui/Card'
+import { Card, EnteteSection, SectionTitle } from '@/components/ui/Card'
 import { db } from '@/data/db'
 import { titreEvenement } from '@/data/google/souhaites'
 import { evenements } from '@/data/repositories/evenements'
@@ -213,11 +213,7 @@ export function RendezVousDuJour({ maintenant }: { maintenant: Date }) {
   if (!liste?.length) return null
   return (
     <Card className="overflow-hidden !p-0">
-      <div className="flex items-center gap-2 px-4 pb-1 pt-4">
-        <CalendarCheck2 className="size-5 text-primaire-texte" aria-hidden />
-        <h2 className="text-base font-bold">Rendez-vous du jour</h2>
-        <span className="rounded-full bg-primaire-doux px-2 py-0.5 text-xs font-bold text-primaire-texte">{liste.length}</span>
-      </div>
+      <EnteteSection icone={CalendarCheck2} titre="Rendez-vous du jour" nombre={liste.length} />
       <div className="[&>button:not(:last-child)]:border-b [&>button:not(:last-child)]:border-bord/60">
         {liste.map((e) => (
           <LigneEvenement key={e.id} e={e} ouvrir={setOuvert} />

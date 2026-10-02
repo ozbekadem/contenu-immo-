@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { Link } from 'react-router'
 import { VignetteBien } from '@/components/Photos'
 import { Avatar } from '@/components/ui/Avatar'
-import { Card } from '@/components/ui/Card'
+import { Card, EnteteSection } from '@/components/ui/Card'
 import { Saisie } from '@/components/ui/Champ'
 import { confirmer } from '@/components/ui/Confirmation'
 import { StatusDot } from '@/components/ui/StatusDot'
@@ -54,11 +54,7 @@ export function TopAppels({ lignes }: { lignes: { suivable: Suivable; priorite: 
   if (lignes.length === 0) return null
   return (
     <Card className="overflow-hidden !p-0">
-      <div className="flex items-center gap-2 px-4 pb-1 pt-4">
-        <Trophy className="size-5 text-primaire-texte" aria-hidden />
-        <h2 className="text-base font-bold">Qui appeler en premier</h2>
-      </div>
-      <p className="px-4 text-xs text-doux">Classés selon vos chances de réussite : annonce retirée, prix en baisse, prospect chaud, tout juste repéré…</p>
+      <EnteteSection icone={Trophy} titre="Qui appeler en premier" description="Classés selon vos chances de réussite : annonce retirée, prix en baisse, prospect chaud, tout juste repéré…" />
       <ol className="mt-1 pb-1">
         {lignes.map(({ suivable: s, priorite }, i) => (
           <li key={s.cle} className="flex items-center gap-2 py-2 pl-4 pr-2 [&:not(:last-child)]:border-b [&:not(:last-child)]:border-bord/60">
@@ -102,12 +98,7 @@ export function SansAction({ lignes }: { lignes: Suivable[] }) {
 
   return (
     <Card className="overflow-hidden !p-0 ring-2 ring-suivi-rouge/25">
-      <div className="flex items-center gap-2 px-4 pb-1 pt-4">
-        <AlarmClockOff className="size-5 text-suivi-rouge" aria-hidden />
-        <h2 className="text-base font-bold">Sans prochaine action</h2>
-        <span className="rounded-full bg-suivi-rouge/12 px-2 py-0.5 text-xs font-bold text-suivi-rouge">{lignes.length}</span>
-      </div>
-      <p className="px-4 text-xs text-doux">Aucune relance prévue : ces fiches risquent d’être oubliées. Choisissez la suite en un appui.</p>
+      <EnteteSection icone={AlarmClockOff} titre="Sans prochaine action" teinte="rouge" nombre={lignes.length} description="Aucune relance prévue : ces fiches risquent d’être oubliées. Choisissez la suite en un appui." />
       <ul className="mt-2 pb-2">
         {lignes.slice(0, 8).map((s) => (
           <li key={s.cle} className="px-4 py-2.5 [&:not(:last-child)]:border-b [&:not(:last-child)]:border-bord/60">
@@ -195,12 +186,7 @@ export function Veille({ lignes }: { lignes: PisteVue[] }) {
   if (lignes.length === 0) return null
   return (
     <Card className="overflow-hidden !p-0">
-      <div className="flex items-center gap-2 px-4 pb-1 pt-4">
-        <Eye className="size-5 text-annonce" aria-hidden />
-        <h2 className="text-base font-bold">À revérifier</h2>
-        <span className="rounded-full bg-annonce/15 px-2 py-0.5 text-xs font-bold text-annonce">{lignes.length}</span>
-      </div>
-      <p className="px-4 text-xs text-doux">Une annonce retirée, une baisse de prix ou une affiche disparue = le bon moment pour appeler.</p>
+      <EnteteSection icone={Eye} titre="À revérifier" teinte="annonce" nombre={lignes.length} description="Une annonce retirée, une baisse de prix ou une affiche disparue = le bon moment pour appeler." />
       <ul className="mt-1 pb-1">
         {lignes.map((v) => (
           <LigneVeille key={v.piste.id} vue={v} />
