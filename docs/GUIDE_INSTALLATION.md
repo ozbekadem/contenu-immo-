@@ -62,15 +62,15 @@ Chaque nouvelle version que j'envoie sur GitHub est mise en ligne **automatiquem
 - **Android** (Chrome) : ouvrez l'adresse → menu **⋮** → **Installer l'application**.
 - **Ordinateur** (Chrome ou Edge) : icône d'installation ⊕ à droite de la barre d'adresse.
 
-Un guide illustré sera intégré à l'application à l'étape 9 (notifications).
+Le même guide, illustré, se trouve dans l'application : **Plus** → **Installer l'application**.
 
 ## Partie 4 — Ajouter la secrétaire et les stagiaires
 
 1. Supabase → **Authentication** → **Users** → **Add user** → **Create new user** :
    leur email + un mot de passe provisoire, cochez **Auto Confirm User**.
 2. Communiquez-leur l'adresse de l'application et ce mot de passe provisoire (de vive voix).
-3. Changer un rôle : **Table Editor** → table **profils** → colonne **role** :
-   `admin`, `collaborateur` ou `stagiaire`. (Un écran « Équipe » dans l'application arrive à l'étape 12.)
+3. Choisir leur rôle : dans l'application, **Plus** → **Équipe** (administrateur seulement) :
+   administrateur, collaborateur ou stagiaire.
 
 > ℹ️ **Emails automatiques (invitation, mot de passe oublié)** : le service d'envoi gratuit
 > intégré à Supabase n'envoie qu'aux membres de l'équipe Supabase et en petite quantité.
@@ -82,7 +82,8 @@ Un guide illustré sera intégré à l'application à l'étape 9 (notifications)
 
 Dans l'application : **Plus** → **Paramètres** → **Compte et synchronisation** → à côté de
 l'appareil, **Déconnecter**. Ses données sont effacées dès qu'il se reconnecte à Internet.
-Un **code de verrouillage** sur chaque téléphone reste indispensable.
+Un **code de verrouillage** sur chaque téléphone reste indispensable ; Linkimmo peut en plus
+demander son propre code ou Face ID : **Paramètres** → **Verrouillage**.
 
 ## Coûts
 
