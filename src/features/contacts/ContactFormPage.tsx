@@ -1,3 +1,4 @@
+import { useRetour } from '@/components/ui/BoutonRetour'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { AlertTriangle, ArrowLeft, Plus, Trash2 } from 'lucide-react'
 import { useEffect, useRef, useState, type FormEvent } from 'react'
@@ -57,6 +58,7 @@ function nettoyer(d: DonneesContact): DonneesContact {
 export default function ContactFormPage() {
   const { id } = useParams()
   const navigate = useNavigate()
+  const retour = useRetour('/contacts')
   // Estimation reçue par Google Agenda : formulaire pré-rempli, rendez-vous rattaché à l'enregistrement.
   const estimation = (useLocation().state as { estimation?: PreRemplissageContact } | null)?.estimation
   const existant = useLiveQuery(() => (id ? contacts.get(id) : undefined), [id], null)
@@ -153,7 +155,7 @@ export default function ContactFormPage() {
       <div className="flex items-center gap-3">
         <button
           type="button"
-          onClick={() => navigate(-1)}
+          onClick={() => retour()}
           className="presse grid size-11 place-items-center rounded-full bg-surface shadow-carte dark:shadow-none dark:ring-1 dark:ring-bord"
           aria-label="Retour"
         >

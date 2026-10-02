@@ -1,3 +1,4 @@
+import { useRetour } from '@/components/ui/BoutonRetour'
 import { useLiveQuery } from 'dexie-react-hooks'
 import {
   Archive,
@@ -15,7 +16,7 @@ import {
   type LucideIcon,
 } from 'lucide-react'
 import { useState } from 'react'
-import { Link, useNavigate, useParams } from 'react-router'
+import { Link, useParams } from 'react-router'
 import { DatesCles } from '@/components/DatesCles'
 import { PiecesJointes } from '@/components/PiecesJointes'
 import { RendezVousFiche } from '@/features/agenda/composants'
@@ -336,7 +337,7 @@ function Historique({ contact }: { contact: Contact }) {
 
 export default function ContactPage() {
   const { id = '' } = useParams()
-  const navigate = useNavigate()
+  const retour = useRetour('/contacts')
   const contact = useLiveQuery(() => contacts.get(id), [id], null)
   const [onglet, setOnglet] = useState<Onglet>('identite')
   const [planifier, setPlanifier] = useState(false)
@@ -368,7 +369,7 @@ export default function ContactPage() {
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
-        <button type="button" onClick={() => navigate(-1)} className="presse grid size-11 place-items-center rounded-full bg-surface shadow-carte dark:shadow-none dark:ring-1 dark:ring-bord" aria-label="Retour">
+        <button type="button" onClick={() => retour()} className="presse grid size-11 place-items-center rounded-full bg-surface shadow-carte dark:shadow-none dark:ring-1 dark:ring-bord" aria-label="Retour">
           <ArrowLeft className="size-5" />
         </button>
         <Link to={`/contacts/${contact.id}/modifier`} className={classesBouton('secondaire')}>

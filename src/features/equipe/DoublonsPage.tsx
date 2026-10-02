@@ -1,7 +1,8 @@
+import { useRetour } from '@/components/ui/BoutonRetour'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { ArrowLeft, CopyCheck, Merge } from 'lucide-react'
 import { useMemo, useState } from 'react'
-import { Link, useNavigate } from 'react-router'
+import { Link } from 'react-router'
 import { classesBouton } from '@/components/ui/Bouton'
 import { Card } from '@/components/ui/Card'
 import { confirmer } from '@/components/ui/Confirmation'
@@ -34,7 +35,7 @@ function Resume({ c, echanges, garder, choisi }: { c: Contact; echanges: number;
 
 /** Doublons : fiches probablement identiques, à fusionner en une seule (rien n'est perdu, rien n'est effacé). */
 export default function DoublonsPage() {
-  const navigate = useNavigate()
+  const retour = useRetour('/equipe')
   const donnees = useLiveQuery(async () => {
     const [contacts, interactions, ecartes] = await Promise.all([db.contacts.filter((c) => !c.archivedAt).toArray(), db.interactions.toArray(), db.meta.get(CLE_ECARTES)])
     const echanges = new Map<string, number>()
@@ -68,7 +69,7 @@ export default function DoublonsPage() {
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center gap-3">
-        <button type="button" onClick={() => navigate(-1)} className="grid size-11 shrink-0 place-items-center rounded-full bg-surface shadow-carte dark:shadow-none dark:ring-1 dark:ring-bord" aria-label="Retour">
+        <button type="button" onClick={() => retour()} className="grid size-11 shrink-0 place-items-center rounded-full bg-surface shadow-carte dark:shadow-none dark:ring-1 dark:ring-bord" aria-label="Retour">
           <ArrowLeft className="size-5" />
         </button>
         <div>

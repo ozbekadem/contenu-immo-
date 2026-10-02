@@ -1,3 +1,4 @@
+import { useRetour } from '@/components/ui/BoutonRetour'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { ArrowLeft, ShieldAlert, ShieldCheck, Users } from 'lucide-react'
 import { useMemo, useState } from 'react'
@@ -18,6 +19,7 @@ const basculer = <T,>(liste: T[], v: T) => (liste.includes(v) ? liste.filter((x)
 /** Nouvelle campagne : message, destinataires (filtres), contrôle RGPD, puis envoi un par un. */
 export default function NouvelleCampagnePage() {
   const navigate = useNavigate()
+  const retour = useRetour('/communication')
   const signature = useSignature()
   const [nom, setNom] = useState('')
   const [canal, setCanal] = useState<CanalMessage>('sms')
@@ -70,7 +72,7 @@ export default function NouvelleCampagnePage() {
   return (
     <div className="flex flex-col gap-4 pb-28">
       <div className="flex items-center gap-3">
-        <button type="button" onClick={() => navigate(-1)} className="grid size-11 place-items-center rounded-full bg-surface shadow-carte dark:shadow-none dark:ring-1 dark:ring-bord" aria-label="Retour">
+        <button type="button" onClick={() => retour()} className="grid size-11 place-items-center rounded-full bg-surface shadow-carte dark:shadow-none dark:ring-1 dark:ring-bord" aria-label="Retour">
           <ArrowLeft className="size-5" />
         </button>
         <h1 className="text-2xl font-extrabold tracking-tight">Nouvelle campagne</h1>

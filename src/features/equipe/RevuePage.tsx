@@ -1,7 +1,8 @@
+import { useRetour } from '@/components/ui/BoutonRetour'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { ArrowLeft, Check, ChevronRight } from 'lucide-react'
 import { useMemo, useState } from 'react'
-import { Link, useNavigate } from 'react-router'
+import { Link } from 'react-router'
 import { Card } from '@/components/ui/Card'
 import { db } from '@/data/db'
 import { ajouterJours, debutJour } from '@/domain/dates'
@@ -34,7 +35,7 @@ interface Point {
  * point par point, avec un lien direct pour traiter. On coche au fur et à mesure.
  */
 export default function RevuePage() {
-  const navigate = useNavigate()
+  const retour = useRetour('/equipe')
   const { liste, maintenant } = useSuivables()
   const autres = useLiveQuery(async () => {
     const [interactions, pistes, evenements, sauvegarde] = await Promise.all([db.interactions.toArray(), db.pistes.toArray(), db.evenements.toArray(), db.meta.get('sauvegarde.derniere')])
@@ -128,7 +129,7 @@ export default function RevuePage() {
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center gap-3">
-        <button type="button" onClick={() => navigate(-1)} className="grid size-11 shrink-0 place-items-center rounded-full bg-surface shadow-carte dark:shadow-none dark:ring-1 dark:ring-bord" aria-label="Retour">
+        <button type="button" onClick={() => retour()} className="grid size-11 shrink-0 place-items-center rounded-full bg-surface shadow-carte dark:shadow-none dark:ring-1 dark:ring-bord" aria-label="Retour">
           <ArrowLeft className="size-5" />
         </button>
         <div>

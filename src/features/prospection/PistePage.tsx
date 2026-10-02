@@ -1,3 +1,4 @@
+import { useRetour } from '@/components/ui/BoutonRetour'
 import { useLiveQuery } from 'dexie-react-hooks'
 import {
   AlertTriangle,
@@ -16,7 +17,7 @@ import {
   UserPlus,
 } from 'lucide-react'
 import { useState } from 'react'
-import { Link, useLocation, useNavigate, useParams } from 'react-router'
+import { Link, useLocation, useParams } from 'react-router'
 import { DatesCles } from '@/components/DatesCles'
 import { PiecesJointes } from '@/components/PiecesJointes'
 import { AjoutPhotos, Galerie } from '@/components/Photos'
@@ -282,7 +283,7 @@ function HistoriquePiste({ piste }: { piste: Piste }) {
 
 export default function PistePage() {
   const { id = '' } = useParams()
-  const navigate = useNavigate()
+  const retour = useRetour('/prospection')
   const { state } = useLocation() as { state: { nouveau?: boolean } | null }
   const piste = useLiveQuery(() => pistes.get(id), [id], null)
   const bien = useLiveQuery(async () => (piste ? ((await biens.get(piste.bienId)) ?? null) : null), [piste?.bienId])
@@ -315,7 +316,7 @@ export default function PistePage() {
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
-        <button type="button" onClick={() => navigate(-1)} className="presse grid size-11 place-items-center rounded-full bg-surface shadow-carte dark:shadow-none dark:ring-1 dark:ring-bord" aria-label="Retour">
+        <button type="button" onClick={() => retour()} className="presse grid size-11 place-items-center rounded-full bg-surface shadow-carte dark:shadow-none dark:ring-1 dark:ring-bord" aria-label="Retour">
           <ArrowLeft className="size-5" />
         </button>
         <AjoutPhotos bienId={bien.id} pisteId={piste.id} demo={!!piste._demo} />

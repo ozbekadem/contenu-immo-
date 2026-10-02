@@ -1,3 +1,4 @@
+import { useRetour } from '@/components/ui/BoutonRetour'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { Archive, ArchiveRestore, ArrowLeft, Building2, DoorOpen, Eye, MapPin, Navigation, Pencil, Plus, Signpost } from 'lucide-react'
 import { lazy, Suspense, useEffect, useMemo, useState } from 'react'
@@ -124,6 +125,7 @@ function Caracteristiques({ bien }: { bien: Bien }) {
 export default function BienPage() {
   const { id = '' } = useParams()
   const navigate = useNavigate()
+  const retour = useRetour('/biens')
   const bien = useLiveQuery(() => biens.get(id), [id], null)
   const pistesBien = useLiveQuery(() => pistes.duBien(id), [id])
   const listePhotos = useLiveQuery(() => depotPhotos.duBien(id), [id]) ?? []
@@ -199,7 +201,7 @@ export default function BienPage() {
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
-        <button type="button" onClick={() => navigate(-1)} className="presse grid size-11 place-items-center rounded-full bg-surface shadow-carte dark:shadow-none dark:ring-1 dark:ring-bord" aria-label="Retour">
+        <button type="button" onClick={() => retour()} className="presse grid size-11 place-items-center rounded-full bg-surface shadow-carte dark:shadow-none dark:ring-1 dark:ring-bord" aria-label="Retour">
           <ArrowLeft className="size-5" />
         </button>
         <AjoutPhotos bienId={bien.id} demo={demo} />
