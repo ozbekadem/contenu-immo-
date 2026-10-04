@@ -1,0 +1,12 @@
+{
+  "name": "prospectimmo-video",
+  "private": true,
+  "type": "module",
+  "description": "Vidéo motion design 30 s de Prospect’Immo, entièrement générée par le code (Canvas + WebGL + Web Audio), rendue par Playwright et encodée par ffmpeg.",
+  "scripts": {
+    "rendu": "node rendu.mjs"
+  },
+  "devDependencies": {
+    "playwright-core": "1.63.0"
+  }
+}
