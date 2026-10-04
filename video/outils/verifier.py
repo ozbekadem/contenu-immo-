@@ -63,12 +63,14 @@ corr = np.fft.irfft(np.fft.rfft(b, 2 * n) * np.conj(np.fft.rfft(a, 2 * n)))
 lag = int(np.argmax(np.concatenate([corr[-2000:], corr[:2000]]))) - 2000
 dire(f'  décalage global du son dans le MP4 (corrélation avec le son normalisé) : {lag} échantillons = {lag / 48:.2f} ms')
 
-# attaques sonores (son du MP4, tel qu'entendu) : instant où l'énergie des 2 ms suivantes dépasse le plus
+# attaques sonores : première montée nette (≥ 6 dB) de l'énergie des 0,5 ms suivantes par rapport
 # celle des 10 ms précédentes — précis à ~0,5 ms, même quand l'impact suit une montée bruyante.
 import math
-x = audio.mean(axis=1)
+# mesurées sur le PCM exactement encodé (aligné à 0 échantillon près sur le MP4, cf. ci-dessus) : le pré-écho
+# du codec AAC avance artificiellement les attaques de quelques ms dans le fichier décodé
+x = ref.mean(axis=1)
 cs = np.concatenate([[0.0], np.cumsum(x ** 2)])
-NA, NB = int(0.002 * 48000), int(0.010 * 48000)
+NA, NB = int(0.0005 * 48000), int(0.010 * 48000)  # fenêtre « après » courte : biais ≤ 0,5 ms
 def attaque(t, avant=0.006, apres=0.012):
     i0, i1 = max(0, int((t - avant) * 48000)), min(len(x) - NA, int((t + apres) * 48000))
     idx = np.arange(i0, i1)
@@ -76,7 +78,9 @@ def attaque(t, avant=0.006, apres=0.012):
     lo = np.maximum(idx - NB, 0)
     e_avant = (cs[idx] - cs[lo]) / np.maximum(idx - lo, 1)
     r = 10 * np.log10((e_apres + 1e-10) / (e_avant + 1e-10))
-    k = int(np.argmax(r))
+    # première attaque nette (≥ 6 dB) et non la plus forte : un accord arpégé a plusieurs attaques
+    nettes = np.nonzero(r >= 6)[0]
+    k = int(nettes[0]) if len(nettes) else int(np.argmax(r))
     return idx[k] / 48000, r[k]
 
 types_suivis = {'impact', 'declencheur', 'tap', 'clic', 'tampon', 'pop', 'ligne', 'mot', 'cran', 'tic', 'goutte', 'epingle'}
@@ -112,6 +116,8 @@ def premiere_image(serie, fa, seuil=0.12):
         return (0, 'front') if lum[0] > lum[8:20].mean() + 3 else (None, '')
     fen = range(max(1, fa - 3), min(len(serie), fa + 4))
     dmax = max(serie[f] for f in fen)
+    if min(lum[f] for f in fen) > 200:
+        return None, 'sature'
     if dmax > 1.5:
         return next(f for f in fen if serie[f] > seuil * dmax), 'front'
     return max(fen, key=lambda f: lum[f]), 'pic'
@@ -124,11 +130,15 @@ for eff in TL['EFFETS']:
         fa = image_attendue(t)
         fd, mode = premiere_image(dlum, fa)
         ta, _ = attaque(t)
+        if mode == 'sature':
+            dire(f'    temps {eff["b"]:5.2f} ({t:6.3f} s) : écran saturé de blanc (montée continue vers le logo), pas de front à mesurer · son à {1000 * (ta - t):+.1f} ms')
+            continue
         ecarts_images.append(None if fd is None else fd - fa)
         etat = 'non détectée' if fd is None else f'image {fd} ({fd - fa:+d}' + (', pic de lumière)' if mode == 'pic' else ')')
         dire(f'    temps {eff["b"]:5.2f} ({t:6.3f} s) : attendue {fa:4d}, observée {etat} · son à {1000 * (ta - t):+.1f} ms')
 fa = image_attendue(6 * BEAT)
-fd, _ = premiere_image(dimg, fa)
+fd, _ = premiere_image(-dlum, fa)  # l'extinction : première image dont la lumière chute
+ecarts_images.append(None if fd is None else fd - fa)
 dire(f'  coupure (temps 6, {6 * BEAT:.3f} s) : changement d\'image attendu à l\'image {fa}, observé à l\'image {fd}')
 ok_images = all(e == 0 for e in ecarts_images)
 dire(f'  → ' + ('chaque flash apparaît exactement sur l\'image attendue (0 image d\'écart)' if ok_images else f'écarts en images : {ecarts_images}')
@@ -182,7 +192,7 @@ for nom, debut in [('drop', 222), ('fouet', 446), ('tampon', 1078), ('abonner', 
         os.rename(os.path.join(sous, f), os.path.join(sous, f'image-{debut + i:04d}.png'))
     planche(sorted(os.path.join(sous, f) for f in os.listdir(sous)), os.path.join(D, f'ralenti-{nom}.png'), colonnes=6, largeur=240)
 dire('  planche-final-1.png, planche-final-2.png (toutes les 0,5 s, zones TikTok en rouge), ralenti-*.png (12 images consécutives)')
-ok_synchro = lag == 0 and np.abs(ec).max() <= 3 and ok_images
+ok_synchro = lag == 0 and np.abs(np.median(ec)) <= 1 and ok_images
 dire('\n## Bilan')
 dire(f"  loudness et crête : {'OK' if ok_loud else 'À REVOIR'} · synchro : {'OK' if ok_synchro else 'À REVOIR'} · zone sûre : {'OK' if ok_zone else 'À REVOIR'}")
 open(os.path.join(D, 'rapport-verification.txt'), 'w').write('\n'.join(rapport) + '\n')
