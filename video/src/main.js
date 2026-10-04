@@ -81,7 +81,7 @@ function rendreImage(f, texteSeul = false) {
     moteur.sousImage(texteSeul ? { ...sc, elements: sc.elements.filter((e) => e.texture === 'calque') } : sc, 1 / N, jitter)
   }
   const post = postA(t, f)
-  if (texteSeul) moteur.finImage({ ...post, bloom: 0, flash: 0, grain: 0, vignette: 0 }, [])
+  if (texteSeul) moteur.finImage({ ...post, bloom: 0, flash: 0, grain: 0, vignette: 0, ondeLum: 0 }, [])
   else moteur.finImage(post, derriereA(t))
   return N
 }

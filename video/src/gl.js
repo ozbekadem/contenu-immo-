@@ -172,7 +172,7 @@ const FS_FINAL = `#version 300 es
 precision highp float;
 in vec2 vUv; out vec4 o;
 uniform sampler2D uScene, uBloom, uFond, uBruit;
-uniform float uBloomI, uCA, uGlitch, uFlash, uGrain, uImage, uVignette, uCrtX, uCrtY, uFondu, uExpo, uSat;
+uniform float uBloomI, uCA, uGlitch, uFlash, uGrain, uImage, uVignette, uCrtX, uCrtY, uFondu, uExpo, uSat, uOndeLum;
 uniform vec4 uOnde;
 uniform vec3 uFlashCoul;
 float h12(vec2 p){ vec3 p3 = fract(vec3(p.xyx) * .1031); p3 += dot(p3, p3.yzx + 33.33); return fract((p3.x + p3.y) * p3.z); }
@@ -191,10 +191,10 @@ void main(){
   if (uGlitch > 0.) {
     float bande = floor(uv.y * 54.);
     g = step(1. - uGlitch * .55, h12(vec2(bande, floor(uImage * .5)))) * uGlitch;
-    uv.x += (h12(vec2(bande, uImage + 3.)) - .5) * .14 * g;
+    uv.x += (h12(vec2(bande, uImage + 3.)) - .5) * .07 * g;
   }
   vec2 d = uv - .5; float rr = dot(d * asp, d * asp);
-  vec2 dec = d * (uCA * (.5 + 1.8 * rr)) + vec2(g * .012, 0.);
+  vec2 dec = d * (uCA * (.5 + 1.8 * rr)) + vec2(g * .008, 0.);
   vec3 col;
   vec4 sr = texture(uScene, uv + dec), sg = texture(uScene, uv), sb = texture(uScene, uv - dec);
   vec3 fo = texture(uFond, uv).rgb;
@@ -203,7 +203,7 @@ void main(){
   col.b = sb.b + fo.b * (1. - clamp(sb.a, 0., 1.));
   vec3 bl = texture(uBloom, uv).rgb;
   col += bl * uBloomI;
-  col += anneau * .22 * vec3(.75, .7, 1.);
+  col += anneau * .22 * uOndeLum * vec3(.75, .7, 1.);
   col = col * uExpo + uFlash * uFlashCoul;
   col = epaule(col);
   float l0 = dot(col, vec3(.299, .587, .114));
@@ -710,6 +710,7 @@ export class Moteur {
         uExpo: post.expo ?? 1,
         uSat: post.sat ?? 1,
         uOnde: post.onde ?? [0.5, 0.5, -1, 0],
+        uOndeLum: post.ondeLum ?? 1,
       },
       [['uScene', this.cAccu.tex], ['uBloom', n[0].tex], ['uFond', this.cFond.tex], ['uBruit', this.texBruit]],
     )

@@ -1330,11 +1330,13 @@ function ajuster(ctx, s, taille, poids, largeurMax = 820) {
 
 /**
  * Agrandissement maximal d'un texte (boîte autour de l'origine courante) qui le garde entier dans la zone sûre
- * TikTok, compte tenu de la transformation courante du contexte (marge de 8 px pour la secousse de caméra).
+ * TikTok, compte tenu de la transformation courante du contexte. Marge de 52 px : ce que la post-production peut
+ * encore déplacer pendant un claquement (secousse de caméra ≤ 21 px, bandes du glitch ≤ 23 px, aberration ≤ 3 px).
  */
 function echelleMaxZone(ctx, gauche, droite, haut, bas) {
   const m = ctx.getTransform()
-  const Z = { x0: ZONE_SURE.x0 + 8, x1: ZONE_SURE.x1 - 8, y0: ZONE_SURE.y0 + 8, y1: ZONE_SURE.y1 - 8 }
+  const MARGE = 52
+  const Z = { x0: ZONE_SURE.x0 + MARGE, x1: ZONE_SURE.x1 - MARGE, y0: ZONE_SURE.y0 + MARGE, y1: ZONE_SURE.y1 - MARGE }
   let k = Infinity
   for (const [cx, cy] of [[-gauche, -haut], [droite, -haut], [-gauche, bas], [droite, bas]]) {
     const u = m.a * cx + m.c * cy, v = m.b * cx + m.d * cy
@@ -1480,8 +1482,8 @@ function calqueAccroche(ctx, t, b) {
     ctx.translate(CX, 780)
     ctx.scale(s, s)
     ctx.translate(-CX, -780)
-    const t1 = ajuster(ctx, r.lignes[0], 168, 800, 740)
-    const t2 = ajuster(ctx, r.lignes[1], 168, 800, 740)
+    const t1 = ajuster(ctx, r.lignes[0], 168, 800, 700)
+    const t2 = ajuster(ctx, r.lignes[1], 168, 800, 700)
     claque(ctx, r.lignes[0], CX, yl[0], Math.min(t1, t2), t, T(r.temps[0]))
     claque(ctx, r.lignes[1], CX, yl[1], Math.min(t1, t2), t, T(r.temps[1]), 'degrade')
     ctx.restore()
@@ -1490,7 +1492,7 @@ function calqueAccroche(ctx, t, b) {
     const g = b >= M.glitch[0] ? glitchTexte(t) : [0, 0]
     ctx.save()
     ctx.translate(g[0], g[1])
-    const tl = ajuster(ctx, m.lignes[0], 190, 800, 740)
+    const tl = ajuster(ctx, m.lignes[0], 190, 800, 700)
     claque(ctx, m.lignes[0], CX, yl[0], tl, t, T(m.temps[0]))
     claque(ctx, m.lignes[1], CX, yl[1], tl, t, T(m.temps[0]) + 0.05, 'degrade')
     ctx.restore()
@@ -1500,7 +1502,7 @@ function calqueAccroche(ctx, t, b) {
 function glitchTexte(t) {
   const pas = Math.floor(t / ((T(1) / 8)))
   const r = alea(pas * 13 + 5)
-  return r() > 0.45 ? [(r() - 0.5) * 60, (r() - 0.5) * 16] : [0, 0]
+  return r() > 0.45 ? [(r() - 0.5) * 40, (r() - 0.5) * 16] : [0, 0]
 }
 
 function calqueCoupure(ctx, t, b) {

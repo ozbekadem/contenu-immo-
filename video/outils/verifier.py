@@ -69,7 +69,7 @@ import math
 x = audio.mean(axis=1)
 cs = np.concatenate([[0.0], np.cumsum(x ** 2)])
 NA, NB = int(0.002 * 48000), int(0.010 * 48000)
-def attaque(t, avant=0.012, apres=0.03):
+def attaque(t, avant=0.006, apres=0.012):
     i0, i1 = max(0, int((t - avant) * 48000)), min(len(x) - NA, int((t + apres) * 48000))
     idx = np.arange(i0, i1)
     e_apres = (cs[idx + NA] - cs[idx]) / NA
@@ -105,12 +105,16 @@ OBT = 0.5 / FPS  # obturateur à 180°, centré sur l'instant de l'image
 def image_attendue(t):
     """Première image dont l'obturateur se ferme après l'instant t : celle qui doit montrer l'événement."""
     return max(0, math.ceil((t - OBT / 2) * FPS - 1e-9))
-def premiere_image(serie, fa, seuil=0.3):
+def premiere_image(serie, fa, seuil=0.12):
+    """Première image du front montant (seuil bas : l'image à exposition partielle compte) ; à défaut de front
+    (flash pendant un écran déjà blanc, comme au logo), l'image du pic de lumière."""
     if fa == 0:
-        return 0 if lum[0] > lum[8:20].mean() + 3 else None
+        return (0, 'front') if lum[0] > lum[8:20].mean() + 3 else (None, '')
     fen = range(max(1, fa - 3), min(len(serie), fa + 4))
     dmax = max(serie[f] for f in fen)
-    return next((f for f in fen if serie[f] > seuil * dmax), None) if dmax > 1.5 else None
+    if dmax > 1.5:
+        return next(f for f in fen if serie[f] > seuil * dmax), 'front'
+    return max(fen, key=lambda f: lum[f]), 'pic'
 
 dire('  flashs : première image éclairée vs image attendue (obturateur 180°), attaque du son :')
 ecarts_images = []
@@ -118,13 +122,13 @@ for eff in TL['EFFETS']:
     if eff.get('flash', 0) >= 0.35:
         t = eff['t']
         fa = image_attendue(t)
-        fd = premiere_image(dlum, fa)
+        fd, mode = premiere_image(dlum, fa)
         ta, _ = attaque(t)
         ecarts_images.append(None if fd is None else fd - fa)
-        etat = 'non détectée' if fd is None else f'image {fd} ({fd - fa:+d})'
+        etat = 'non détectée' if fd is None else f'image {fd} ({fd - fa:+d}' + (', pic de lumière)' if mode == 'pic' else ')')
         dire(f'    temps {eff["b"]:5.2f} ({t:6.3f} s) : attendue {fa:4d}, observée {etat} · son à {1000 * (ta - t):+.1f} ms')
 fa = image_attendue(6 * BEAT)
-fd = premiere_image(dimg, fa)
+fd, _ = premiere_image(dimg, fa)
 dire(f'  coupure (temps 6, {6 * BEAT:.3f} s) : changement d\'image attendu à l\'image {fa}, observé à l\'image {fd}')
 ok_images = all(e == 0 for e in ecarts_images)
 dire(f'  → ' + ('chaque flash apparaît exactement sur l\'image attendue (0 image d\'écart)' if ok_images else f'écarts en images : {ecarts_images}')
@@ -135,23 +139,23 @@ dire(f'  silence avant le drop : {20 * np.log10(np.abs(ref[i0:i1]).max() + 1e-12
      f'{20 * np.log10(np.abs(audio[i0:i1]).max() + 1e-12):.0f} dBFS après AAC ; drop à {1000 * (attaque(8 * BEAT)[0] - 8 * BEAT):+.1f} ms')
 
 # ———————————————— 3. zone sûre ————————————————
-dire('\n## 3. Zone sûre TikTok (textes : x 80–940, y 250–1460)')
-zones = json.load(open(os.path.join(D, 'zones-textes.json')))
 Z = TL['ZONE_SURE']
-hors, hors_transitoires = [], []
-slams = [0, 1, 4, 36, 48, 49]
-for f, bb in zones:
-    if not bb:
+dire(f"\n## 3. Zone sûre TikTok (textes : x {Z['x0']}–{Z['x1']}, y {Z['y0']}–{Z['y1']})")
+def hors_zone(fichier):
+    zones = json.load(open(os.path.join(D, fichier)))
+    hors = [(f, bb) for f, bb in zones if bb and (bb[0] < Z['x0'] or bb[2] > Z['x1'] or bb[1] < Z['y0'] or bb[3] > Z['y1'])]
+    marge = min(min(bb[0] - Z['x0'], Z['x1'] - bb[2], bb[1] - Z['y0'], Z['y1'] - bb[3]) for f, bb in zones if bb)
+    return zones, hors, marge
+ok_zone = True
+for fichier, nom in [('zones-textes.json', 'calque de textes'), ('zones-finales.json', 'image finale (caméra, glitch, aberration, onde de choc compris)')]:
+    if not os.path.exists(os.path.join(D, fichier)):
+        dire(f'  {nom} : mesure absente')
+        ok_zone = False
         continue
-    x0, y0, x1, y1 = bb
-    dehors = x0 < Z['x0'] or x1 > Z['x1'] or y0 < Z['y0'] or y1 > Z['y1']
-    if dehors:
-        t = f / FPS
-        transitoire = any(-0.03 <= t - s * BEAT < 0.2 for s in slams)
-        (hors_transitoires if transitoire else hors).append((f, bb))
-dire(f'  images contrôlées : {len(zones)} sur {len(lum)}')
-dire(f'  textes hors zone au repos : {len(hors)}' + (' → ' + ', '.join(f'image {f} {bb}' for f, bb in hors[:6]) if hors else ' → CONFORME'))
-dire(f'  dépassements pendant les entrées « claquées » (< 0,2 s, texte en mouvement flou) : {len(hors_transitoires)} images')
+    zones, hors, marge = hors_zone(fichier)
+    ok_zone &= not hors
+    dire(f'  {nom} : {len(zones)} images contrôlées, {len(hors)} hors zone'
+         + (' → ' + ', '.join(f'image {f} {bb}' for f, bb in hors[:6]) if hors else f' → CONFORME (marge minimale {marge} px)'))
 
 # ———————————————— 4. planches contact ————————————————
 dire('\n## 4. Planches contact')
@@ -178,4 +182,7 @@ for nom, debut in [('drop', 222), ('fouet', 446), ('tampon', 1078), ('abonner', 
         os.rename(os.path.join(sous, f), os.path.join(sous, f'image-{debut + i:04d}.png'))
     planche(sorted(os.path.join(sous, f) for f in os.listdir(sous)), os.path.join(D, f'ralenti-{nom}.png'), colonnes=6, largeur=240)
 dire('  planche-final-1.png, planche-final-2.png (toutes les 0,5 s, zones TikTok en rouge), ralenti-*.png (12 images consécutives)')
+ok_synchro = lag == 0 and np.abs(ec).max() <= 3 and ok_images
+dire('\n## Bilan')
+dire(f"  loudness et crête : {'OK' if ok_loud else 'À REVOIR'} · synchro : {'OK' if ok_synchro else 'À REVOIR'} · zone sûre : {'OK' if ok_zone else 'À REVOIR'}")
 open(os.path.join(D, 'rapport-verification.txt'), 'w').write('\n'.join(rapport) + '\n')

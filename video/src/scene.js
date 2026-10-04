@@ -318,10 +318,12 @@ export function composer(t, canvas) {
   elements.push({ type: 'sprites', liste: devant, additif: true })
   elements.push({ type: 'sprites', liste: solides, additif: false })
 
-  // calque des textes (toujours au-dessus), qui suit la secousse de caméra ; seule la zone utile est composée
+  // calque des textes (toujours au-dessus) : il suit la secousse de caméra à moitié seulement (lisible, et jamais
+  // poussé hors de la zone sûre) ; seule la zone utile est composée
   const { lum, zone } = peindreCalque(canvas.ctxCalque, tScene, B(tScene))
   const [x0, y0, x1, y1] = zone
-  const coin = (x, y) => [...mat.appliquer(V, x - 540, y - 960, 0), x / 1080, y / 1920, 0, 0, 1]
+  const Vt = mat.chaine(mat.rotZ(cam.rz * 0.5), mat.trans(cam.x * 0.5, cam.y * 0.5, 0))
+  const coin = (x, y) => [...mat.appliquer(Vt, x - 540, y - 960, 0), x / 1080, y / 1920, 0, 0, 1]
   const q = [coin(x0, y0), coin(x1, y0), coin(x1, y1), coin(x0, y0), coin(x1, y1), coin(x0, y1)].flat()
   elements.push({ type: 'triangles', texture: 'calque', donnees: new Float32Array(q), lum })
   return { elements, ecran, zone }
@@ -570,7 +572,7 @@ export function postA(t, image) {
     const r = alea(pas * 7 + 1)
     glitch = r() > 0.3 ? 0.45 + 0.55 * r() : 0.04
   }
-  if (t >= T(M.eclatement) && t < T(M.eclatement) + 0.12) glitch = Math.max(glitch, 0.85)
+  if (t >= T(M.eclatement) && t < T(M.eclatement) + 0.12) glitch = Math.max(glitch, 0.6)
   if (t < 0.07) glitch = Math.max(glitch, 0.6)
   // extinction « téléviseur » à la coupure
   let crtX = 1, crtY = 1, expo = 1
