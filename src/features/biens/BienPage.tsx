@@ -21,6 +21,7 @@ import type { CategoriePiste } from '@/domain/prospection'
 import { initiales } from '@/features/contacts/affichage'
 import { liensItineraire } from '@/features/prospection/affichage'
 import { PrixMarche } from '@/features/marche/PrixMarche'
+import { InfosPubliques } from './InfosPubliques'
 import { PisteLigne } from '@/features/prospection/PisteLigne'
 import { usePistes } from '@/features/prospection/usePistes'
 import { COULEUR_ETAT, construireVues, etatBien, LIBELLE_ETAT, nomProprietaire } from './useBiens'
@@ -331,6 +332,7 @@ export default function BienPage() {
       </Card>
 
       <Caracteristiques bien={bien} />
+      <InfosPubliques bien={bien} />
       <PrixMarche bien={bien} prix={vue?.active?.categorie === 'annonce' ? vue.active.prix : null} />
       <PiecesJointes entite="biens" entiteId={bien.id} />
 

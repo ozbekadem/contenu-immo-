@@ -6,7 +6,7 @@
 |---|---|---|
 | `vastgoed_2010_9999.xlsx` — prix de l'immobilier **par commune** | Prix médian, fourchette (25 %–75 %) et nombre de ventes, par année et par trimestre, 2010 → aujourd'hui | Oui |
 | `CPI_All_base_years.xlsx` — indice des prix à la consommation | Prix « en euros d'aujourd'hui » (inflation déduite) | Oui |
-| `TF_IMMO_SECTOR.xlsx` — ventes **par secteur statistique** (quartier) | Détail par quartier 2013–2024 | Pas encore : le fichier ne contient que des codes de secteurs, sans leur nom |
+| `TF_IMMO_SECTOR.xlsx` — ventes **par secteur statistique** (quartier) | Détail par quartier 2013–2024 | Pas encore : le fichier n'est pas encore dans l'application |
 
 Zone gardée dans l'application : arrondissements de Charleroi, Thuin, La Louvière, Mons, Soignies,
 Namur et Philippeville, plus Wallonie, Belgique et provinces de Hainaut et de Namur (pour comparer).
@@ -25,5 +25,7 @@ Namur et Philippeville, plus Wallonie, Belgique et provinces de Hainaut et de Na
 2. Envoyez-les-moi : je lance `python3 scripts/statbel.py <prix_par_commune.xlsx> <indice.xlsx>`,
    qui met à jour `src/data/marche/statbel.json`, puis je publie la mise à jour.
 
-Pour ajouter le détail **par quartier**, il faudra en plus le fichier Statbel des **secteurs statistiques**
-(avec leurs noms).
+Pour ajouter le détail **par quartier** : le secteur statistique de chaque bien (code et nom, ex. 52011E0
+« Montignies-sur-Sambre-Centre ») est déjà connu grâce aux **infos publiques** de la fiche du bien. Il ne
+manque que le fichier Statbel des ventes par secteur (`TF_IMMO_SECTOR.xlsx`). Le site de Statbel bloque les
+téléchargements automatiques : téléchargez-le depuis votre navigateur et envoyez-le-moi.

@@ -23,6 +23,7 @@ import { PiecesJointes } from '@/components/PiecesJointes'
 import { AjoutPhotos, Galerie } from '@/components/Photos'
 import { RendezVousFiche } from '@/features/agenda/composants'
 import { PrixMarche } from '@/features/marche/PrixMarche'
+import { InfosPubliques } from '@/features/biens/InfosPubliques'
 import { ChoixCollaborateur } from '@/features/equipe/ChoixCollaborateur'
 import { RelanceChoix } from '@/components/RelanceChoix'
 import { Avatar } from '@/components/ui/Avatar'
@@ -400,6 +401,7 @@ export default function PistePage() {
       <Proprietaire piste={piste} contact={contact} />
       {piste.categorie === 'annonce' && <Annonce piste={piste} maintenant={maintenant} />}
       <PrixMarche bien={bien} prix={piste.categorie === 'annonce' ? piste.prix : null} />
+      <InfosPubliques bien={bien} />
       {piste.categorie === 'maison_vide' && <Indices piste={piste} />}
       <DatesCles dates={piste.datesCles} prochaineRelanceAt={piste.prochaineRelanceAt} enregistrer={(datesCles, prochaineRelanceAt) => pistes.modifier(piste.id, { datesCles, prochaineRelanceAt })} />
       {piste.notes && (

@@ -32,10 +32,11 @@ et l'ordinateur du bureau.
 | **Aujourd'hui** | Les personnes à appeler (rouge → orange → jaune → vert), les fiches sans prochaine action, l'entonnoir de la semaine, les prospects « à maturité » (fin de bail, projet de vente…), les anniversaires, les rendez-vous du jour, les estimations reçues par la secrétaire, et le vendredi la **revue de la semaine**. |
 | **Session d'appels** | Plein écran : un appel après l'autre, avec l'argumentaire adapté et le résultat noté en un appui. |
 | **Prospection** | Trois catégories de pistes : annonces/affiches, maisons vides, portefeuille. Suivi des annonces (toujours en ligne ? prix changé ?). |
-| **Repérer** (bouton violet) | Dans la rue : photos (plusieurs d'un coup), position GPS, adresse retrouvée automatiquement, alerte si le numéro ou le bien est déjà connu. **Fonctionne hors ligne**. |
+| **Repérer** (bouton violet) | Dans la rue : photos (plusieurs d'un coup), position GPS, adresse retrouvée automatiquement, alerte si le numéro ou le bien est déjà connu. **Fonctionne hors ligne**. Les infos publiques du bien se remplissent ensuite toutes seules (voir ci-dessous). |
 | **Contacts** | Liste rapide même avec 5 000 fiches, recherche instantanée, fiche complète (coordonnées, historique, biens, documents et liens, consentements RGPD). Aucun champ obligatoire. |
 | **Actions en un appui** | Appeler, SMS, WhatsApp, email. Au retour dans l'application : « Comment ça s'est passé ? » et la prochaine relance (+1 semaine, +1 mois, +3 mois…). |
 | **Biens** | Liste et **carte** colorée, fiche du bien avec photos, propriétaires, pistes, documents et **prix du marché**. |
+| **Infos publiques** | Sur chaque bien et chaque piste, cherchées automatiquement auprès de la Région wallonne à partir de l'adresse : **parcelle cadastrale**, surface du terrain et du bâti, zone du **plan de secteur**, **inondation** (sur le bien et à moins de 50 m), **sous-sol** (anciens puits de mine, karst, carrières, concession minière), **sols pollués** (BDES), **patrimoine** (classé ou à l'inventaire) et quartier statistique. Les points à signaler s'affichent en tête. Gardées sur la fiche, donc lisibles hors ligne, partagées avec l'équipe et reprises dans l'export Excel. Données publiques et indicatives : elles ne remplacent pas les renseignements urbanistiques du notaire. |
 | **Agenda** | Rendez-vous et relances jour par jour, synchronisés avec **Google Agenda** (agenda « Prospect’Immo »). Les rendez-vous « Estimation… » notés par la secrétaire dans Google Agenda arrivent dans Prospect’Immo pour être encodés. |
 | **Marché local** | Prix médians **Statbel** (ventes réelles) par commune et type de bien, sur plusieurs années, avec correction de l'inflation. Affichés aussi sur chaque bien et chaque piste. |
 | **Communication** | Modèles de messages, campagnes SMS / WhatsApp / email avec **blocage RGPD** (uniquement les contacts qui ont donné leur accord), lien de désinscription, suivi envoi par envoi. |
@@ -136,6 +137,10 @@ va uniquement dans les secrets Supabase (voir le guide des notifications).
   ou un message individuel reste possible (intérêt légitime), avec un avertissement si la fiche est
   marquée « ne pas contacter ». Chaque message de campagne contient la possibilité de se désinscrire.
 - **Hébergement** : Supabase (serveurs en Europe, région choisie à la création) et Netlify.
+- **Services publics interrogés** : pour retrouver une adresse, la position du bien est envoyée à
+  OpenStreetMap ; pour les infos publiques, son adresse ou sa position est envoyée aux services
+  cartographiques du Service public de Wallonie (`geoservices.wallonie.be`). Jamais le nom ni les
+  coordonnées du propriétaire.
 
 ---
 
@@ -215,7 +220,7 @@ Supabase déclenche la récupération en quelques secondes.
 | `src/domain/` | Règles métier pures et testées (couleurs de relance, téléphone +32, doublons, marché, RGPD, import, verrouillage…) |
 | `src/data/` | Base locale (Dexie), repositories, données de démo, sauvegarde, synchronisation (`sync/`), Google Agenda (`google/`) |
 | `src/features/` | Un dossier par écran (aujourdhui, prospection, contacts, biens, agenda, marche, communication, equipe, importexport, parametres…) |
-| `src/services/` | Services du navigateur : Google, notifications, verrouillage, géocodage, installation, équipe |
+| `src/services/` | Services du navigateur : Google, notifications, verrouillage, géocodage, infos publiques wallonnes, installation, équipe |
 | `src/components/` | Composants réutilisables (`ui/` pour les briques de base) |
 | `src/app/` | Démarrage, navigation, thème, connexion, écran de verrouillage |
 | `supabase/migrations/` | Schéma du serveur, sécurité par rôle, fusion champ par champ, notifications |

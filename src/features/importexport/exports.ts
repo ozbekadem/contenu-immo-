@@ -2,6 +2,7 @@ import { db } from '@/data/db'
 import { SOURCES_CONTACT, STATUTS_CONTACT, TYPES_EVENEMENT, type Contact } from '@/data/types'
 import { LIBELLE_CONSENTEMENT } from '@/domain/communication'
 import { versCsv } from '@/domain/importation'
+import { constats, type InfosPubliques } from '@/domain/infosPubliques'
 import { LIBELLE_STATUT } from '@/domain/prospection'
 import { LIBELLE_TEMPERATURE } from '@/domain/relance'
 import { RESULTATS } from '@/domain/resultats'
@@ -56,6 +57,13 @@ export async function feuilleContacts(): Promise<Feuille> {
   }
 }
 
+/** Cadastre, terrain, zone et points à signaler (infos publiques wallonnes), quand elles ont été cherchées. */
+function colonnesPubliques(i: InfosPubliques | null | undefined): (string | number | null)[] {
+  if (!i) return ['', null, '', '']
+  const parcelle = i.parcelle ? `${i.parcelle.division}, section ${i.parcelle.section}, n° ${i.parcelle.numero} (${i.parcelle.capakey})` : ''
+  return [parcelle, i.parcelle?.surface ?? null, i.planSecteur ?? '', constats(i).map((c) => c.texte).join(' ; ')]
+}
+
 async function autresFeuilles(): Promise<Feuille[]> {
   const [pistes, biens, contacts, interactions, evenements] = await Promise.all([db.pistes.toArray(), db.biens.toArray(), db.contacts.toArray(), db.interactions.toArray(), db.evenements.toArray()])
   const bien = new Map(biens.map((b) => [b.id, b]))
@@ -64,7 +72,7 @@ async function autresFeuilles(): Promise<Feuille[]> {
     {
       nom: 'Pistes',
       lignes: [
-        ['Catégorie', 'Adresse', 'Code postal', 'Étape', 'Origine', 'Lien de l’annonce', 'Prix', 'Propriétaire', 'Téléphone', 'Dernier contact', 'Prochaine relance', 'Repéré le', 'Notes'],
+        ['Catégorie', 'Adresse', 'Code postal', 'Étape', 'Origine', 'Lien de l’annonce', 'Prix', 'Propriétaire', 'Téléphone', 'Dernier contact', 'Prochaine relance', 'Repéré le', 'Notes', 'Parcelle cadastrale', 'Terrain (m²)', 'Plan de secteur', 'À signaler'],
         ...pistes
           .filter((p) => !p.archivedAt)
           .map((p) => {
@@ -84,6 +92,7 @@ async function autresFeuilles(): Promise<Feuille[]> {
               date(p.prochaineRelanceAt),
               date(p.createdAt),
               p.notes,
+              ...colonnesPubliques(b?.infosPubliques),
             ]
           }),
       ],

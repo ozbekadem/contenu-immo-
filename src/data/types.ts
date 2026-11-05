@@ -5,6 +5,7 @@ import type { CanalMessage, Consentements, RaisonBlocage } from '@/domain/commun
 import type { CodeResultat } from '@/domain/resultats'
 import type { Canal } from '@/domain/telephone'
 import type { Temperature } from '@/domain/relance'
+import type { InfosPubliques } from '@/domain/infosPubliques'
 
 /**
  * Champs communs à toutes les fiches synchronisées.
@@ -173,6 +174,8 @@ export interface Bien extends Enregistrement {
   facades: number | null
   chambres: number | null
   notes: string
+  /** Cadastre, plan de secteur, risques, sous-sol, patrimoine et quartier (services publics wallons). */
+  infosPubliques?: InfosPubliques | null
   // Champs locaux calculés
   _cleAdresse: string | null
 }
