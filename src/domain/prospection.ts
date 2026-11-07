@@ -1,26 +1,49 @@
 import { ajouterJours, ecartJours } from './dates'
+import type { Objectif } from './achat'
 import type { CodeResultat } from './resultats'
 
 // ─── Pistes ────────────────────────────────────────────────────────────────
 export type CategoriePiste = 'annonce' | 'maison_vide'
 
-/** Étape de la piste dans l'entonnoir : Repéré → Appelé → RDV/Visite → Signé (ou perdu). */
-export type StatutPiste = 'a_contacter' | 'en_cours' | 'rdv' | 'gagne' | 'perdu'
+/**
+ * Étape de la piste dans l'entonnoir (ou perdu) :
+ * mandat : Repéré → Appelé → RDV → Signé ; achat : Repéré → Appelé → Visite → Offre → Compromis → Acheté.
+ */
+export type StatutPiste = 'a_contacter' | 'en_cours' | 'rdv' | 'offre' | 'compromis' | 'gagne' | 'perdu'
 
 export const LIBELLE_STATUT: Record<StatutPiste, string> = {
   a_contacter: 'Repéré',
   en_cours: 'Appelé',
   rdv: 'RDV / visite',
+  offre: 'Offre faite',
+  compromis: 'Compromis',
   gagne: 'Signé',
   perdu: 'Abandonné',
 }
 
+const RANG: Record<StatutPiste, number> = { a_contacter: 0, en_cours: 1, rdv: 2, offre: 3, compromis: 4, gagne: 5, perdu: 6 }
+
+export function etapesPour(objectif: Objectif): StatutPiste[] {
+  return objectif === 'achat' ? ['a_contacter', 'en_cours', 'rdv', 'offre', 'compromis', 'gagne'] : ['a_contacter', 'en_cours', 'rdv', 'gagne']
+}
+
+/** Libellé court d'une étape selon l'objectif (« Visite » / « RDV », « Acheté » / « Mandat »). */
+export function libelleEtape(s: StatutPiste, objectif: Objectif): string {
+  if (s === 'rdv') return objectif === 'achat' ? 'Visite' : 'RDV'
+  if (s === 'gagne') return objectif === 'achat' ? 'Acheté' : 'Mandat'
+  if (s === 'offre') return 'Offre'
+  return LIBELLE_STATUT[s]
+}
+
 /** Nouvelle étape de la piste après un résultat (on n'avance jamais « à reculons », sauf abandon). */
 export function statutApres(statut: StatutPiste, resultat: CodeResultat): StatutPiste {
-  if (resultat === 'mandat' || resultat === 'accord') return 'gagne'
+  if (resultat === 'mandat' || resultat === 'accord' || resultat === 'acte') return 'gagne'
   if (resultat === 'ne_pas_rappeler') return 'perdu'
   if (statut === 'gagne' || statut === 'perdu') return statut
-  if (resultat === 'rdv' || resultat === 'visite') return 'rdv'
+  const vers = (cible: StatutPiste) => (RANG[cible] > RANG[statut] ? cible : statut)
+  if (resultat === 'compromis') return vers('compromis')
+  if (resultat === 'offre_faite' || resultat === 'offre_refusee') return vers('offre')
+  if (resultat === 'rdv' || resultat === 'visite') return vers('rdv')
   const joint = ['interesse', 'rappeler', 'pas_interesse', 'pas_vendeur', 'message_envoye'].includes(resultat)
   if (joint && statut === 'a_contacter') return 'en_cours'
   return statut

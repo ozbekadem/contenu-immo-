@@ -6,6 +6,7 @@ import type { CodeResultat } from '@/domain/resultats'
 import type { Canal } from '@/domain/telephone'
 import type { Temperature } from '@/domain/relance'
 import type { InfosPubliques } from '@/domain/infosPubliques'
+import type { ClassePeb, EtatBien, HypothesesAchat, Objectif, Offre } from '@/domain/achat'
 
 /**
  * Champs communs à toutes les fiches synchronisées.
@@ -55,6 +56,10 @@ export type SourceContact =
   | 'appel_entrant'
   | 'recommandation'
   | 'ancien_client'
+  | 'biddit'
+  | 'notaire'
+  | 'succession'
+  | 'apporteur'
   | 'autre'
 
 export const SOURCES_CONTACT: { code: SourceContact; libelle: string }[] = [
@@ -67,6 +72,10 @@ export const SOURCES_CONTACT: { code: SourceContact; libelle: string }[] = [
   { code: 'appel_entrant', libelle: 'Appel entrant (secrétariat)' },
   { code: 'recommandation', libelle: 'Recommandation' },
   { code: 'ancien_client', libelle: 'Ancien client' },
+  { code: 'biddit', libelle: 'Vente publique (Biddit)' },
+  { code: 'notaire', libelle: 'Notaire' },
+  { code: 'succession', libelle: 'Succession' },
+  { code: 'apporteur', libelle: 'Apporteur d’affaires' },
   { code: 'autre', libelle: 'Autre' },
 ]
 
@@ -173,6 +182,18 @@ export interface Bien extends Enregistrement {
   type: TypeBien | null
   facades: number | null
   chambres: number | null
+  /** Surface habitable (m²). */
+  surfaceHabitable?: number | null
+  /** Surface du terrain (m²) ; à défaut, celle de la parcelle cadastrale. */
+  surfaceTerrain?: number | null
+  etat?: EtatBien | null
+  peb?: ClassePeb | null
+  /** Revenu cadastral non indexé (€). */
+  revenuCadastral?: number | null
+  /** Loyers mensuels (actuels ou attendus), pour le rendement. */
+  loyersMensuels?: number | null
+  /** Charges annuelles du propriétaire : précompte, assurance, entretien, gestion (€). */
+  chargesAnnuelles?: number | null
   notes: string
   /** Cadastre, plan de secteur, risques, sous-sol, patrimoine et quartier (services publics wallons). */
   infosPubliques?: InfosPubliques | null
@@ -209,6 +230,14 @@ export interface Piste extends Enregistrement {
   tentatives: number
   notes: string
   collaborateurId: string | null
+  /** Mandat de vente ou achat par l'agence (absent : selon la catégorie et l'activité). */
+  objectif?: Objectif
+  /** Hypothèses de la calculette « prix maximum ». */
+  calcul?: HypothesesAchat | null
+  /** Offres d'achat faites au propriétaire. */
+  offres?: Offre[]
+  /** Apporteur d'affaires et sa commission (€), s'il y en a un. */
+  apporteur?: { nom: string; commission: number | null } | null
   // Champs locaux calculés
   _cleAnnonce: string | null
 }

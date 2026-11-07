@@ -2,7 +2,9 @@ import { ajouterJours, debutJour, ecartJours } from './dates'
 import { jourLocal, TYPES_DATE_CLE, type DateCle, type StatutPiste } from './prospection'
 
 // ─── Entonnoir ───────────────────────────────────────────────────────────────
-export const ETAPES_ENTONNOIR: StatutPiste[] = ['a_contacter', 'en_cours', 'rdv', 'gagne']
+export const ETAPES_ENTONNOIR: StatutPiste[] = ['a_contacter', 'en_cours', 'rdv', 'offre', 'compromis', 'gagne']
+/** Étapes propres aux achats : affichées seulement quand des pistes y sont. */
+export const ETAPES_ACHAT: StatutPiste[] = ['offre', 'compromis']
 
 export interface Entonnoir {
   /** Nombre de pistes à chaque étape (hors abandonnées et archivées). */
@@ -13,12 +15,12 @@ export interface Entonnoir {
 }
 
 export function entonnoir(pistes: { statut: StatutPiste; archivedAt: string | null }[]): Entonnoir {
-  const etapes: Record<StatutPiste, number> = { a_contacter: 0, en_cours: 0, rdv: 0, gagne: 0, perdu: 0 }
+  const etapes: Record<StatutPiste, number> = { a_contacter: 0, en_cours: 0, rdv: 0, offre: 0, compromis: 0, gagne: 0, perdu: 0 }
   for (const p of pistes) if (!p.archivedAt) etapes[p.statut]++
   const terminees = etapes.gagne + etapes.perdu
   return {
     etapes,
-    total: etapes.a_contacter + etapes.en_cours + etapes.rdv + etapes.gagne,
+    total: etapes.a_contacter + etapes.en_cours + etapes.rdv + etapes.offre + etapes.compromis + etapes.gagne,
     tauxReussite: terminees ? Math.round((etapes.gagne / terminees) * 100) : null,
   }
 }

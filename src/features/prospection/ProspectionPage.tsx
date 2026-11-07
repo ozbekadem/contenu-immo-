@@ -1,4 +1,5 @@
 import { useLiveQuery } from 'dexie-react-hooks'
+import { useActivite } from '@/app/activite'
 import { Briefcase, DoorOpen, List, LocateFixed, Route, Search, Signpost, X, type LucideIcon } from 'lucide-react'
 import { useDeferredValue, useMemo, useState } from 'react'
 import { Link, useSearchParams } from 'react-router'
@@ -37,6 +38,8 @@ const FILTRES: { code: Filtre; libelle: string }[] = [
 ]
 
 const ETAPES: StatutPiste[] = ['a_contacter', 'en_cours', 'rdv', 'gagne']
+/** Avec les achats : l'étape « Offre » regroupe offres et compromis. */
+const ETAPES_ACHAT: StatutPiste[] = ['a_contacter', 'en_cours', 'rdv', 'offre', 'gagne']
 
 function filtrer(liste: PisteVue[], f: Filtre, maintenant: Date): PisteVue[] {
   const actives = liste.filter(({ piste }) => !piste.archivedAt && piste.statut !== 'perdu' && piste.statut !== 'gagne')
@@ -100,7 +103,10 @@ export default function ProspectionPage() {
 
   const categorie = onglet === 'portefeuille' ? null : onglet
   const deCategorie = useMemo(() => (liste ?? []).filter((v) => v.piste.categorie === categorie), [liste, categorie])
-  const compteParEtape = (s: StatutPiste) => deCategorie.filter((v) => v.piste.statut === s && !v.piste.archivedAt).length
+  const activite = useActivite()
+  const etapes = activite === 'agence' && onglet === 'annonce' ? ETAPES : ETAPES_ACHAT
+  const compteParEtape = (s: StatutPiste) =>
+    deCategorie.filter((v) => (v.piste.statut === s || (s === 'offre' && v.piste.statut === 'compromis')) && !v.piste.archivedAt).length
 
   const resultats = useMemo(() => {
     let r = filtrer(deCategorie, filtre, maintenant)
@@ -167,13 +173,13 @@ export default function ProspectionPage() {
       ) : (
         <>
           {/* Entonnoir : Repéré → Appelé → RDV/Visite → Signé (masqué en tournée : la carte remonte) */}
-          <div className={`mt-4 ${vueTournee ? 'hidden' : 'grid'} grid-cols-4 gap-1.5 rounded-3xl bg-surface p-2 shadow-carte dark:shadow-none dark:ring-1 dark:ring-bord`}>
-            {ETAPES.map((s, i) => (
+          <div className={`mt-4 ${vueTournee ? 'hidden' : 'grid'} ${etapes.length > 4 ? 'grid-cols-5' : 'grid-cols-4'} gap-1.5 rounded-3xl bg-surface p-2 shadow-carte dark:shadow-none dark:ring-1 dark:ring-bord`}>
+            {etapes.map((s, i) => (
               <div key={s} className={`rounded-2xl px-1 py-2 text-center ${s === 'gagne' ? 'bg-suivi-vert/12 text-suivi-vert' : 'bg-surface-2'}`}>
                 <div className="text-xl font-extrabold tabular-nums">{compteParEtape(s)}</div>
                 <div className="text-[10.5px] font-bold leading-tight">
                   {i > 0 && <span className="text-doux">→ </span>}
-                  {s === 'rdv' ? (onglet === 'maison_vide' ? 'Visite' : 'RDV') : LIBELLE_STATUT[s]}
+                  {s === 'rdv' ? (onglet === 'maison_vide' || activite === 'marchand' ? 'Visite' : 'RDV') : s === 'offre' ? 'Offre' : LIBELLE_STATUT[s]}
                 </div>
               </div>
             ))}

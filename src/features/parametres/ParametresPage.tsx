@@ -7,6 +7,7 @@ import { PageHeader } from '@/components/ui/PageHeader'
 import { PARAMETRES_DEFAUT, SEUILS_ROUGE_DEFAUT } from '@/domain/relance'
 import { CATEGORIES } from '@/domain/categories'
 import { CarteGoogle } from '@/features/agenda/composants'
+import { Activite } from './Activite'
 import { Agence } from './Agence'
 import { Notifications } from './Notifications'
 import { Verrouillage } from './Verrouillage'
@@ -33,6 +34,7 @@ export default function ParametresPage() {
       <div className="flex flex-col gap-4">
         <CompteSync />
         <Agence />
+        <Activite />
         <CarteGoogle />
         <Notifications />
         <Verrouillage />

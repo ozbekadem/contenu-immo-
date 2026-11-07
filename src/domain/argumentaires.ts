@@ -11,6 +11,9 @@ export type CasArgumentaire =
   | 'maison_vide'
   | 'recommandation'
   | 'ancien_client'
+  | 'achat_direct'
+  | 'achat_maison_vide'
+  | 'succession'
   | 'general'
 
 export interface Objection {
@@ -49,6 +52,20 @@ const DEJA_AGENCE: Objection = {
   objection: 'J’ai déjà une agence.',
   reponse:
     'Très bien. Jusqu’à quand court votre mandat ? Si le bien n’est pas vendu à cette date, je serais heureux de vous présenter notre façon de travailler. (Notez la fin du mandat en date clé.)',
+}
+const PRIX_TROP_BAS: Objection = {
+  objection: 'Vous allez me proposer un prix trop bas.',
+  reponse:
+    'Je comprends la crainte. Mon prix tient compte des travaux à faire, que je prends entièrement à ma charge : vous n’avez ni frais d’agence, ni visites, ni réparations, ni risque que l’acheteur n’obtienne pas son crédit. Je vous montre le détail de mon calcul, vous comparez en toute liberté.',
+}
+const ATTENDRE_ACHETEUR: Objection = {
+  objection: 'Je préfère attendre un acheteur qui paiera plus.',
+  reponse:
+    'C’est possible, et c’est votre choix. Pendant ce temps, le bien coûte (précompte, assurance, énergie, taxe sur les immeubles inoccupés) et se dégrade. Je peux vous laisser une offre écrite valable quelques jours : vous gardez une solution sûre en main.',
+}
+const DEJA_AGENCE_ACHAT: Objection = {
+  objection: 'Le bien est déjà en vente chez une agence.',
+  reponse: 'Pas de souci : je peux faire une offre par l’agence. Jusqu’à quand court votre mandat ? Si rien ne s’est fait d’ici là, je vous rappelle. (Notez la fin du mandat en date clé.)',
 }
 const PAS_INTERESSE: Objection = {
   objection: 'Pas intéressé.',
@@ -148,6 +165,42 @@ export const ARGUMENTAIRES_DEFAUT: Record<CasArgumentaire, Argumentaire> = {
     ],
     objections: [PAS_INTERESSE],
   },
+  achat_direct: {
+    cas: 'achat_direct',
+    titre: 'Achat direct (marchand de biens)',
+    accroche: 'Bonjour, je m’appelle [prénom], [agence]. J’achète des maisons dans la région pour les rénover, et votre bien [adresse] m’intéresse.',
+    points: [
+      'Le bien est-il toujours disponible ? Depuis quand est-il en vente ?',
+      'Quel est son état : toiture, électricité, chauffage, humidité ? Y a-t-il des travaux à prévoir ?',
+      'Ce que j’apporte : achat en direct, sans commission, sans visites à répétition, dans l’état, avec un délai court jusqu’à l’acte.',
+      'Proposer une visite rapide, puis une offre écrite chiffrée dans les jours qui suivent.',
+    ],
+    objections: [PRIX_TROP_BAS, ATTENDRE_ACHETEUR, DEJA_AGENCE_ACHAT, PAS_PRESSE],
+  },
+  achat_maison_vide: {
+    cas: 'achat_maison_vide',
+    titre: 'Maison vide : proposition d’achat',
+    accroche: 'Bonjour, je m’appelle [prénom], [agence]. Je vous appelle au sujet de votre maison [adresse], qui semble inoccupée : j’achète des maisons à rénover dans le quartier.',
+    points: [
+      'Rester délicat : succession, maison de repos, séparation sont fréquents.',
+      'Avez-vous un projet pour ce bien : vendre, louer, rénover ?',
+      'Une maison vide coûte (assurance, précompte, taxe sur les immeubles inoccupés) et se dégrade chaque hiver.',
+      'Proposer de racheter en l’état, sans travaux ni visites, avec un délai adapté (succession, déménagement).',
+    ],
+    objections: [PRIX_TROP_BAS, ATTENDRE_ACHETEUR, PAS_PRESSE, PAS_INTERESSE],
+  },
+  succession: {
+    cas: 'succession',
+    titre: 'Succession',
+    accroche: 'Bonjour, je m’appelle [prénom], [agence]. Je me permets de vous contacter au sujet du bien [adresse]. Je sais que ce n’est sans doute pas un moment facile.',
+    points: [
+      'Présenter ses condoléances si c’est le cas, sans insister.',
+      'Les héritiers sont-ils d’accord pour vendre ? Qui s’occupe du dossier (notaire) ?',
+      'Délai : la déclaration de succession et ses droits à payer, souvent dans les mois qui viennent.',
+      'Proposer un rachat en l’état, vidage compris si besoin, au rythme des héritiers.',
+    ],
+    objections: [PAS_PRESSE, PRIX_TROP_BAS, PAS_INTERESSE],
+  },
   general: {
     cas: 'general',
     titre: 'Appel de suivi',
@@ -166,6 +219,9 @@ export const ORDRE_CAS: CasArgumentaire[] = [
   'maison_vide',
   'recommandation',
   'ancien_client',
+  'achat_direct',
+  'achat_maison_vide',
+  'succession',
   'general',
 ]
 
@@ -177,11 +233,18 @@ export interface SituationAppel {
   /** Alerte de la veille (« Annonce retirée », « Prix baissé… »). */
   alerte?: string | null
   statutsContact?: string[]
+  /** Objectif de la piste : mandat (par défaut) ou achat par l'agence. */
+  objectif?: 'mandat' | 'achat'
 }
 
 /** Argumentaire le plus adapté à la situation (le plus urgent d'abord : retrait, baisse de prix…). */
 export function casPour(s: SituationAppel, maintenant: Date): CasArgumentaire {
   const alerte = s.alerte?.toLowerCase() ?? ''
+  if (s.objectif === 'achat' && s.categorie !== 'portefeuille') {
+    if (s.source === 'succession' || s.source === 'notaire') return 'succession'
+    return s.categorie === 'maison_vide' ? 'achat_maison_vide' : 'achat_direct'
+  }
+  if (s.source === 'succession') return 'succession'
   if (/retir|dispar/.test(alerte)) return 'annonce_retiree'
   if (/agence/.test(alerte) || s.source === 'autre_agence') return 'autre_agence'
   if (/baiss/.test(alerte) || (s.categorie === 'annonce' && baisseRecente(s.historiquePrix, maintenant, 60))) return 'baisse_prix'

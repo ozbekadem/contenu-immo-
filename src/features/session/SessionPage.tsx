@@ -1,4 +1,5 @@
 import { useLiveQuery } from 'dexie-react-hooks'
+import { objectifPiste, useActivite } from '@/app/activite'
 import { ChevronLeft, ChevronRight, CircleCheck, History, Mail, MessageCircle, Pencil, Phone, SkipForward, Sparkles, X } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router'
@@ -69,6 +70,7 @@ function Historique({ s }: { s: Suivable }) {
 function CarteArgumentaire({ s, maintenant }: { s: Suivable; maintenant: Date }) {
   const { profil } = useAuth()
   const agence = useNomAgence()
+  const activite = useActivite()
   const noms = { prenom: profil?.nom?.split(' ')[0] ?? null, agence }
   const cas = casPour(
     {
@@ -77,6 +79,7 @@ function CarteArgumentaire({ s, maintenant }: { s: Suivable; maintenant: Date })
       historiquePrix: s.historiquePrix,
       alerte: s.alerte,
       statutsContact: s.contact?.statuts,
+      objectif: s.piste ? objectifPiste(s.piste, activite) : undefined,
     },
     maintenant,
   )

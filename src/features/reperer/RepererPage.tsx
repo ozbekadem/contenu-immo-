@@ -1,4 +1,6 @@
 import { AlertTriangle, Camera, Check, ImagePlus, LocateFixed, Loader2, MapPin, X } from 'lucide-react'
+import { useActivite } from '@/app/activite'
+import { objectifParDefaut, type Objectif } from '@/domain/achat'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router'
 import { classesBouton } from '@/components/ui/Bouton'
@@ -25,10 +27,16 @@ const SOURCES: Record<CategoriePiste, { code: SourceContact; libelle: string }[]
     { code: 'autre_site', libelle: 'Autre site' },
     { code: 'autre_agence', libelle: 'Autre agence' },
     { code: 'recommandation', libelle: 'Recommandation' },
+    { code: 'biddit', libelle: 'Biddit (vente publique)' },
+    { code: 'notaire', libelle: 'Notaire' },
+    { code: 'apporteur', libelle: 'Apporteur' },
   ],
   maison_vide: [
     { code: 'reperage', libelle: 'Repérage rue' },
     { code: 'recommandation', libelle: 'Voisin / recommandation' },
+    { code: 'succession', libelle: 'Succession' },
+    { code: 'notaire', libelle: 'Notaire' },
+    { code: 'apporteur', libelle: 'Apporteur' },
     { code: 'autre', libelle: 'Autre' },
   ],
 }
@@ -49,6 +57,9 @@ export default function RepererPage() {
   const navigate = useNavigate()
   const [categorie, setCategorie] = useState<CategoriePiste>('annonce')
   const [source, setSource] = useState<SourceContact | null>('affiche')
+  const activite = useActivite()
+  const [objectifChoisi, setObjectifChoisi] = useState<Objectif | null>(null)
+  const objectif = objectifChoisi ?? objectifParDefaut(categorie, activite)
   const [photos, setPhotos] = useState<PhotoEnCours[]>([])
   const [telephone, setTelephone] = useState('')
   const [nom, setNom] = useState('')
@@ -137,6 +148,7 @@ export default function RepererPage() {
 
   const changerCategorie = (c: CategoriePiste) => {
     setCategorie(c)
+    setObjectifChoisi(null)
     setSource(SOURCES[c][0]!.code)
   }
 
@@ -150,6 +162,7 @@ export default function RepererPage() {
       const saisie: SaisieTerrain = {
         categorie,
         source,
+        objectif,
         telephone: contactExistant ? '' : telephone,
         nomProprietaire: contactExistant ? '' : nom,
         adresse: adresseRemplie(adresse) ? adresse : null,
@@ -244,6 +257,28 @@ export default function RepererPage() {
           </Puce>
         ))}
       </div>
+
+      {activite === 'les_deux' && (
+        <div className="grid grid-cols-2 gap-1 rounded-2xl bg-surface-2 p-1" role="radiogroup" aria-label="Objectif">
+          {(
+            [
+              ['mandat', 'Obtenir le mandat'],
+              ['achat', 'Acheter le bien'],
+            ] as const
+          ).map(([code, libelle]) => (
+            <button
+              key={code}
+              type="button"
+              role="radio"
+              aria-checked={objectif === code}
+              onClick={() => setObjectifChoisi(code)}
+              className={`h-10 rounded-xl text-[13px] font-bold transition ${objectif === code ? 'bg-surface text-primaire-texte shadow-carte' : 'text-doux'}`}
+            >
+              {libelle}
+            </button>
+          ))}
+        </div>
+      )}
 
       {/* Téléphone */}
       <Card>

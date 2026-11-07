@@ -1,4 +1,5 @@
 import { useLiveQuery } from 'dexie-react-hooks'
+import { objectifPiste, useActivite } from '@/app/activite'
 import { CalendarClock, FileText, Mail, MessageCircle, MessageSquare, NotebookPen, Phone, type LucideIcon } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { RelanceChoix } from '@/components/RelanceChoix'
@@ -125,7 +126,8 @@ function SaisieResultat({
   numero: string | null
   fermer: () => void
 }) {
-  const choix = resultatsPour(canal, piste?.categorie ?? 'portefeuille')
+  const activite = useActivite()
+  const choix = resultatsPour(canal, piste?.categorie ?? 'portefeuille', piste ? objectifPiste(piste, activite) : undefined)
   const suivi = piste ?? contact!
   const [resultat, setResultat] = useState<CodeResultat | null>(canal === 'note' ? 'note' : null)
   const [commentaire, setCommentaire] = useState('')

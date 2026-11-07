@@ -6,7 +6,7 @@ import { Avatar } from '@/components/ui/Avatar'
 import { Card, EnteteSection } from '@/components/ui/Card'
 import type { Contact } from '@/data/types'
 import { LIBELLE_STATUT, TYPES_DATE_CLE } from '@/domain/prospection'
-import { ETAPES_ENTONNOIR, messageAnniversaire, quandLisible, type Anniversaire, type Entonnoir as DonneesEntonnoir, type Maturite } from '@/domain/quotidien'
+import { ETAPES_ACHAT, ETAPES_ENTONNOIR, messageAnniversaire, quandLisible, type Anniversaire, type Entonnoir as DonneesEntonnoir, type Maturite } from '@/domain/quotidien'
 import { lancerAction } from '@/features/actions/actions'
 import { initiales, nomAffiche } from '@/features/contacts/affichage'
 import { BoutonAppel, Visuel } from './Sections'
@@ -16,24 +16,27 @@ const TEINTE_ETAPE: Record<string, string> = {
   a_contacter: 'bg-primaire/35',
   en_cours: 'bg-primaire/55',
   rdv: 'bg-primaire/80',
+  offre: 'bg-primaire/90',
+  compromis: 'bg-primaire',
   gagne: 'bg-suivi-vert',
 }
 
 /** Entonnoir de prospection : combien de pistes à chaque étape, et le taux de réussite. */
 export function Entonnoir({ e }: { e: DonneesEntonnoir }) {
   if (e.total === 0 && e.etapes.perdu === 0) return null
-  const max = Math.max(...ETAPES_ENTONNOIR.map((s) => e.etapes[s]), 1)
+  const etapes = ETAPES_ENTONNOIR.filter((s) => !ETAPES_ACHAT.includes(s) || e.etapes[s] > 0)
+  const max = Math.max(...etapes.map((s) => e.etapes[s]), 1)
   return (
     <Card className="overflow-hidden !p-0">
       <EnteteSection icone={Filter} titre="Entonnoir de prospection" lien="/prospection" />
       <div className="p-4">
         <ul className="flex flex-col gap-2">
-          {ETAPES_ENTONNOIR.map((s) => (
+          {etapes.map((s) => (
             <li key={s} className="flex items-center gap-3">
               <span className="w-24 shrink-0 text-sm font-semibold">{LIBELLE_STATUT[s]}</span>
               <span className="h-7 flex-1">
                 <span
-                  className={`flex h-full min-w-8 items-center justify-end rounded-lg px-2 text-sm font-extrabold ${TEINTE_ETAPE[s]} ${s === 'gagne' || s === 'rdv' ? 'text-white' : 'text-texte'}`}
+                  className={`flex h-full min-w-8 items-center justify-end rounded-lg px-2 text-sm font-extrabold ${TEINTE_ETAPE[s]} ${s === 'gagne' || s === 'rdv' || s === 'offre' || s === 'compromis' ? 'text-white' : 'text-texte'}`}
                   style={{ width: `${Math.max((e.etapes[s] / max) * 100, 8)}%` }}
                 >
                   {e.etapes[s]}

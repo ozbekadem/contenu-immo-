@@ -9,6 +9,7 @@ import { Avatar } from '@/components/ui/Avatar'
 import { classesBouton } from '@/components/ui/Bouton'
 import { Card, SectionTitle } from '@/components/ui/Card'
 import { Champ, Puce, Saisie, Zone } from '@/components/ui/Champ'
+import { SaisieNombre } from '@/components/ui/SaisieNombre'
 import { confirmer } from '@/components/ui/Confirmation'
 import { Feuille } from '@/components/ui/Feuille'
 import { db } from '@/data/db'
@@ -17,6 +18,7 @@ import { photos as depotPhotos } from '@/data/repositories/photos'
 import { pistes } from '@/data/repositories/pistes'
 import { TYPES_BIEN, type Adresse, type Bien, type TypeBien } from '@/data/types'
 import { cpPourLocalite, localitesPourCp } from '@/domain/adresse'
+import { CLASSES_PEB, ETATS_BIEN } from '@/domain/achat'
 import type { CategoriePiste } from '@/domain/prospection'
 import { initiales } from '@/features/contacts/affichage'
 import { liensItineraire } from '@/features/prospection/affichage'
@@ -27,6 +29,19 @@ import { usePistes } from '@/features/prospection/usePistes'
 import { COULEUR_ETAT, construireVues, etatBien, LIBELLE_ETAT, nomProprietaire } from './useBiens'
 
 const Carte = lazy(() => import('@/components/Carte'))
+
+/** Couleurs officielles des classes PEB (vert → rouge). */
+const COULEUR_PEB: Record<string, string> = {
+  'A++': '#0a7d3e',
+  'A+': '#11923f',
+  A: '#2ba84a',
+  B: '#8cc63f',
+  C: '#d7df23',
+  D: '#fdb913',
+  E: '#f7941d',
+  F: '#f15a24',
+  G: '#d7191c',
+}
 
 const ADRESSE_VIDE: Adresse = { rue: '', numero: '', boite: '', cp: '', ville: '' }
 
@@ -78,6 +93,9 @@ function ModifierAdresse({ bien, fermer }: { bien: Bien; fermer: () => void }) {
 function Caracteristiques({ bien }: { bien: Bien }) {
   const [notes, setNotes] = useState(bien.notes)
   useEffect(() => setNotes(bien.notes), [bien.notes])
+  const [location, setLocation] = useState(false)
+  const louable = location || bien.type === 'immeuble' || !!bien.loyersMensuels
+  const terrainCadastre = bien.infosPubliques?.parcelle?.surface ?? null
   const choisir = <K extends 'type' | 'facades' | 'chambres'>(champ: K, valeur: Bien[K]) =>
     biens.modifier(bien.id, { [champ]: bien[champ] === valeur ? null : valeur } as Partial<Bien>)
   return (
@@ -115,6 +133,75 @@ function Caracteristiques({ bien }: { bien: Bien }) {
           </div>
         </div>
       </div>
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <p className="mb-2 text-[13px] font-semibold text-doux">Surface habitable</p>
+          <SaisieNombre label="Surface habitable" suffixe="m²" valeur={bien.surfaceHabitable} enregistrer={(n) => biens.modifier(bien.id, { surfaceHabitable: n })} />
+        </div>
+        <div>
+          <p className="mb-2 text-[13px] font-semibold text-doux">Terrain</p>
+          <SaisieNombre
+            label="Surface du terrain"
+            suffixe="m²"
+            valeur={bien.surfaceTerrain}
+            placeholder={terrainCadastre ? `${terrainCadastre} (cadastre)` : undefined}
+            enregistrer={(n) => biens.modifier(bien.id, { surfaceTerrain: n })}
+          />
+        </div>
+      </div>
+      <div>
+        <p className="mb-2 text-[13px] font-semibold text-doux">État</p>
+        <div className="flex flex-wrap gap-2" role="group" aria-label="État du bien">
+          {ETATS_BIEN.map((e) => (
+            <Puce key={e.code} actif={bien.etat === e.code} onClick={() => biens.modifier(bien.id, { etat: bien.etat === e.code ? null : e.code })}>
+              {e.libelle}
+            </Puce>
+          ))}
+        </div>
+      </div>
+      <div>
+        <p className="mb-2 text-[13px] font-semibold text-doux">PEB</p>
+        <div className="sans-barre -mx-1 flex gap-1.5 overflow-x-auto px-1" role="group" aria-label="Classe PEB">
+          {CLASSES_PEB.map((c) => (
+            <button
+              key={c}
+              type="button"
+              aria-pressed={bien.peb === c}
+              onClick={() => biens.modifier(bien.id, { peb: bien.peb === c ? null : c })}
+              className={`presse h-10 min-w-10 shrink-0 rounded-xl px-2 text-sm font-extrabold transition ${bien.peb === c ? 'text-white shadow-carte' : 'bg-surface-2 text-doux'}`}
+              style={bien.peb === c ? { background: COULEUR_PEB[c], color: c === 'C' || c === 'D' ? '#1f2937' : '#fff' } : undefined}
+            >
+              {c}
+            </button>
+          ))}
+        </div>
+      </div>
+      <div>
+        <p className="mb-2 text-[13px] font-semibold text-doux">Revenu cadastral (non indexé)</p>
+        <SaisieNombre label="Revenu cadastral" suffixe="€" valeur={bien.revenuCadastral} enregistrer={(n) => biens.modifier(bien.id, { revenuCadastral: n })} />
+      </div>
+      {louable ? (
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <p className="mb-2 text-[13px] font-semibold text-doux">Loyers par mois</p>
+            <SaisieNombre label="Loyers par mois" suffixe="€" valeur={bien.loyersMensuels} enregistrer={(n) => biens.modifier(bien.id, { loyersMensuels: n })} />
+          </div>
+          <div>
+            <p className="mb-2 text-[13px] font-semibold text-doux">Charges par an</p>
+            <SaisieNombre
+              label="Charges par an (précompte, assurance, entretien)"
+              suffixe="€"
+              valeur={bien.chargesAnnuelles}
+              enregistrer={(n) => biens.modifier(bien.id, { chargesAnnuelles: n })}
+            />
+          </div>
+          <p className="col-span-2 -mt-1 text-xs text-doux">Loyers actuels ou attendus ; charges : précompte, assurance, entretien, gestion, vide locatif.</p>
+        </div>
+      ) : (
+        <button type="button" onClick={() => setLocation(true)} className="self-start text-sm font-bold text-primaire-texte">
+          + Loyers (bien à louer)
+        </button>
+      )}
       <Champ libelle="Notes sur le bien">
         <Zone rows={3} value={notes} placeholder="État, travaux, jardin, garage…" onChange={(e) => setNotes(e.target.value)} onBlur={() => notes !== bien.notes && biens.modifier(bien.id, { notes })} />
       </Champ>

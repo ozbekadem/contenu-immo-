@@ -2,6 +2,7 @@ import { frequenceVeille, prochaineVeille, type CategoriePiste } from '@/domain/
 import { normaliserTelephone } from '@/domain/telephone'
 import { db as dbDefaut, type LinkimmoDB } from '../db'
 import { deriverPiste } from '../derives'
+import type { Objectif } from '@/domain/achat'
 import type { Adresse, Piste, SourceContact, TypeBien } from '../types'
 import { RepositoryBase, type Donnees } from './base'
 import { BienRepository, bienVide } from './biens'
@@ -26,6 +27,8 @@ export interface SaisieTerrain {
   indices: string[]
   notes: string
   photos: PhotoCompressee[]
+  /** Mandat ou achat (absent : selon la catégorie et l'activité). */
+  objectif?: Objectif
   /** Bien déjà connu (doublon confirmé par l'utilisateur) : on ajoute une piste sur ce bien. */
   bienExistantId?: string | null
   /** Contact déjà connu (même téléphone) : on le relie au lieu d'en créer un autre. */
@@ -154,6 +157,7 @@ export class PisteRepository extends RepositoryBase<Piste> {
       const piste = await this.creer(
         {
           ...pisteVide(s.categorie, bienId),
+          ...(s.objectif ? { objectif: s.objectif } : {}),
           contactId,
           source: s.source,
           sourceUrl: s.sourceUrl,

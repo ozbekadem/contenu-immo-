@@ -41,30 +41,33 @@ import { pistes } from '@/data/repositories/pistes'
 import { SOURCES_CONTACT, type Contact, type Piste } from '@/data/types'
 import { ecartJours } from '@/domain/dates'
 import { detecterSource } from '@/domain/liens'
-import { INDICES_INOCCUPATION, LIBELLE_STATUT, prixLisible, scoreInoccupation, type StatutPiste } from '@/domain/prospection'
+import type { Objectif } from '@/domain/achat'
+import { etapesPour, INDICES_INOCCUPATION, libelleEtape, prixLisible, scoreInoccupation } from '@/domain/prospection'
 import { libelleDernierContact } from '@/domain/relance'
 import { RESULTATS } from '@/domain/resultats'
 import { formaterTelephone } from '@/domain/telephone'
 import { noterEchange, ouvrirMenuContact } from '@/features/actions/actions'
 import { initiales, nomAffiche } from '@/features/contacts/affichage'
+import { objectifPiste, useActivite } from '@/app/activite'
+import { Apporteur, Calculette, ChoixObjectif, Offres } from './Achat'
 import { adresseCourte, couleurPiste, liensItineraire } from './affichage'
 
-const ETAPES: StatutPiste[] = ['a_contacter', 'en_cours', 'rdv', 'gagne']
-
-function Entonnoir({ piste }: { piste: Piste }) {
+function Entonnoir({ piste, objectif }: { piste: Piste; objectif: Objectif }) {
   if (piste.statut === 'perdu') return <p className="rounded-2xl bg-surface-2 p-3 text-center text-sm font-bold text-doux">Piste abandonnée</p>
-  const rang = ETAPES.indexOf(piste.statut)
+  const etapes = etapesPour(objectif)
+  // Une piste « mandat » passée par une offre (objectif changé ensuite) reste à l'étape RDV.
+  const rang = etapes.includes(piste.statut) ? etapes.indexOf(piste.statut) : etapes.indexOf('rdv')
   return (
-    <ol className="grid grid-cols-4 gap-1" aria-label="Étape de la piste">
-      {ETAPES.map((s, i) => (
+    <ol className={`grid gap-1 ${etapes.length > 4 ? 'grid-cols-3' : 'grid-cols-4'}`} aria-label="Étape de la piste">
+      {etapes.map((s, i) => (
         <li
           key={s}
           aria-current={i === rang ? 'step' : undefined}
-          className={`rounded-xl px-1 py-2 text-center text-[11px] font-bold leading-tight ${
+          className={`rounded-xl px-0.5 py-2 text-center font-bold leading-tight text-[11px] ${
             i < rang ? 'bg-primaire-doux text-primaire-texte' : i === rang ? (s === 'gagne' ? 'bg-suivi-vert text-white' : 'degrade text-white') : 'bg-surface-2 text-doux'
           }`}
         >
-          {s === 'rdv' ? (piste.categorie === 'maison_vide' ? 'Visite' : 'RDV') : LIBELLE_STATUT[s]}
+          {libelleEtape(s, objectif)}
         </li>
       ))}
     </ol>
@@ -291,6 +294,7 @@ export default function PistePage() {
   const contact = useLiveQuery(async () => (piste?.contactId ? ((await contacts.get(piste.contactId)) ?? null) : null), [piste?.contactId])
   const listePhotos = useLiveQuery(() => (piste ? depotPhotos.duBien(piste.bienId) : Promise.resolve([])), [piste?.bienId]) ?? []
   const [planifier, setPlanifier] = useState(false)
+  const activite = useActivite()
 
   if (piste === null || bien === undefined || contact === undefined) return null
   if (!piste || !bien)
@@ -304,6 +308,7 @@ export default function PistePage() {
     )
 
   const maintenant = new Date()
+  const objectif = objectifPiste(piste, activite)
   const couleur = couleurPiste(piste, maintenant)
   const itineraire = liensItineraire(bien)
   const joignable = contact && !contact.nePasContacter && (contact._telNorm.length > 0 || contact.emails.length > 0)
@@ -349,8 +354,13 @@ export default function PistePage() {
             <AlertTriangle className="size-4" aria-hidden /> {piste.alerte} — à appeler aujourd’hui
           </p>
         )}
-        <div className="mt-4">
-          <Entonnoir piste={piste} />
+        {activite === 'les_deux' && (
+          <div className="mt-4">
+            <ChoixObjectif piste={piste} objectif={objectif} />
+          </div>
+        )}
+        <div className="mt-3">
+          <Entonnoir piste={piste} objectif={objectif} />
         </div>
 
         <div className="mt-4 grid grid-cols-3 gap-2">
@@ -400,6 +410,9 @@ export default function PistePage() {
       <ChoixCollaborateur valeur={piste.collaborateurId} changer={(id) => void pistes.modifier(piste.id, { collaborateurId: id })} parDefaut={piste.createdBy} />
       <Proprietaire piste={piste} contact={contact} />
       {piste.categorie === 'annonce' && <Annonce piste={piste} maintenant={maintenant} />}
+      {objectif === 'achat' && <Offres piste={piste} bien={bien} />}
+      {objectif === 'achat' && <Calculette piste={piste} bien={bien} />}
+      {(piste.source === 'apporteur' || piste.apporteur) && <Apporteur piste={piste} />}
       <PrixMarche bien={bien} prix={piste.categorie === 'annonce' ? piste.prix : null} />
       <InfosPubliques bien={bien} />
       {piste.categorie === 'maison_vide' && <Indices piste={piste} />}
@@ -410,7 +423,7 @@ export default function PistePage() {
           <p className="whitespace-pre-wrap text-sm">{piste.notes}</p>
         </Card>
       )}
-      <RendezVousFiche pre={{ contactId: piste.contactId, pisteId: piste.id, bienId: piste.bienId, type: piste.categorie === 'maison_vide' ? 'visite' : 'rdv' }} />
+      <RendezVousFiche pre={{ contactId: piste.contactId, pisteId: piste.id, bienId: piste.bienId, type: objectif === 'achat' ? 'visite' : 'rdv' }} />
       <HistoriquePiste piste={piste} />
       <PiecesJointes entite="pistes" entiteId={piste.id} />
 
