@@ -1,5 +1,5 @@
 import { useLiveQuery } from 'dexie-react-hooks'
-import { Briefcase, DoorOpen, LocateFixed, Search, Signpost, X, type LucideIcon } from 'lucide-react'
+import { Briefcase, DoorOpen, List, LocateFixed, Route, Search, Signpost, X, type LucideIcon } from 'lucide-react'
 import { useDeferredValue, useMemo, useState } from 'react'
 import { Link, useSearchParams } from 'react-router'
 import { classesBouton } from '@/components/ui/Bouton'
@@ -15,6 +15,7 @@ import { ContactLigne } from '@/features/contacts/ContactLigne'
 import { useContactsColores } from '@/features/contacts/useContacts'
 import { positionActuelle, type Position } from '@/services/geocodage'
 import { PisteLigne } from './PisteLigne'
+import { Tournee } from './Tournee'
 import { usePistes, type PisteVue } from './usePistes'
 
 type Onglet = CategoriePiste | 'portefeuille'
@@ -86,6 +87,9 @@ function Portefeuille() {
 export default function ProspectionPage() {
   const [params, setParams] = useSearchParams()
   const onglet = (params.get('categorie') as Onglet | null) ?? 'annonce'
+  const vueTournee = params.get('vue') === 'tournee'
+  const changerParams = (categorie: Onglet, tournee: boolean) =>
+    setParams({ ...(categorie === 'annonce' ? {} : { categorie }), ...(tournee ? { vue: 'tournee' } : {}) }, { replace: true })
   const [filtre, setFiltre] = useState<Filtre>('actives')
   const [tri, setTri] = useState<Tri>('relance')
   const [position, setPosition] = useState<Position | null>(null)
@@ -145,7 +149,7 @@ export default function ProspectionPage() {
               type="button"
               role="tab"
               aria-selected={actif}
-              onClick={() => setParams(code === 'annonce' ? {} : { categorie: code }, { replace: true })}
+              onClick={() => changerParams(code, vueTournee)}
               className={`presse flex flex-col items-center gap-1 rounded-2xl px-1 py-3 text-xs font-extrabold transition ${actif ? `${couleur} text-white shadow-carte` : 'bg-surface text-doux ring-1 ring-bord'}`}
             >
               <Icone className="size-5" aria-hidden />
@@ -162,8 +166,8 @@ export default function ProspectionPage() {
         </div>
       ) : (
         <>
-          {/* Entonnoir : Repéré → Appelé → RDV/Visite → Signé */}
-          <div className="mt-4 grid grid-cols-4 gap-1.5 rounded-3xl bg-surface p-2 shadow-carte dark:shadow-none dark:ring-1 dark:ring-bord">
+          {/* Entonnoir : Repéré → Appelé → RDV/Visite → Signé (masqué en tournée : la carte remonte) */}
+          <div className={`mt-4 ${vueTournee ? 'hidden' : 'grid'} grid-cols-4 gap-1.5 rounded-3xl bg-surface p-2 shadow-carte dark:shadow-none dark:ring-1 dark:ring-bord`}>
             {ETAPES.map((s, i) => (
               <div key={s} className={`rounded-2xl px-1 py-2 text-center ${s === 'gagne' ? 'bg-suivi-vert/12 text-suivi-vert' : 'bg-surface-2'}`}>
                 <div className="text-xl font-extrabold tabular-nums">{compteParEtape(s)}</div>
@@ -175,7 +179,25 @@ export default function ProspectionPage() {
             ))}
           </div>
 
-          <div className="relative mt-4">
+          <div className="mt-4 grid grid-cols-2 gap-1 rounded-2xl bg-surface-2 p-1" role="tablist" aria-label="Affichage">
+            {[
+              { tournee: false, libelle: 'Liste', icone: List },
+              { tournee: true, libelle: 'Tournée', icone: Route },
+            ].map(({ tournee, libelle, icone: Icone }) => (
+              <button
+                key={libelle}
+                type="button"
+                role="tab"
+                aria-selected={vueTournee === tournee}
+                onClick={() => changerParams(onglet, tournee)}
+                className={`flex h-11 items-center justify-center gap-2 rounded-xl text-sm font-bold transition ${vueTournee === tournee ? 'bg-surface text-primaire-texte shadow-carte' : 'text-doux'}`}
+              >
+                <Icone className="size-4" aria-hidden /> {libelle}
+              </button>
+            ))}
+          </div>
+
+          <div className="relative mt-3">
             <Search className="pointer-events-none absolute left-4 top-1/2 size-5 -translate-y-1/2 text-doux" aria-hidden />
             <input
               type="search"
@@ -198,41 +220,47 @@ export default function ProspectionPage() {
               </Puce>
             ))}
           </div>
-          <div className="mt-2 flex items-center justify-between gap-2">
-            <select
-              value={tri}
-              onChange={(e) => (e.target.value === 'distance' ? void autourDeMoi() : setTri(e.target.value as Tri))}
-              aria-label="Trier par"
-              className="h-9 rounded-full bg-surface px-3 text-[13px] font-bold ring-1 ring-bord"
-            >
-              <option value="relance">Prochaine relance</option>
-              <option value="recent">Repérés récemment</option>
-              <option value="distance">Autour de moi</option>
-            </select>
-            <button type="button" onClick={autourDeMoi} className={`${classesBouton('fantome')} h-9 px-3 text-xs`}>
-              <LocateFixed className="size-4" aria-hidden /> Autour de moi
-            </button>
-          </div>
+          {!vueTournee && (
+            <div className="mt-2 flex items-center justify-between gap-2">
+              <select
+                value={tri}
+                onChange={(e) => (e.target.value === 'distance' ? void autourDeMoi() : setTri(e.target.value as Tri))}
+                aria-label="Trier par"
+                className="h-9 rounded-full bg-surface px-3 text-[13px] font-bold ring-1 ring-bord"
+              >
+                <option value="relance">Prochaine relance</option>
+                <option value="recent">Repérés récemment</option>
+                <option value="distance">Autour de moi</option>
+              </select>
+              <button type="button" onClick={autourDeMoi} className={`${classesBouton('fantome')} h-9 px-3 text-xs`}>
+                <LocateFixed className="size-4" aria-hidden /> Autour de moi
+              </button>
+            </div>
+          )}
           {erreurGps && <p className="mt-2 text-xs font-semibold text-suivi-rouge">{erreurGps}</p>}
 
-          <div className="mt-3">
-            {liste && resultats.length === 0 ? (
-              <EmptyState icone={onglet === 'annonce' ? Signpost : DoorOpen} titre={deCategorie.length === 0 ? 'Rien de repéré pour l’instant' : 'Aucune piste'}>
-                {deCategorie.length === 0 ? 'Touchez « Repérer » pour ajouter une affiche, une annonce ou une maison vide.' : 'Essayez un autre filtre.'}
-              </EmptyState>
-            ) : (
-              <div className="overflow-hidden rounded-3xl bg-surface py-1 shadow-carte dark:shadow-none dark:ring-1 dark:ring-bord [&>div:not(:last-child)]:border-b [&>div:not(:last-child)]:border-bord/60">
-                {resultats.map((v) => (
-                  <PisteLigne
-                    key={v.piste.id}
-                    vue={v}
-                    maintenant={maintenant}
-                    distance={tri === 'distance' && position && v.bien?.lat != null ? distanceMetres(position, { lat: v.bien.lat, lng: v.bien.lng! }) : null}
-                  />
-                ))}
-              </div>
-            )}
-          </div>
+          {vueTournee ? (
+            <Tournee toutes={liste ?? []} visibles={resultats} position={position} demanderPosition={autourDeMoi} />
+          ) : (
+            <div className="mt-3">
+              {liste && resultats.length === 0 ? (
+                <EmptyState icone={onglet === 'annonce' ? Signpost : DoorOpen} titre={deCategorie.length === 0 ? 'Rien de repéré pour l’instant' : 'Aucune piste'}>
+                  {deCategorie.length === 0 ? 'Touchez « Repérer » pour ajouter une affiche, une annonce ou une maison vide.' : 'Essayez un autre filtre.'}
+                </EmptyState>
+              ) : (
+                <div className="overflow-hidden rounded-3xl bg-surface py-1 shadow-carte dark:shadow-none dark:ring-1 dark:ring-bord [&>div:not(:last-child)]:border-b [&>div:not(:last-child)]:border-bord/60">
+                  {resultats.map((v) => (
+                    <PisteLigne
+                      key={v.piste.id}
+                      vue={v}
+                      maintenant={maintenant}
+                      distance={tri === 'distance' && position && v.bien?.lat != null ? distanceMetres(position, { lat: v.bien.lat, lng: v.bien.lng! }) : null}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
         </>
       )}
     </>
